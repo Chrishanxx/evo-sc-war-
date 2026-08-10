@@ -11,7 +11,10 @@ use Throwable;
 
 final class WarAdminOverlay
 {
+    private const MAPS_PER_PAGE = 8;
+
     private static array $openTabs = [];
+    private static array $mapPages = [];
 
     public static function show(Player $player, string $tab = 'overview', string $confirmAction = ''): void
     {
@@ -36,7 +39,13 @@ final class WarAdminOverlay
         $secondsLeft = $war && $war->end_at ? max(0, strtotime($war->end_at . ' UTC') - $clockTime) : 0;
         $timeLeft = floor($secondsLeft / 86400) . 'd ' . floor(($secondsLeft % 86400) / 3600) . 'h ' . floor(($secondsLeft % 3600) / 60) . 'm';
         $selectedUids = $maps->pluck('map_uid')->all();
-        $serverMaps = DB::table('maps')->orderBy('name')->limit(10)->get()->map(static function ($map) use ($selectedUids) {
+        $serverMapCount = DB::table('maps')->count();
+        $mapPageCount = max(1, (int)ceil($serverMapCount / self::MAPS_PER_PAGE));
+        $mapPage = max(1, min((int)(self::$mapPages[$player->Login] ?? 1), $mapPageCount));
+        self::$mapPages[$player->Login] = $mapPage;
+        $serverMaps = DB::table('maps')->orderBy('name')
+            ->offset(($mapPage - 1) * self::MAPS_PER_PAGE)->limit(self::MAPS_PER_PAGE)->get()
+            ->map(static function ($map) use ($selectedUids) {
             $map->selected = in_array($map->uid, $selectedUids, true);
             return $map;
         });
@@ -53,7 +62,8 @@ final class WarAdminOverlay
 
         Template::show($player, 'WarManager.admin', compact(
             'tab', 'war', 'current', 'maps', 'players', 'points', 'logs', 'serverMaps', 'unassigned',
-            'teamAPoints', 'teamBPoints', 'timeLeft', 'ready', 'confirmAction'
+            'teamAPoints', 'teamBPoints', 'timeLeft', 'ready', 'confirmAction', 'serverMapCount',
+            'mapPage', 'mapPageCount'
         ));
     }
 
@@ -72,12 +82,24 @@ final class WarAdminOverlay
     public static function close(Player $player): void
     {
         unset(self::$openTabs[$player->Login]);
+        unset(self::$mapPages[$player->Login]);
         Template::hide($player, 'WarManagerAdmin');
     }
 
     public static function overview(Player $player): void { self::show($player, 'overview'); }
     public static function createTab(Player $player): void { self::show($player, 'create'); }
     public static function maps(Player $player): void { self::show($player, 'maps'); }
+    public static function previousMapPage(Player $player): void
+    {
+        self::$mapPages[$player->Login] = max(1, (int)(self::$mapPages[$player->Login] ?? 1) - 1);
+        self::show($player, 'maps');
+    }
+
+    public static function nextMapPage(Player $player): void
+    {
+        self::$mapPages[$player->Login] = (int)(self::$mapPages[$player->Login] ?? 1) + 1;
+        self::show($player, 'maps');
+    }
     public static function points(Player $player): void { self::show($player, 'points'); }
     public static function players(Player $player): void { self::show($player, 'players'); }
     public static function logs(Player $player): void { self::show($player, 'logs'); }
@@ -114,6 +136,13 @@ final class WarAdminOverlay
         self::run($player, 'maps', static function () use ($player, $uid): void {
             WarRepository::removeMap($player, $uid);
         }, 'Map removed from the war.');
+    }
+
+    public static function addServerMap(Player $player, string $uid): void
+    {
+        self::run($player, 'maps', static function () use ($player, $uid): void {
+            WarRepository::addMap($player, $uid, '');
+        }, 'Map added to the war.');
     }
 
     public static function savePoints(Player $player, $values): void
