@@ -4,8 +4,8 @@
     {include isManiaPlanet() ? 'Components.stylesheet' : 'Components.stylesheet_noblur'}
 
     <frame pos="0 45" halign="center" z-index="8500">
-        <quad pos="-72 0" size="144 88" bgcolor="101820F2" />
-        <quad pos="-72 0" size="144 10" bgcolor="24323FFF" />
+        <quad pos="-72 0" size="144 88" bgcolor="000000F2" />
+        <quad pos="-72 0" size="144 10" bgcolor="080808FF" />
         <label pos="-67 -5" text="WAR MANAGER" textsize="2.5" textcolor="39C9F2FF" valign="center" />
         <label pos="67 -5" text="X" textsize="3" textcolor="FFFFFFFF" halign="center" valign="center" action="war.close" />
 
@@ -14,7 +14,7 @@
         <label pos="0 -29" text="{$war->status}  |  {$timeLeft}" textsize="1.5" textcolor="A9B7C3FF" halign="center" />
 
         <frame pos="-67 -35">
-            <quad size="64 31" bgcolor="1B2732FF" />
+            <quad size="64 31" bgcolor="080808FF" />
             <label pos="3 -4" text="MAPS" textsize="1.7" textcolor="39C9F2FF" />
             {foreach $mapRows as $row}
                 <label pos="3 {$iterator->counter * -5 - 5}" size="42 4" text="{$row->name}" textsize="1.1" textcolor="FFFFFFFF" />
@@ -23,7 +23,7 @@
         </frame>
 
         <frame pos="3 -35">
-            <quad size="64 31" bgcolor="1B2732FF" />
+            <quad size="64 31" bgcolor="080808FF" />
             <label pos="3 -4" text="PLAYERS" textsize="1.7" textcolor="F5A934FF" />
             {foreach $players as $entry}
                 <label pos="3 {$iterator->counter * -5 - 5}" size="40 4" text="{$iterator->counter}. {$entry->display_name}" textsize="1.1" textcolor="FFFFFFFF" />
