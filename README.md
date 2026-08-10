@@ -37,16 +37,15 @@ unrestricted MasterAdmin group receives access automatically.
 - Persistent player, team, map and overall scores; finished results cannot drift
 - Player commands `/war`, `/war maps`, `/war me`
 - Admin lifecycle commands via `//war ...`
-- Ingame ManiaLink scoreboard opened by `/war` or the WAR QuickButton
-- Draft-only team-name and war-title editing in the overlay
+- Compact EvoSC-style live widget for all players with team totals and a `WAR STATS` button
+- Public War Stats window with Overview, paginated Players and paginated Maps tabs
 - Full `//war admin` control panel with Overview, Create/Settings, Maps, Points, Players and Logs tabs
 - Confirmed lifecycle actions and pause-aware war timing
 - EvoSC access rights and a QuickButtons entry
 - Audit log for state and configuration changes
 
-The first implementation focuses on the safe scoring and persistence core. The
-large admin wizard, detailed history browser, map picker and polished multi-tab
-ManiaLink are follow-up UI work; command handlers provide the same core controls.
+Public statistics and administration are deliberately separate. The player window contains no
+management actions; `//war admin` opens the protected configuration and lifecycle controls.
 
 ## Development checks
 

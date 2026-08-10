@@ -2,6 +2,10 @@
   "enabled": true,
   "show-quick-button": true,
   "notify-unassigned": true,
+  "widget-x": 116,
+  "widget-y": 10,
+  "team-a-color": "D8D184FF",
+  "team-b-color": "FFFFFFFF",
   "overlay-map-limit": 5,
   "overlay-player-limit": 5,
   "default-points": [16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]

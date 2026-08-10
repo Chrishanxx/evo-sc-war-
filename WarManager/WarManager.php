@@ -7,7 +7,6 @@ use EvoSC\Classes\DB;
 use EvoSC\Classes\Hook;
 use EvoSC\Classes\ManiaLinkEvent;
 use EvoSC\Classes\Module;
-use EvoSC\Classes\Template;
 use EvoSC\Classes\Timer;
 use EvoSC\Controllers\ModeController;
 use EvoSC\Interfaces\ModuleInterface;
@@ -18,12 +17,11 @@ use EvoSC\Modules\WarManager\Classes\RecordService;
 use EvoSC\Modules\WarManager\Classes\WarAdminOverlay;
 use EvoSC\Modules\WarManager\Classes\WarRepository;
 use EvoSC\Modules\WarManager\Classes\WarState;
+use EvoSC\Modules\WarManager\Classes\WarStatsOverlay;
 use Throwable;
 
 class WarManager extends Module implements ModuleInterface
 {
-    private static array $overlayLogins = [];
-
     public static function start(string $mode, bool $isBoot = false)
     {
         if (isManiaPlanet() || !ModeController::isTimeAttackType()) {
@@ -40,7 +38,15 @@ class WarManager extends Module implements ModuleInterface
         Hook::add('WarRecordUpdated', [self::class, 'refreshOverlays']);
         ManiaLinkEvent::add('war.show', [self::class, 'showOverlay']);
         ManiaLinkEvent::add('war.close', [self::class, 'closeOverlay']);
-        ManiaLinkEvent::add('war.teams.save', [self::class, 'saveTeams'], 'war_manage');
+        ManiaLinkEvent::add('war.stats.show', [WarStatsOverlay::class, 'show']);
+        ManiaLinkEvent::add('war.stats.close', [WarStatsOverlay::class, 'close']);
+        ManiaLinkEvent::add('war.stats.overview', [WarStatsOverlay::class, 'overview']);
+        ManiaLinkEvent::add('war.stats.players', [WarStatsOverlay::class, 'players']);
+        ManiaLinkEvent::add('war.stats.maps', [WarStatsOverlay::class, 'maps']);
+        ManiaLinkEvent::add('war.stats.players.previous', [WarStatsOverlay::class, 'previousPlayerPage']);
+        ManiaLinkEvent::add('war.stats.players.next', [WarStatsOverlay::class, 'nextPlayerPage']);
+        ManiaLinkEvent::add('war.stats.maps.previous', [WarStatsOverlay::class, 'previousMapPage']);
+        ManiaLinkEvent::add('war.stats.maps.next', [WarStatsOverlay::class, 'nextMapPage']);
         ManiaLinkEvent::add('war.admin.close', [WarAdminOverlay::class, 'close']);
         ManiaLinkEvent::add('war.admin.overview', [WarAdminOverlay::class, 'overview'], 'war_manage');
         ManiaLinkEvent::add('war.admin.create.tab', [WarAdminOverlay::class, 'createTab'], 'war_manage');
@@ -92,7 +98,7 @@ class WarManager extends Module implements ModuleInterface
 
     public static function playerConnect(Player $player): void
     {
-        self::tick();
+        WarStatsOverlay::showWidget($player);
     }
 
     public static function localRecord(Player $player, int $score): void
@@ -111,56 +117,20 @@ class WarManager extends Module implements ModuleInterface
 
     public static function showOverlay(Player $player): void
     {
-        $war = WarRepository::latest();
-        if (!$war) {
-            infoMessage('There is no current war.')->send($player);
-            return;
-        }
-
-        $teamScores = DB::table('war-players')->where('war_id', $war->id)
-            ->selectRaw('locked_team, SUM(total_points) points')->groupBy('locked_team')->pluck('points', 'locked_team');
-        $maps = DB::table('war-maps')->where('war_id', $war->id)->orderBy('id')->get();
-        $mapScores = DB::table('war-records')->where('war_id', $war->id)
-            ->selectRaw('map_uid, team, SUM(points) points')->groupBy('map_uid', 'team')->get();
-        $players = DB::table('war-players')->where('war_id', $war->id)
-            ->orderByDesc('total_points')->orderBy('display_name')
-            ->limit((int)config('war-manager.overlay-player-limit', 5))->get();
-        $secondsLeft = $war->end_at ? max(0, strtotime($war->end_at . ' UTC') - time()) : 0;
-        $timeLeft = floor($secondsLeft / 86400) . 'd ' . floor(($secondsLeft % 86400) / 3600) . 'h';
-        $canManage = $player->hasAccess('war_manage');
-        self::$overlayLogins[$player->Login] = true;
-        $teamAPoints = (int)($teamScores[$war->team_a] ?? 0);
-        $teamBPoints = (int)($teamScores[$war->team_b] ?? 0);
-        $mapRows = $maps->take((int)config('war-manager.overlay-map-limit', 5))->map(static function ($map) use ($mapScores, $war) {
-            $scores = $mapScores->where('map_uid', $map->map_uid)->pluck('points', 'team');
-            return (object)[
-                'name' => $map->map_name,
-                'team_a_points' => (int)($scores[$war->team_a] ?? 0),
-                'team_b_points' => (int)($scores[$war->team_b] ?? 0),
-            ];
-        });
-
-        Template::show($player, 'WarManager.overview', compact(
-            'war', 'teamAPoints', 'teamBPoints', 'mapRows', 'players', 'timeLeft', 'canManage'
-        ));
+        WarStatsOverlay::show($player);
     }
 
     public static function closeOverlay(Player $player): void
     {
-        unset(self::$overlayLogins[$player->Login]);
-        Template::hide($player, 'WarManager');
+        WarStatsOverlay::close($player);
     }
 
     public static function refreshOverlays(): void
     {
-        foreach (array_keys(self::$overlayLogins) as $login) {
-            $player = onlinePlayers()->where('Login', $login)->first();
-            if ($player) {
-                self::showOverlay($player);
-            } else {
-                unset(self::$overlayLogins[$login]);
-            }
+        foreach (onlinePlayers() as $player) {
+            WarStatsOverlay::showWidget($player);
         }
+        WarStatsOverlay::refreshOpen();
         WarAdminOverlay::refreshOpen();
     }
 
