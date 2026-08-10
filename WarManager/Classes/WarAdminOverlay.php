@@ -131,19 +131,47 @@ final class WarAdminOverlay
         }, 'Map added to the war.');
     }
 
-    public static function removeMap(Player $player, string $uid): void
+    public static function removeMapAt(Player $player, int $position): void
     {
-        self::run($player, 'maps', static function () use ($player, $uid): void {
-            WarRepository::removeMap($player, $uid);
+        self::run($player, 'maps', static function () use ($player, $position): void {
+            $war = WarRepository::current();
+            $map = $war ? DB::table('war-maps')->where('war_id', $war->id)
+                ->orderBy('id')->offset($position - 1)->first() : null;
+            if (!$map) {
+                throw new RuntimeException('The selected war map no longer exists.');
+            }
+            WarRepository::removeMap($player, $map->map_uid);
         }, 'Map removed from the war.');
     }
 
-    public static function addServerMap(Player $player, string $uid): void
+    public static function addServerMapAt(Player $player, int $position): void
     {
-        self::run($player, 'maps', static function () use ($player, $uid): void {
-            WarRepository::addMap($player, $uid, '');
+        self::run($player, 'maps', static function () use ($player, $position): void {
+            $page = max(1, (int)(self::$mapPages[$player->Login] ?? 1));
+            $map = DB::table('maps')->orderBy('name')
+                ->offset(($page - 1) * self::MAPS_PER_PAGE + $position - 1)->first();
+            if (!$map) {
+                throw new RuntimeException('The selected server map no longer exists.');
+            }
+            WarRepository::addMap($player, $map->uid, $map->name);
         }, 'Map added to the war.');
     }
+
+    public static function addServerMap1(Player $player): void { self::addServerMapAt($player, 1); }
+    public static function addServerMap2(Player $player): void { self::addServerMapAt($player, 2); }
+    public static function addServerMap3(Player $player): void { self::addServerMapAt($player, 3); }
+    public static function addServerMap4(Player $player): void { self::addServerMapAt($player, 4); }
+    public static function addServerMap5(Player $player): void { self::addServerMapAt($player, 5); }
+    public static function addServerMap6(Player $player): void { self::addServerMapAt($player, 6); }
+    public static function addServerMap7(Player $player): void { self::addServerMapAt($player, 7); }
+    public static function addServerMap8(Player $player): void { self::addServerMapAt($player, 8); }
+    public static function removeMap1(Player $player): void { self::removeMapAt($player, 1); }
+    public static function removeMap2(Player $player): void { self::removeMapAt($player, 2); }
+    public static function removeMap3(Player $player): void { self::removeMapAt($player, 3); }
+    public static function removeMap4(Player $player): void { self::removeMapAt($player, 4); }
+    public static function removeMap5(Player $player): void { self::removeMapAt($player, 5); }
+    public static function removeMap6(Player $player): void { self::removeMapAt($player, 6); }
+    public static function removeMap7(Player $player): void { self::removeMapAt($player, 7); }
 
     public static function savePoints(Player $player, $values): void
     {
