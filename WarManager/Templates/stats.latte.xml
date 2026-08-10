@@ -1,0 +1,68 @@
+{contentType text}
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<manialink version="3" id="WarManagerStats" name="EvoSC:WarManagerStats">
+    {include isManiaPlanet() ? 'Components.stylesheet' : 'Components.stylesheet_noblur'}
+
+    <frame pos="0 39" halign="center" z-index="8400">
+        <quad pos="-57 0" size="114 78" bgcolor="202024F5" />
+        <quad pos="-57 0" size="114 7" bgcolor="D8D184FF" />
+        <label pos="-53.5 -3.5" text="WAR STATS" textsize="1.8" textcolor="FFFFFFFF" valign="center" />
+        <label pos="53 -3.5" text="X" textsize="2" textcolor="FFFFFFFF" halign="center" valign="center" action="war.stats.close" />
+
+        <quad pos="-54 -11" size="1 4" bgcolor="{$teamAColor}" />
+        <label pos="-50 -13" size="35 5" text="{$war->team_a}" textsize="1.8" textcolor="FFFFFFFF" valign="center" />
+        <label pos="-10 -13" text="{$teamAPoints}" textsize="2.4" textcolor="D8D184FF" halign="right" valign="center" />
+        <quad pos="13 -11" size="1 4" bgcolor="{$teamBColor}" />
+        <label pos="17 -13" size="27 5" text="{$war->team_b}" textsize="1.8" textcolor="FFFFFFFF" valign="center" />
+        <label pos="53 -13" text="{$teamBPoints}" textsize="2.4" textcolor="D8D184FF" halign="right" valign="center" />
+        <label pos="0 -20" text="{$war->status}  ·  Maps {$scoredMapCount} / {$mapCount}  ·  Remaining {$timeLeft}" textsize="1.2" textcolor="BFC0C2FF" halign="center" />
+
+        <quad pos="-53 -24" size="106 0.35" bgcolor="D8D184FF" />
+        <label pos="-45 -28" text="OVERVIEW" textsize="1.3" textcolor="{$tab == 'overview' ? 'D8D184FF' : 'FFFFFFFF'}" action="war.stats.overview" />
+        <label pos="-5 -28" text="PLAYERS" textsize="1.3" textcolor="{$tab == 'players' ? 'D8D184FF' : 'FFFFFFFF'}" action="war.stats.players" />
+        <label pos="31 -28" text="MAPS" textsize="1.3" textcolor="{$tab == 'maps' ? 'D8D184FF' : 'FFFFFFFF'}" action="war.stats.maps" />
+
+        {if $tab == 'overview'}
+            <label pos="-43 -38" text="STATUS" textsize="1.2" textcolor="A9AAACFF" />
+            <label pos="43 -38" text="{$war->status}" textsize="1.3" textcolor="FFFFFFFF" halign="right" />
+            <quad pos="-43 -42" size="86 0.2" bgcolor="555559AA" />
+            <label pos="-43 -48" text="MAPS" textsize="1.2" textcolor="A9AAACFF" />
+            <label pos="43 -48" text="{$scoredMapCount} / {$mapCount}" textsize="1.3" textcolor="FFFFFFFF" halign="right" />
+            <quad pos="-43 -52" size="86 0.2" bgcolor="555559AA" />
+            <label pos="-43 -58" text="REMAINING" textsize="1.2" textcolor="A9AAACFF" />
+            <label pos="43 -58" text="{$timeLeft}" textsize="1.3" textcolor="FFFFFFFF" halign="right" />
+        {/if}
+
+        {if $tab == 'players'}
+            <label pos="-50 -35" text="#" textsize="1.1" textcolor="A9AAACFF" />
+            <label pos="-43 -35" text="PLAYER" textsize="1.1" textcolor="A9AAACFF" />
+            <label pos="23 -35" text="TEAM" textsize="1.1" textcolor="A9AAACFF" halign="right" />
+            <label pos="50 -35" text="POINTS" textsize="1.1" textcolor="A9AAACFF" halign="right" />
+            {foreach $playerRows as $entry}
+                <label pos="-50 {$iterator->counter * -4.2 - 35}" text="{($playerPage - 1) * 10 + $iterator->counter}" textsize="1.05" textcolor="FFFFFFFF" />
+                <label pos="-43 {$iterator->counter * -4.2 - 35}" size="50 3.6" text="{$entry->display_name}" textsize="1.05" textcolor="FFFFFFFF" />
+                <label pos="23 {$iterator->counter * -4.2 - 35}" text="{$entry->locked_team}" textsize="1.05" textcolor="{$entry->team_color}" halign="right" />
+                <label pos="50 {$iterator->counter * -4.2 - 35}" text="{$entry->total_points}" textsize="1.05" textcolor="FFFFFFFF" halign="right" />
+            {/foreach}
+            <label pos="-45 -75" text="&lt; PREV" textsize="1.05" textcolor="D8D184FF" action="war.stats.players.previous" />
+            <label pos="0 -75" text="PAGE {$playerPage} / {$playerPageCount}" textsize="1" textcolor="FFFFFFFF" halign="center" />
+            <label pos="45 -75" text="NEXT &gt;" textsize="1.05" textcolor="D8D184FF" halign="right" action="war.stats.players.next" />
+        {/if}
+
+        {if $tab == 'maps'}
+            <label pos="-50 -35" text="#" textsize="1.1" textcolor="A9AAACFF" />
+            <label pos="-43 -35" text="MAP" textsize="1.1" textcolor="A9AAACFF" />
+            <label pos="27 -35" text="{$war->team_a}" textsize="1.1" textcolor="D8D184FF" halign="right" />
+            <label pos="50 -35" text="{$war->team_b}" textsize="1.1" textcolor="D8D184FF" halign="right" />
+            {foreach $visibleMapRows as $row}
+                <label pos="-50 {$iterator->counter * -4.2 - 35}" text="{$row->status}" textsize="1" textcolor="D8D184FF" />
+                <label pos="-43 {$iterator->counter * -4.2 - 35}" size="51 3.6" text="{$row->name}" textsize="1.05" textcolor="FFFFFFFF" />
+                <label pos="27 {$iterator->counter * -4.2 - 35}" text="{$row->team_a_points}" textsize="1.05" textcolor="FFFFFFFF" halign="right" />
+                <label pos="50 {$iterator->counter * -4.2 - 35}" text="{$row->team_b_points}" textsize="1.05" textcolor="FFFFFFFF" halign="right" />
+            {/foreach}
+            <label pos="-45 -75" text="&lt; PREV" textsize="1.05" textcolor="D8D184FF" action="war.stats.maps.previous" />
+            <label pos="0 -75" text="PAGE {$mapPage} / {$mapPageCount}" textsize="1" textcolor="FFFFFFFF" halign="center" />
+            <label pos="45 -75" text="NEXT &gt;" textsize="1.05" textcolor="D8D184FF" halign="right" action="war.stats.maps.next" />
+        {/if}
+    </frame>
+</manialink>
