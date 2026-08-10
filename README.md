@@ -19,6 +19,10 @@ module layout of EvoSC# are incompatible with the PHP module described here.
 Copy `Scrim/` to `<evosc>/modules/Scrim`, run EvoSC migrations, enable the module,
 then restart EvoSC. The normal TimeAttack mode remains active.
 
+Assign the registered `scrim_manage`, `scrim_start`, `scrim_maps`,
+`scrim_points` and `scrim_players` rights through EvoSC's Group Manager. The
+unrestricted MasterAdmin group receives access automatically.
+
 ## V1 scope
 
 - One current scrim, with persisted history (`DRAFT`, `ACTIVE`, `PAUSED`,
@@ -39,6 +43,11 @@ then restart EvoSC. The normal TimeAttack mode remains active.
 The first implementation focuses on the safe scoring and persistence core. The
 large admin wizard, detailed history browser, map picker and polished multi-tab
 ManiaLink are follow-up UI work; command handlers provide the same core controls.
+
+## Development checks
+
+Pull requests run PHP 7.4 syntax checks and domain tests through GitHub Actions.
+For a local run, install Composer dependencies and execute `composer test`.
 
 ## Admin commands
 
