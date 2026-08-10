@@ -1,0 +1,8 @@
+{
+  "version": "0.1.0",
+  "authors": [
+    "Chrishanxx"
+  ],
+  "name": "Scrim / War",
+  "description": "Persistent two-team scrims based on records driven during TimeAttack."
+}
