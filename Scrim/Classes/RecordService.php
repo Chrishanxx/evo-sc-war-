@@ -16,6 +16,9 @@ final class RecordService
             return;
         }
         $map = MapController::getCurrentMap();
+        if (!$map) {
+            return;
+        }
         if (!DB::table('scrim-maps')->where('scrim_id', $scrim->id)->where('map_uid', $map->uid)->exists()) {
             return;
         }
@@ -28,21 +31,22 @@ final class RecordService
         $team = $assignment ? $assignment->locked_team : $detected['team'];
         $name = $detected ? $detected['name'] : $player->NickName;
 
-        DB::table('scrim-players')->updateOrInsert(
-            ['scrim_id' => $scrim->id, 'player_login' => $player->Login],
-            ['display_name' => $name, 'locked_team' => $team, 'updated_at' => gmdate('Y-m-d H:i:s')]
-        );
-
         $old = DB::table('scrim-records')->where('scrim_id', $scrim->id)->where('map_uid', $map->uid)
             ->where('player_login', $player->Login)->first();
         if ($old && $old->record_time <= $time) {
             return;
         }
-        DB::table('scrim-records')->updateOrInsert(
-            ['scrim_id' => $scrim->id, 'map_uid' => $map->uid, 'player_login' => $player->Login],
-            ['display_name' => $name, 'team' => $team, 'record_time' => $time, 'recorded_at' => gmdate('Y-m-d H:i:s')]
-        );
-        self::recalculate((int)$scrim->id, $map->uid);
+        DB::transaction(static function () use ($scrim, $map, $player, $name, $team, $time): void {
+            DB::table('scrim-players')->updateOrInsert(
+                ['scrim_id' => $scrim->id, 'player_login' => $player->Login],
+                ['display_name' => $name, 'locked_team' => $team, 'updated_at' => gmdate('Y-m-d H:i:s')]
+            );
+            DB::table('scrim-records')->updateOrInsert(
+                ['scrim_id' => $scrim->id, 'map_uid' => $map->uid, 'player_login' => $player->Login],
+                ['display_name' => $name, 'team' => $team, 'record_time' => $time, 'recorded_at' => gmdate('Y-m-d H:i:s')]
+            );
+            self::recalculate((int)$scrim->id, $map->uid);
+        });
     }
 
     public static function recalculate(int $scrimId, string $mapUid): void

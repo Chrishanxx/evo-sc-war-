@@ -14,4 +14,14 @@ final class ScoreCalculatorTest extends TestCase
         self::assertSame(['fast', 'zoop'], array_column($ranked, 'login'));
         self::assertSame([16, 15], array_column($ranked, 'points'));
     }
+
+    public function testRanksOutsideThePointProfileReceiveZero(): void
+    {
+        $ranked = ScoreCalculator::rank([
+            ['login' => 'one', 'time' => 1000],
+            ['login' => 'two', 'time' => 2000],
+        ], [1 => 10]);
+
+        self::assertSame([10, 0], array_column($ranked, 'points'));
+    }
 }
