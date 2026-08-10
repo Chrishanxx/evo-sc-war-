@@ -3,6 +3,7 @@
 namespace EvoSC\Modules\WarManager\Classes;
 
 use EvoSC\Classes\DB;
+use EvoSC\Classes\Hook;
 use EvoSC\Controllers\MapController;
 use EvoSC\Models\Player;
 
@@ -47,6 +48,7 @@ final class RecordService
             );
             self::recalculate((int)$scrim->id, $map->uid);
         });
+        Hook::fire('WarRecordUpdated');
     }
 
     public static function recalculate(int $scrimId, string $mapUid): void

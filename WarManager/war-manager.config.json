@@ -2,5 +2,7 @@
   "enabled": true,
   "show-quick-button": true,
   "notify-unassigned": true,
+  "overlay-map-limit": 5,
+  "overlay-player-limit": 5,
   "default-points": [16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
 }

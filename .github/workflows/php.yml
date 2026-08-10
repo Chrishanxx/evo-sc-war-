@@ -21,6 +21,6 @@ jobs:
       - name: Install test dependencies
         run: composer install --no-interaction --prefer-dist
       - name: Lint module sources
-        run: find Scrim tests -name '*.php' -print0 | xargs -0 -n1 php -l
+        run: find WarManager tests -name '*.php' -print0 | xargs -0 -n1 php -l
       - name: Run unit tests
         run: composer test

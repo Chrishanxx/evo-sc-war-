@@ -7,6 +7,7 @@ use EvoSC\Classes\DB;
 use EvoSC\Classes\Hook;
 use EvoSC\Classes\ManiaLinkEvent;
 use EvoSC\Classes\Module;
+use EvoSC\Classes\Template;
 use EvoSC\Classes\Timer;
 use EvoSC\Controllers\ModeController;
 use EvoSC\Interfaces\ModuleInterface;
@@ -20,6 +21,8 @@ use Throwable;
 
 class WarManager extends Module implements ModuleInterface
 {
+    private static array $overlayLogins = [];
+
     public static function start(string $mode, bool $isBoot = false)
     {
         if (isManiaPlanet() || !ModeController::isTimeAttackType()) {
@@ -33,7 +36,10 @@ class WarManager extends Module implements ModuleInterface
         Hook::add('PlayerLocalRecord', [self::class, 'localRecord']);
         Hook::add('BeginMap', [self::class, 'tick']);
         Hook::add('PlayerConnect', [self::class, 'playerConnect']);
-        ManiaLinkEvent::add('war.show', [self::class, 'show']);
+        Hook::add('WarRecordUpdated', [self::class, 'refreshOverlays']);
+        ManiaLinkEvent::add('war.show', [self::class, 'showOverlay']);
+        ManiaLinkEvent::add('war.close', [self::class, 'closeOverlay']);
+        ManiaLinkEvent::add('war.teams.save', [self::class, 'saveTeams'], 'war_manage');
 
         if (config('war-manager.show-quick-button', true) && config('quick-buttons.enabled', true)) {
             QuickButtons::addButton('⚔', 'WAR', 'war.show');
@@ -47,6 +53,7 @@ class WarManager extends Module implements ModuleInterface
         if (WarRepository::finishExpired()) {
             infoMessage('The war has finished. Final results are now frozen.')->sendAll();
         }
+        self::refreshOverlays();
     }
 
     public static function playerConnect(Player $player): void
@@ -61,7 +68,84 @@ class WarManager extends Module implements ModuleInterface
 
     public static function playerCommand(Player $player, $cmd, ...$args): void
     {
-        self::show($player, strtolower($args[0] ?? 'overall'));
+        if (!$args || strtolower($args[0]) === 'overlay') {
+            self::showOverlay($player);
+            return;
+        }
+        self::show($player, strtolower($args[0]));
+    }
+
+    public static function showOverlay(Player $player): void
+    {
+        $war = WarRepository::latest();
+        if (!$war) {
+            infoMessage('There is no current war.')->send($player);
+            return;
+        }
+
+        $teamScores = DB::table('war-players')->where('war_id', $war->id)
+            ->selectRaw('locked_team, SUM(total_points) points')->groupBy('locked_team')->pluck('points', 'locked_team');
+        $maps = DB::table('war-maps')->where('war_id', $war->id)->orderBy('id')->get();
+        $mapScores = DB::table('war-records')->where('war_id', $war->id)
+            ->selectRaw('map_uid, team, SUM(points) points')->groupBy('map_uid', 'team')->get();
+        $players = DB::table('war-players')->where('war_id', $war->id)
+            ->orderByDesc('total_points')->orderBy('display_name')
+            ->limit((int)config('war-manager.overlay-player-limit', 5))->get();
+        $secondsLeft = $war->end_at ? max(0, strtotime($war->end_at . ' UTC') - time()) : 0;
+        $timeLeft = floor($secondsLeft / 86400) . 'd ' . floor(($secondsLeft % 86400) / 3600) . 'h';
+        $canManage = $player->hasAccess('war_manage');
+        self::$overlayLogins[$player->Login] = true;
+        $teamAPoints = (int)($teamScores[$war->team_a] ?? 0);
+        $teamBPoints = (int)($teamScores[$war->team_b] ?? 0);
+        $mapRows = $maps->take((int)config('war-manager.overlay-map-limit', 5))->map(static function ($map) use ($mapScores, $war) {
+            $scores = $mapScores->where('map_uid', $map->map_uid)->pluck('points', 'team');
+            return (object)[
+                'name' => $map->map_name,
+                'team_a_points' => (int)($scores[$war->team_a] ?? 0),
+                'team_b_points' => (int)($scores[$war->team_b] ?? 0),
+            ];
+        });
+
+        Template::show($player, 'WarManager.overview', compact(
+            'war', 'teamAPoints', 'teamBPoints', 'mapRows', 'players', 'timeLeft', 'canManage'
+        ));
+    }
+
+    public static function closeOverlay(Player $player): void
+    {
+        unset(self::$overlayLogins[$player->Login]);
+        Template::hide($player, 'WarManager');
+    }
+
+    public static function refreshOverlays(): void
+    {
+        foreach (array_keys(self::$overlayLogins) as $login) {
+            $player = onlinePlayers()->where('Login', $login)->first();
+            if ($player) {
+                self::showOverlay($player);
+            } else {
+                unset(self::$overlayLogins[$login]);
+            }
+        }
+    }
+
+    public static function saveTeams(Player $player, $values): void
+    {
+        try {
+            if (!is_object($values)) {
+                throw new \RuntimeException('Team form values are missing.');
+            }
+            WarRepository::updateTeams(
+                $player,
+                (string)($values->team_a ?? ''),
+                (string)($values->team_b ?? ''),
+                (string)($values->war_name ?? '')
+            );
+            infoMessage('War teams updated.')->send($player);
+            self::showOverlay($player);
+        } catch (Throwable $error) {
+            dangerMessage($error->getMessage())->send($player);
+        }
     }
 
     public static function show(Player $player, string $view = 'overall'): void
@@ -141,11 +225,16 @@ class WarManager extends Module implements ModuleInterface
             } elseif ($action === 'points') {
                 self::requireAccess($player, 'war_points');
                 WarRepository::setPoints($player, (int)($args[0] ?? 0), (int)($args[1] ?? -1));
+            } elseif ($action === 'teams') {
+                self::requireAccess($player, 'war_manage');
+                $teamA = (string)array_shift($args); $teamB = (string)array_shift($args);
+                WarRepository::updateTeams($player, $teamA, $teamB, trim(implode(' ', $args)));
             } elseif ($action === 'status') {
                 self::requireAccess($player, 'war_manage');
             } else {
-                throw new \RuntimeException('Unknown war command. Use create, start, pause, resume, finish, cancel, map, points or status.');
+                throw new \RuntimeException('Unknown war command. Use create, teams, start, pause, resume, finish, cancel, map, points or status.');
             }
+            self::refreshOverlays();
             self::show($player);
         } catch (Throwable $error) {
             dangerMessage($error->getMessage())->send($player);
