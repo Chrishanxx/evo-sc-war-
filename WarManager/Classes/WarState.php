@@ -1,10 +1,10 @@
 <?php
 
-namespace EvoSC\Modules\Scrim\Classes;
+namespace EvoSC\Modules\WarManager\Classes;
 
 use DomainException;
 
-final class ScrimState
+final class WarState
 {
     public const DRAFT = 'DRAFT';
     public const ACTIVE = 'ACTIVE';
@@ -21,7 +21,7 @@ final class ScrimState
     public static function assertTransition(string $from, string $to): void
     {
         if (!in_array($to, self::TRANSITIONS[$from] ?? [], true)) {
-            throw new DomainException("Invalid scrim transition: {$from} -> {$to}");
+            throw new DomainException("Invalid war transition: {$from} -> {$to}");
         }
     }
 }

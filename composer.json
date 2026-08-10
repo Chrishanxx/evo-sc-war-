@@ -1,12 +1,12 @@
 {
-  "name": "chrishanxx/evosc-scrim-war",
-  "description": "Persistent Scrim / War module for classic PHP EvoSC.",
+  "name": "chrishanxx/evosc-war-manager",
+  "description": "Persistent WarManager module for classic PHP EvoSC.",
   "type": "library",
   "license": "proprietary",
   "require": { "php": "^7.4" },
   "require-dev": { "phpunit/phpunit": "^9.6" },
   "autoload": {
-    "psr-4": { "EvoSC\\Modules\\Scrim\\": "Scrim/" }
+    "psr-4": { "EvoSC\\Modules\\WarManager\\": "WarManager/" }
   },
   "scripts": { "test": "phpunit" }
 }

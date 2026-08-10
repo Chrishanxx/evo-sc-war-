@@ -1,6 +1,6 @@
 <?php
 
-use EvoSC\Modules\Scrim\Classes\TeamDetector;
+use EvoSC\Modules\WarManager\Classes\TeamDetector;
 use PHPUnit\Framework\TestCase;
 
 final class TeamDetectorTest extends TestCase

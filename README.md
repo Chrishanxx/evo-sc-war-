@@ -1,8 +1,8 @@
-# EvoSC Scrim / War
+# EvoSC WarManager
 
-External scrim module for the classic PHP release of EvoSC and Trackmania 2020.
+External WarManager module for the classic PHP release of EvoSC and Trackmania 2020.
 It keeps `Trackmania/TM_TimeAttack_Online.Script.txt` untouched and calculates a
-long-running two-team competition from records driven during the active scrim.
+long-running two-team competition from records driven during the active war.
 
 ## Compatibility
 
@@ -16,27 +16,27 @@ module layout of EvoSC# are incompatible with the PHP module described here.
 
 ## Install
 
-Copy `Scrim/` to `<evosc>/modules/Scrim`, run EvoSC migrations, enable the module,
+Copy `WarManager/` to `<evosc>/core/Modules/WarManager`, run EvoSC migrations, enable the module,
 then restart EvoSC. The normal TimeAttack mode remains active.
 
-Assign the registered `scrim_manage`, `scrim_start`, `scrim_maps`,
-`scrim_points` and `scrim_players` rights through EvoSC's Group Manager. The
+Assign the registered `war_manage`, `war_start`, `war_maps`,
+`war_points` and `war_players` rights through EvoSC's Group Manager. The
 unrestricted MasterAdmin group receives access automatically.
 
 ## V1 scope
 
-- One current scrim, with persisted history (`DRAFT`, `ACTIVE`, `PAUSED`,
+- One current war, with persisted history (`DRAFT`, `ACTIVE`, `PAUSED`,
   `FINISHED`, `CANCELLED`)
 - Duration validation from 1 through 14 days and exact UTC start/end timestamps
 - Case-insensitive nickname tag detection (`FAST Name`, `[FAST] Name`,
   `FAST | Name`, `FAST.Name`)
 - Stable identification by Trackmania login and team lock on first scored record
 - Frozen map pool and point profile after start
-- Scrim-only record snapshots; existing local records are never imported
+- War-only record snapshots; existing local records are never imported
 - Complete per-map reranking after every improvement; one best time per player
 - Persistent player, team, map and overall scores; finished results cannot drift
-- Player commands `/scrim`, `/score`, `/scrim maps`, `/scrim me`
-- Admin lifecycle commands via `//scrim ...`
+- Player commands `/war`, `/war maps`, `/war me`
+- Admin lifecycle commands via `//war ...`
 - EvoSC access rights and a QuickButtons entry
 - Audit log for state and configuration changes
 
@@ -52,16 +52,16 @@ For a local run, install Composer dependencies and execute `composer test`.
 ## Admin commands
 
 ```text
-//scrim create <durationDays> <teamA> <teamB> [name]
-//scrim start
-//scrim pause
-//scrim resume
-//scrim finish
-//scrim cancel
-//scrim status
-//scrim map add <MapUID> [Map Name]
-//scrim map remove <MapUID>
-//scrim points <rank> <points>
+//war create <durationDays> <teamA> <teamB> [name]
+//war start
+//war pause
+//war resume
+//war finish
+//war cancel
+//war status
+//war map add <MapUID> [Map Name]
+//war map remove <MapUID>
+//war points <rank> <points>
 ```
 
 ## Design notes

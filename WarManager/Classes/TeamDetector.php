@@ -1,6 +1,6 @@
 <?php
 
-namespace EvoSC\Modules\Scrim\Classes;
+namespace EvoSC\Modules\WarManager\Classes;
 
 final class TeamDetector
 {
