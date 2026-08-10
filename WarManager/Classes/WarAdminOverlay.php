@@ -24,8 +24,13 @@ final class WarAdminOverlay
         $current = WarRepository::current();
         $warId = $war ? (int)$war->id : 0;
         $maps = $warId ? DB::table('war-maps')->where('war_id', $warId)->orderBy('id')->get() : new Collection();
+        $onlineLogins = onlinePlayers()->pluck('Login')->all();
         $players = $warId ? DB::table('war-players')->where('war_id', $warId)
-            ->orderBy('locked_team')->orderByDesc('total_points')->get() : new Collection();
+            ->orderBy('locked_team')->orderByDesc('total_points')->get()
+            ->map(static function ($entry) use ($onlineLogins) {
+                $entry->online = in_array($entry->player_login, $onlineLogins, true);
+                return $entry;
+            }) : new Collection();
         $points = $warId ? DB::table('war-points')->where('war_id', $warId)->orderBy('rank')->limit(16)->get() : new Collection();
         $logs = $warId ? DB::table('war-admin-log')->where('war_id', $warId)
             ->orderByDesc('id')->limit(8)->get() : new Collection();
@@ -52,7 +57,8 @@ final class WarAdminOverlay
         $unassigned = new Collection();
         if ($current) {
             foreach (onlinePlayers() as $online) {
-                if (!TeamDetector::detect($online->NickName, $current->team_a, $current->team_b)) {
+                if (!DB::table('war-players')->where('war_id', $current->id)
+                    ->where('player_login', $online->Login)->exists()) {
                     $unassigned->push($online);
                 }
             }
@@ -110,6 +116,13 @@ final class WarAdminOverlay
             self::requireValues($values);
             WarRepository::create($player, (int)($values->duration ?? 0), (string)($values->team_a ?? ''),
                 (string)($values->team_b ?? ''), (string)($values->war_name ?? ''));
+            WarRepository::updateParticipationSettings(
+                $player,
+                self::toBool($values->overlay_join ?? 1),
+                self::toBool($values->nickname_detection ?? 1),
+                self::toBool($values->allow_team_switch ?? 0),
+                (int)($values->team_limit ?? 0)
+            );
         }, 'War created. Add at least one map before starting.');
     }
 
@@ -120,6 +133,13 @@ final class WarAdminOverlay
             WarRepository::updateTeams($player, (string)($values->team_a ?? ''), (string)($values->team_b ?? ''),
                 (string)($values->war_name ?? ''));
             WarRepository::updateDuration($player, (int)($values->duration ?? 0));
+            WarRepository::updateParticipationSettings(
+                $player,
+                self::toBool($values->overlay_join ?? 1),
+                self::toBool($values->nickname_detection ?? 1),
+                self::toBool($values->allow_team_switch ?? 0),
+                (int)($values->team_limit ?? 0)
+            );
         }, 'War settings saved.');
     }
 
@@ -172,6 +192,47 @@ final class WarAdminOverlay
     public static function removeMap5(Player $player): void { self::removeMapAt($player, 5); }
     public static function removeMap6(Player $player): void { self::removeMapAt($player, 6); }
     public static function removeMap7(Player $player): void { self::removeMapAt($player, 7); }
+
+    public static function resetPlayerAt(Player $player, int $position): void
+    {
+        self::run($player, 'players', static function () use ($player, $position): void {
+            $entry = self::playerAt($position);
+            TeamAssignmentService::reset($player, $entry->player_login);
+        }, 'Player team assignment reset.');
+    }
+
+    public static function movePlayerAt(Player $player, int $position): void
+    {
+        self::run($player, 'players', static function () use ($player, $position): void {
+            $entry = self::playerAt($position);
+            TeamAssignmentService::move($player, $entry->player_login);
+        }, 'Player moved to the other team.');
+    }
+
+    public static function resetPlayer1(Player $player): void { self::resetPlayerAt($player, 1); }
+    public static function resetPlayer2(Player $player): void { self::resetPlayerAt($player, 2); }
+    public static function resetPlayer3(Player $player): void { self::resetPlayerAt($player, 3); }
+    public static function resetPlayer4(Player $player): void { self::resetPlayerAt($player, 4); }
+    public static function resetPlayer5(Player $player): void { self::resetPlayerAt($player, 5); }
+    public static function resetPlayer6(Player $player): void { self::resetPlayerAt($player, 6); }
+    public static function resetPlayer7(Player $player): void { self::resetPlayerAt($player, 7); }
+    public static function resetPlayer8(Player $player): void { self::resetPlayerAt($player, 8); }
+    public static function resetPlayer9(Player $player): void { self::resetPlayerAt($player, 9); }
+    public static function resetPlayer10(Player $player): void { self::resetPlayerAt($player, 10); }
+    public static function resetPlayer11(Player $player): void { self::resetPlayerAt($player, 11); }
+    public static function resetPlayer12(Player $player): void { self::resetPlayerAt($player, 12); }
+    public static function movePlayer1(Player $player): void { self::movePlayerAt($player, 1); }
+    public static function movePlayer2(Player $player): void { self::movePlayerAt($player, 2); }
+    public static function movePlayer3(Player $player): void { self::movePlayerAt($player, 3); }
+    public static function movePlayer4(Player $player): void { self::movePlayerAt($player, 4); }
+    public static function movePlayer5(Player $player): void { self::movePlayerAt($player, 5); }
+    public static function movePlayer6(Player $player): void { self::movePlayerAt($player, 6); }
+    public static function movePlayer7(Player $player): void { self::movePlayerAt($player, 7); }
+    public static function movePlayer8(Player $player): void { self::movePlayerAt($player, 8); }
+    public static function movePlayer9(Player $player): void { self::movePlayerAt($player, 9); }
+    public static function movePlayer10(Player $player): void { self::movePlayerAt($player, 10); }
+    public static function movePlayer11(Player $player): void { self::movePlayerAt($player, 11); }
+    public static function movePlayer12(Player $player): void { self::movePlayerAt($player, 12); }
 
     public static function savePoints(Player $player, $values): void
     {
@@ -233,5 +294,21 @@ final class WarAdminOverlay
         if (!is_object($values)) {
             throw new RuntimeException('Form values are missing.');
         }
+    }
+
+    private static function playerAt(int $position)
+    {
+        $war = WarRepository::current();
+        $entry = $war ? DB::table('war-players')->where('war_id', $war->id)
+            ->orderBy('locked_team')->orderByDesc('total_points')->offset($position - 1)->first() : null;
+        if (!$entry) {
+            throw new RuntimeException('The selected player is no longer assigned.');
+        }
+        return $entry;
+    }
+
+    private static function toBool($value): bool
+    {
+        return in_array(strtolower((string)$value), ['1', 'true', 'yes', 'on'], true);
     }
 }

@@ -6,6 +6,7 @@ use EvoSC\Classes\DB;
 use EvoSC\Classes\Hook;
 use EvoSC\Controllers\MapController;
 use EvoSC\Models\Player;
+use Throwable;
 
 final class RecordService
 {
@@ -25,12 +26,28 @@ final class RecordService
         }
 
         $assignment = DB::table('war-players')->where('war_id', $scrim->id)->where('player_login', $player->Login)->first();
-        $detected = TeamDetector::detect($player->NickName, $scrim->team_a, $scrim->team_b);
-        if (!$assignment && !$detected) {
+        if (!$assignment && $scrim->nickname_detection_enabled) {
+            try {
+                TeamAssignmentService::assignFromNickname($player);
+            } catch (Throwable $error) {
+                // Keep the record pending when automatic assignment is not possible.
+            }
+            $assignment = DB::table('war-players')->where('war_id', $scrim->id)
+                ->where('player_login', $player->Login)->first();
+        }
+        if (!$assignment) {
+            $oldPending = DB::table('war-pending-records')->where('war_id', $scrim->id)
+                ->where('map_uid', $map->uid)->where('player_login', $player->Login)->first();
+            if (!$oldPending || $time < $oldPending->record_time) {
+                DB::table('war-pending-records')->updateOrInsert(
+                    ['war_id' => $scrim->id, 'map_uid' => $map->uid, 'player_login' => $player->Login],
+                    ['display_name' => $player->NickName, 'record_time' => $time, 'recorded_at' => gmdate('Y-m-d H:i:s')]
+                );
+            }
             return;
         }
-        $team = $assignment ? $assignment->locked_team : $detected['team'];
-        $name = $detected ? $detected['name'] : $player->NickName;
+        $team = $assignment->locked_team;
+        $name = $player->NickName;
 
         $old = DB::table('war-records')->where('war_id', $scrim->id)->where('map_uid', $map->uid)
             ->where('player_login', $player->Login)->first();

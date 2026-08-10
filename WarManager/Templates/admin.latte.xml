@@ -60,8 +60,16 @@
                 <entry pos="-18 -49" size="42 6" name="team_b" default="{$current->team_b}" textsize="1.4" />
                 <label pos="30 -46" text="Duration (1-14 days)" textsize="1.2" textcolor="A9B7C3FF" />
                 <entry pos="30 -49" size="30 6" name="duration" default="{$current->duration_days}" textsize="1.4" />
-                <quad pos="37 -63" size="29 7" bgcolor="D8D184FF" action="war.admin.settings.save" />
-                <label pos="51.5 -66.5" text="SAVE SETTINGS" textsize="1.3" textcolor="000000FF" halign="center" valign="center" action="war.admin.settings.save" />
+                <label pos="-66 -60" text="Overlay join 1/0" textsize="1.1" textcolor="A9B7C3FF" />
+                <entry pos="-66 -63" size="20 5" name="overlay_join" default="{$current->overlay_join_enabled}" textsize="1.2" />
+                <label pos="-38 -60" text="Tag detection 1/0" textsize="1.1" textcolor="A9B7C3FF" />
+                <entry pos="-38 -63" size="20 5" name="nickname_detection" default="{$current->nickname_detection_enabled}" textsize="1.2" />
+                <label pos="-10 -60" text="Team switch 1/0" textsize="1.1" textcolor="A9B7C3FF" />
+                <entry pos="-10 -63" size="20 5" name="allow_team_switch" default="{$current->allow_team_switch}" textsize="1.2" />
+                <label pos="18 -60" text="Team limit (0 = none)" textsize="1.1" textcolor="A9B7C3FF" />
+                <entry pos="18 -63" size="24 5" name="team_limit" default="{$current->team_limit ?: 0}" textsize="1.2" />
+                <quad pos="37 -75" size="29 7" bgcolor="D8D184FF" action="war.admin.settings.save" />
+                <label pos="51.5 -78.5" text="SAVE SETTINGS" textsize="1.3" textcolor="000000FF" halign="center" valign="center" action="war.admin.settings.save" />
             {else}
                 <label pos="-66 -24" text="CREATE WAR" textsize="2" textcolor="D8D184FF" />
                 <label pos="-66 -32" text="War name (optional)" textsize="1.2" textcolor="A9B7C3FF" />
@@ -72,8 +80,16 @@
                 <entry pos="-18 -49" size="42 6" name="team_b" default="ZOOP" textsize="1.4" />
                 <label pos="30 -46" text="Duration (1-14 days)" textsize="1.2" textcolor="A9B7C3FF" />
                 <entry pos="30 -49" size="30 6" name="duration" default="7" textsize="1.4" />
-                <quad pos="37 -63" size="29 7" bgcolor="D8D184FF" action="war.admin.create" />
-                <label pos="51.5 -66.5" text="CREATE WAR" textsize="1.3" textcolor="000000FF" halign="center" valign="center" action="war.admin.create" />
+                <label pos="-66 -60" text="Overlay join 1/0" textsize="1.1" textcolor="A9B7C3FF" />
+                <entry pos="-66 -63" size="20 5" name="overlay_join" default="1" textsize="1.2" />
+                <label pos="-38 -60" text="Tag detection 1/0" textsize="1.1" textcolor="A9B7C3FF" />
+                <entry pos="-38 -63" size="20 5" name="nickname_detection" default="1" textsize="1.2" />
+                <label pos="-10 -60" text="Team switch 1/0" textsize="1.1" textcolor="A9B7C3FF" />
+                <entry pos="-10 -63" size="20 5" name="allow_team_switch" default="0" textsize="1.2" />
+                <label pos="18 -60" text="Team limit (0 = none)" textsize="1.1" textcolor="A9B7C3FF" />
+                <entry pos="18 -63" size="24 5" name="team_limit" default="0" textsize="1.2" />
+                <quad pos="37 -75" size="29 7" bgcolor="D8D184FF" action="war.admin.create" />
+                <label pos="51.5 -78.5" text="CREATE WAR" textsize="1.3" textcolor="000000FF" halign="center" valign="center" action="war.admin.create" />
             {/if}
         {/if}
 
@@ -133,19 +149,21 @@
         {if $tab == 'players'}
             <label pos="-66 -24" text="TEAM DETECTION" textsize="2" textcolor="D8D184FF" />
             {if $war}
-                <label pos="-62 -32" text="{$war->team_a}" textsize="1.6" textcolor="50CF84FF" />
-                <label pos="-15 -32" text="{$war->team_b}" textsize="1.6" textcolor="D8D184FF" />
-                <label pos="35 -32" text="UNASSIGNED ONLINE" textsize="1.6" textcolor="F05D5EFF" />
-                {foreach $players->take(12) as $entry}
-                    {if $entry->locked_team == $war->team_a}
-                        <label pos="-60 {$iterator->counter * -5 - 34}" size="40 4" text="[OK] {$entry->display_name} ({$entry->total_points})" textsize="1" textcolor="FFFFFFFF" />
-                    {else}
-                        <label pos="-13 {$iterator->counter * -5 - 34}" size="40 4" text="[OK] {$entry->display_name} ({$entry->total_points})" textsize="1" textcolor="FFFFFFFF" />
-                    {/if}
+                <label pos="-62 -32" text="PLAYER" textsize="1.1" textcolor="A9B7C3FF" />
+                <label pos="-17 -32" text="TEAM" textsize="1.1" textcolor="A9B7C3FF" />
+                <label pos="2 -32" text="PTS" textsize="1.1" textcolor="A9B7C3FF" />
+                <label pos="16 -32" text="STATUS" textsize="1.1" textcolor="A9B7C3FF" />
+                <label pos="38 -32" text="ASSIGNED" textsize="1.1" textcolor="A9B7C3FF" />
+                {foreach $players->take(9) as $entry}
+                    <label pos="-60 {$iterator->counter * -5 - 34}" size="39 4" text="{$entry->display_name}" textsize="1" textcolor="FFFFFFFF" />
+                    <label pos="-17 {$iterator->counter * -5 - 34}" text="{$entry->locked_team}" textsize="1" textcolor="D8D184FF" />
+                    <label pos="5 {$iterator->counter * -5 - 34}" text="{$entry->total_points}" textsize="1" textcolor="FFFFFFFF" halign="right" />
+                    <label pos="16 {$iterator->counter * -5 - 34}" text="{$entry->online ? 'ONLINE' : 'OFFLINE'}" textsize="0.9" textcolor="{$entry->online ? '50CF84FF' : '778692FF'}" />
+                    <label pos="38 {$iterator->counter * -5 - 34}" text="{$entry->assigned_by}" textsize="0.9" textcolor="FFFFFFFF" />
+                    <label pos="57 {$iterator->counter * -5 - 34}" text="MOVE" textsize="0.9" textcolor="D8D184FF" action="war.admin.player.move.{$iterator->counter}" />
+                    <label pos="70 {$iterator->counter * -5 - 34}" text="RESET" textsize="0.9" textcolor="F05D5EFF" action="war.admin.player.reset.{$iterator->counter}" halign="right" />
                 {/foreach}
-                {foreach $unassigned->take(9) as $online}
-                    <label pos="37 {$iterator->counter * -5 - 34}" size="30 4" text="[!] {$online->NickName}" textsize="1" textcolor="F05D5EFF" />
-                {/foreach}
+                <label pos="-60 -82" text="UNASSIGNED ONLINE: {$unassigned->count()}" textsize="1" textcolor="F05D5EFF" />
             {/if}
         {/if}
 

@@ -18,6 +18,7 @@ use EvoSC\Modules\WarManager\Classes\WarAdminOverlay;
 use EvoSC\Modules\WarManager\Classes\WarRepository;
 use EvoSC\Modules\WarManager\Classes\WarState;
 use EvoSC\Modules\WarManager\Classes\WarStatsOverlay;
+use EvoSC\Modules\WarManager\Classes\TeamAssignmentService;
 use Throwable;
 
 class WarManager extends Module implements ModuleInterface
@@ -47,6 +48,12 @@ class WarManager extends Module implements ModuleInterface
         ManiaLinkEvent::add('war.stats.players.next', [WarStatsOverlay::class, 'nextPlayerPage']);
         ManiaLinkEvent::add('war.stats.maps.previous', [WarStatsOverlay::class, 'previousMapPage']);
         ManiaLinkEvent::add('war.stats.maps.next', [WarStatsOverlay::class, 'nextMapPage']);
+        ManiaLinkEvent::add('war.stats.join.a', [WarStatsOverlay::class, 'joinTeamA']);
+        ManiaLinkEvent::add('war.stats.join.b', [WarStatsOverlay::class, 'joinTeamB']);
+        ManiaLinkEvent::add('war.stats.team.confirm.a', [WarStatsOverlay::class, 'confirmTeamA']);
+        ManiaLinkEvent::add('war.stats.team.confirm.b', [WarStatsOverlay::class, 'confirmTeamB']);
+        ManiaLinkEvent::add('war.stats.team.cancel', [WarStatsOverlay::class, 'cancelTeamChange']);
+        ManiaLinkEvent::add('war.stats.team.confirm', [WarStatsOverlay::class, 'confirmTeamChange']);
         ManiaLinkEvent::add('war.admin.close', [WarAdminOverlay::class, 'close']);
         ManiaLinkEvent::add('war.admin.overview', [WarAdminOverlay::class, 'overview'], 'war_manage');
         ManiaLinkEvent::add('war.admin.create.tab', [WarAdminOverlay::class, 'createTab'], 'war_manage');
@@ -64,6 +71,12 @@ class WarManager extends Module implements ModuleInterface
         foreach (range(1, 7) as $position) {
             ManiaLinkEvent::add('war.admin.map.remove.' . $position,
                 [WarAdminOverlay::class, 'removeMap' . $position], 'war_maps');
+        }
+        foreach (range(1, 12) as $position) {
+            ManiaLinkEvent::add('war.admin.player.move.' . $position,
+                [WarAdminOverlay::class, 'movePlayer' . $position], 'war_players');
+            ManiaLinkEvent::add('war.admin.player.reset.' . $position,
+                [WarAdminOverlay::class, 'resetPlayer' . $position], 'war_players');
         }
         ManiaLinkEvent::add('war.admin.maps.previous', [WarAdminOverlay::class, 'previousMapPage'], 'war_maps');
         ManiaLinkEvent::add('war.admin.maps.next', [WarAdminOverlay::class, 'nextMapPage'], 'war_maps');
@@ -98,6 +111,11 @@ class WarManager extends Module implements ModuleInterface
 
     public static function playerConnect(Player $player): void
     {
+        try {
+            TeamAssignmentService::assignFromNickname($player);
+        } catch (Throwable $error) {
+            // The player can still choose a team manually when automatic assignment is unavailable.
+        }
         WarStatsOverlay::showWidget($player);
     }
 

@@ -39,6 +39,9 @@ unrestricted MasterAdmin group receives access automatically.
 - Admin lifecycle commands via `//war ...`
 - Compact EvoSC-style live widget for all players with team totals and a `WAR STATS` button
 - Public War Stats window with Overview, paginated Players and paginated Maps tabs
+- Direct player team joining through War Stats, persisted per war and Trackmania login
+- Optional team limits and confirmed team switching (disabled by default)
+- Admin move/reset actions and pending War-record promotion after joining
 - Full `//war admin` control panel with Overview, Create/Settings, Maps, Points, Players and Logs tabs
 - Confirmed lifecycle actions and pause-aware war timing
 - EvoSC access rights and a QuickButtons entry
@@ -72,6 +75,11 @@ For a local run, install Composer dependencies and execute `composer test`.
 The admin overlay uses the same `WarRepository` operations as the chat commands. It can create and configure a draft,
 manage the map pool and 16-rank point profile, inspect team detection and audit logs, and start, pause, resume, finish
 or cancel a war with confirmation. Map and point changes remain locked after the first start to protect scoring integrity.
+
+Team joining is restricted to the two teams configured for the current war. An explicit stored assignment takes priority
+over nickname tag detection. Records driven on selected War maps while a player is still unassigned are held in the
+WarManager pending table and promoted immediately after the player joins a team; unrelated historic server records are
+not imported.
 
 ## Design notes
 
