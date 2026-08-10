@@ -51,7 +51,10 @@ class WarManager extends Module implements ModuleInterface
         ManiaLinkEvent::add('war.admin.create', [WarAdminOverlay::class, 'createWar'], 'war_manage');
         ManiaLinkEvent::add('war.admin.settings.save', [WarAdminOverlay::class, 'saveSettings'], 'war_manage');
         ManiaLinkEvent::add('war.admin.map.add', [WarAdminOverlay::class, 'addMap'], 'war_maps');
+        ManiaLinkEvent::add('war.admin.map.add.server', [WarAdminOverlay::class, 'addServerMap'], 'war_maps');
         ManiaLinkEvent::add('war.admin.map.remove', [WarAdminOverlay::class, 'removeMap'], 'war_maps');
+        ManiaLinkEvent::add('war.admin.maps.previous', [WarAdminOverlay::class, 'previousMapPage'], 'war_maps');
+        ManiaLinkEvent::add('war.admin.maps.next', [WarAdminOverlay::class, 'nextMapPage'], 'war_maps');
         ManiaLinkEvent::add('war.admin.points.save', [WarAdminOverlay::class, 'savePoints'], 'war_points');
         ManiaLinkEvent::add('war.admin.points.linear', [WarAdminOverlay::class, 'linearPoints'], 'war_points');
         ManiaLinkEvent::add('war.admin.points.competitive', [WarAdminOverlay::class, 'competitivePoints'], 'war_points');
