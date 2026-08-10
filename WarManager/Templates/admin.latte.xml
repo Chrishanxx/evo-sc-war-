@@ -87,7 +87,7 @@
                 {foreach $maps->take(7) as $map}
                     <label pos="-63 {$iterator->counter * -5 - 40}" size="53 4" text="{$iterator->counter}. {$map->map_name}" textsize="1.1" textcolor="FFFFFFFF" />
                     {if $current->status == 'DRAFT'}
-                        <label pos="-7 {$iterator->counter * -5 - 40}" text="REMOVE" textsize="1" textcolor="F05D5EFF" action="war.admin.map.remove {$map->map_uid}" />
+                        <label pos="-7 {$iterator->counter * -5 - 40}" text="REMOVE" textsize="1" textcolor="F05D5EFF" action="war.admin.map.remove.{$iterator->counter}" />
                     {/if}
                 {/foreach}
                 <label pos="16 -24" text="SERVER MAPS ({$serverMapCount})" textsize="2" textcolor="D8D184FF" />
@@ -97,7 +97,7 @@
                         <label pos="68 {$iterator->counter * -6 - 25}" text="SELECTED" textsize="1" textcolor="D8D184FF" halign="right" />
                     {else}
                         {if $current->status == 'DRAFT'}
-                            <label pos="68 {$iterator->counter * -6 - 25}" text="+ ADD" textsize="1" textcolor="D8D184FF" halign="right" action="war.admin.map.add.server {$serverMap->uid}" />
+                            <label pos="68 {$iterator->counter * -6 - 25}" text="+ ADD" textsize="1" textcolor="D8D184FF" halign="right" action="war.admin.map.add.server.{$iterator->counter}" />
                         {/if}
                     {/if}
                 {/foreach}
