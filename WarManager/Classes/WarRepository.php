@@ -80,6 +80,32 @@ final class WarRepository
         self::audit($scrim->id, $admin->Login, 'war.transition', ['from' => $scrim->status, 'to' => $target]);
     }
 
+    public static function updateTeams(Player $admin, string $teamA, string $teamB, string $name = ''): void
+    {
+        $war = self::requireCurrent();
+        if ($war->status !== WarState::DRAFT) {
+            throw new RuntimeException('Team names can only be changed while the war is a draft.');
+        }
+
+        $teamA = trim($teamA);
+        $teamB = trim($teamB);
+        $name = trim($name);
+        if ($teamA === '' || $teamB === '' || strcasecmp($teamA, $teamB) === 0) {
+            throw new RuntimeException('Team tags must be non-empty and different.');
+        }
+        if (mb_strlen($teamA) > 32 || mb_strlen($teamB) > 32) {
+            throw new RuntimeException('Team tags cannot exceed 32 characters.');
+        }
+
+        DB::table('wars')->where('id', $war->id)->update([
+            'team_a' => $teamA,
+            'team_b' => $teamB,
+            'name' => $name ?: "{$teamA} vs {$teamB}",
+            'updated_at' => gmdate('Y-m-d H:i:s'),
+        ]);
+        self::audit($war->id, $admin->Login, 'war.teams.updated', compact('teamA', 'teamB', 'name'));
+    }
+
     public static function finishExpired(): bool
     {
         $scrim = self::current();

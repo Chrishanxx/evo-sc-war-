@@ -37,6 +37,8 @@ unrestricted MasterAdmin group receives access automatically.
 - Persistent player, team, map and overall scores; finished results cannot drift
 - Player commands `/war`, `/war maps`, `/war me`
 - Admin lifecycle commands via `//war ...`
+- Ingame ManiaLink scoreboard opened by `/war` or the WAR QuickButton
+- Draft-only team-name and war-title editing in the overlay
 - EvoSC access rights and a QuickButtons entry
 - Audit log for state and configuration changes
 
@@ -53,6 +55,7 @@ For a local run, install Composer dependencies and execute `composer test`.
 
 ```text
 //war create <durationDays> <teamA> <teamB> [name]
+//war teams <teamA> <teamB> [name]
 //war start
 //war pause
 //war resume
