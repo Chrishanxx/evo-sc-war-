@@ -1,6 +1,6 @@
 <?php
 
-use EvoSC\Modules\Scrim\Classes\ScoreCalculator;
+use EvoSC\Modules\WarManager\Classes\ScoreCalculator;
 use PHPUnit\Framework\TestCase;
 
 final class ScoreCalculatorTest extends TestCase

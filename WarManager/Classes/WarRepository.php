@@ -1,21 +1,21 @@
 <?php
 
-namespace EvoSC\Modules\Scrim\Classes;
+namespace EvoSC\Modules\WarManager\Classes;
 
 use EvoSC\Classes\DB;
 use EvoSC\Models\Player;
 use RuntimeException;
 
-final class ScrimRepository
+final class WarRepository
 {
     public static function latest()
     {
-        return DB::table('scrims')->orderByDesc('id')->first();
+        return DB::table('wars')->orderByDesc('id')->first();
     }
 
     public static function current()
     {
-        return DB::table('scrims')->whereIn('status', [ScrimState::DRAFT, ScrimState::ACTIVE, ScrimState::PAUSED])
+        return DB::table('wars')->whereIn('status', [WarState::DRAFT, WarState::ACTIVE, WarState::PAUSED])
             ->orderByDesc('id')->first();
     }
 
@@ -33,26 +33,26 @@ final class ScrimRepository
             throw new RuntimeException('Team tags cannot exceed 32 characters.');
         }
         if (self::current()) {
-            throw new RuntimeException('A draft or running scrim already exists.');
+            throw new RuntimeException('A draft or running war already exists.');
         }
 
         return DB::transaction(static function () use ($admin, $days, $teamA, $teamB, $name): int {
-            $id = DB::table('scrims')->insertGetId([
+            $id = DB::table('wars')->insertGetId([
                 'name' => $name ?: "{$teamA} vs {$teamB}",
                 'team_a' => $teamA,
                 'team_b' => $teamB,
                 'duration_days' => $days,
-                'status' => ScrimState::DRAFT,
+                'status' => WarState::DRAFT,
                 'created_by' => $admin->Login,
                 'created_at' => gmdate('Y-m-d H:i:s'),
                 'updated_at' => gmdate('Y-m-d H:i:s'),
             ]);
 
-            $defaults = config('scrim.default-points', range(16, 1));
+            $defaults = config('war-manager.default-points', range(16, 1));
             foreach (array_values($defaults) as $index => $points) {
-                DB::table('scrim-points')->insert(['scrim_id' => $id, 'rank' => $index + 1, 'points' => (int)$points]);
+                DB::table('war-points')->insert(['war_id' => $id, 'rank' => $index + 1, 'points' => (int)$points]);
             }
-            self::audit($id, $admin->Login, 'scrim.created', compact('days', 'teamA', 'teamB', 'name'));
+            self::audit($id, $admin->Login, 'war.created', compact('days', 'teamA', 'teamB', 'name'));
             return $id;
         });
     }
@@ -60,39 +60,39 @@ final class ScrimRepository
     public static function transition(Player $admin, string $target): void
     {
         $scrim = self::requireCurrent();
-        ScrimState::assertTransition($scrim->status, $target);
-        if ($target === ScrimState::ACTIVE && !$scrim->start_at
-            && !DB::table('scrim-maps')->where('scrim_id', $scrim->id)->exists()) {
-            throw new RuntimeException('Add at least one server map before starting the scrim.');
+        WarState::assertTransition($scrim->status, $target);
+        if ($target === WarState::ACTIVE && !$scrim->start_at
+            && !DB::table('war-maps')->where('war_id', $scrim->id)->exists()) {
+            throw new RuntimeException('Add at least one server map before starting the war.');
         }
         $values = ['status' => $target, 'updated_at' => gmdate('Y-m-d H:i:s')];
-        if ($target === ScrimState::ACTIVE && !$scrim->start_at) {
+        if ($target === WarState::ACTIVE && !$scrim->start_at) {
             $start = time();
             $values['start_at'] = gmdate('Y-m-d H:i:s', $start);
             $values['end_at'] = gmdate('Y-m-d H:i:s', $start + ((int)$scrim->duration_days * 86400));
             $values['map_pool_locked'] = 1;
             $values['points_locked'] = 1;
         }
-        if ($target === ScrimState::FINISHED || $target === ScrimState::CANCELLED) {
+        if ($target === WarState::FINISHED || $target === WarState::CANCELLED) {
             $values['finished_at'] = gmdate('Y-m-d H:i:s');
         }
-        DB::table('scrims')->where('id', $scrim->id)->update($values);
-        self::audit($scrim->id, $admin->Login, 'scrim.transition', ['from' => $scrim->status, 'to' => $target]);
+        DB::table('wars')->where('id', $scrim->id)->update($values);
+        self::audit($scrim->id, $admin->Login, 'war.transition', ['from' => $scrim->status, 'to' => $target]);
     }
 
     public static function finishExpired(): bool
     {
         $scrim = self::current();
-        if (!$scrim || !in_array($scrim->status, [ScrimState::ACTIVE, ScrimState::PAUSED], true)
+        if (!$scrim || !in_array($scrim->status, [WarState::ACTIVE, WarState::PAUSED], true)
             || !$scrim->end_at || strtotime($scrim->end_at . ' UTC') > time()) {
             return false;
         }
-        DB::table('scrims')->where('id', $scrim->id)->update([
-            'status' => ScrimState::FINISHED,
+        DB::table('wars')->where('id', $scrim->id)->update([
+            'status' => WarState::FINISHED,
             'finished_at' => gmdate('Y-m-d H:i:s'),
             'updated_at' => gmdate('Y-m-d H:i:s'),
         ]);
-        self::audit($scrim->id, 'system', 'scrim.expired', []);
+        self::audit($scrim->id, 'system', 'war.expired', []);
         return true;
     }
 
@@ -100,7 +100,7 @@ final class ScrimRepository
     {
         $scrim = self::requireCurrent();
         if ($scrim->map_pool_locked) {
-            throw new RuntimeException('The map pool is locked after the scrim starts.');
+            throw new RuntimeException('The map pool is locked after the war starts.');
         }
         $uid = trim($uid);
         if ($uid === '') {
@@ -111,7 +111,7 @@ final class ScrimRepository
             throw new RuntimeException('The MapUID is not available on this server.');
         }
         $name = trim($name) ?: $serverMap->name;
-        DB::table('scrim-maps')->updateOrInsert(['scrim_id' => $scrim->id, 'map_uid' => $uid], ['map_name' => $name]);
+        DB::table('war-maps')->updateOrInsert(['war_id' => $scrim->id, 'map_uid' => $uid], ['map_name' => $name]);
         self::audit($scrim->id, $admin->Login, 'map.added', compact('uid', 'name'));
     }
 
@@ -119,13 +119,13 @@ final class ScrimRepository
     {
         $scrim = self::requireCurrent();
         if ($scrim->map_pool_locked) {
-            throw new RuntimeException('The map pool is locked after the scrim starts.');
+            throw new RuntimeException('The map pool is locked after the war starts.');
         }
         $uid = trim($uid);
         if ($uid === '') {
             throw new RuntimeException('A MapUID is required.');
         }
-        DB::table('scrim-maps')->where('scrim_id', $scrim->id)->where('map_uid', $uid)->delete();
+        DB::table('war-maps')->where('war_id', $scrim->id)->where('map_uid', $uid)->delete();
         self::audit($scrim->id, $admin->Login, 'map.removed', compact('uid'));
     }
 
@@ -133,12 +133,12 @@ final class ScrimRepository
     {
         $scrim = self::requireCurrent();
         if ($scrim->points_locked) {
-            throw new RuntimeException('The point profile is locked after the scrim starts.');
+            throw new RuntimeException('The point profile is locked after the war starts.');
         }
         if ($rank < 1 || $rank > 100 || $points < 0) {
             throw new RuntimeException('Rank must be 1..100 and points cannot be negative.');
         }
-        DB::table('scrim-points')->updateOrInsert(['scrim_id' => $scrim->id, 'rank' => $rank], ['points' => $points]);
+        DB::table('war-points')->updateOrInsert(['war_id' => $scrim->id, 'rank' => $rank], ['points' => $points]);
         self::audit($scrim->id, $admin->Login, 'points.changed', compact('rank', 'points'));
     }
 
@@ -146,15 +146,15 @@ final class ScrimRepository
     {
         $scrim = self::current();
         if (!$scrim) {
-            throw new RuntimeException('No current scrim exists.');
+            throw new RuntimeException('No current war exists.');
         }
         return $scrim;
     }
 
     public static function audit(int $scrimId, string $login, string $action, array $data): void
     {
-        DB::table('scrim-admin-log')->insert([
-            'scrim_id' => $scrimId, 'admin_login' => $login, 'action' => $action,
+        DB::table('war-admin-log')->insert([
+            'war_id' => $scrimId, 'admin_login' => $login, 'action' => $action,
             'data' => json_encode($data), 'created_at' => gmdate('Y-m-d H:i:s'),
         ]);
     }

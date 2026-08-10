@@ -1,0 +1,8 @@
+{
+  "version": "0.1.0",
+  "authors": [
+    "Chrishanxx"
+  ],
+  "name": "WarManager",
+  "description": "Persistent two-team wars based on records driven during TimeAttack."
+}
