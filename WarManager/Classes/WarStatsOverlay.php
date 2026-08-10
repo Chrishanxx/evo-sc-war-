@@ -6,6 +6,7 @@ use EvoSC\Classes\DB;
 use EvoSC\Classes\Template;
 use EvoSC\Controllers\MapController;
 use EvoSC\Models\Player;
+use Throwable;
 
 final class WarStatsOverlay
 {
@@ -14,6 +15,7 @@ final class WarStatsOverlay
     private static array $openTabs = [];
     private static array $playerPages = [];
     private static array $mapPages = [];
+    private static array $confirmTeams = [];
 
     public static function showWidget(Player $player): void
     {
@@ -84,12 +86,23 @@ final class WarStatsOverlay
         $visibleMapRows = $mapRows->slice(($mapPage - 1) * self::ROWS_PER_PAGE, self::ROWS_PER_PAGE)->values();
         $scoredMapCount = count($scoredMapUids);
         $mapCount = $maps->count();
+        $assignment = DB::table('war-players')->where('war_id', $warId)
+            ->where('player_login', $player->Login)->first();
+        $teamAMembers = DB::table('war-players')->where('war_id', $warId)->where('locked_team', $war->team_a)->count();
+        $teamBMembers = DB::table('war-players')->where('war_id', $warId)->where('locked_team', $war->team_b)->count();
+        $teamLimit = (int)($war->team_limit ?? 0);
+        $teamAFull = $teamLimit > 0 && $teamAMembers >= $teamLimit;
+        $teamBFull = $teamLimit > 0 && $teamBMembers >= $teamLimit;
+        $joinAvailable = $war->overlay_join_enabled
+            && in_array($war->status, [WarState::DRAFT, WarState::ACTIVE, WarState::PAUSED], true);
+        $confirmTeam = self::$confirmTeams[$player->Login] ?? '';
         self::$openTabs[$player->Login] = $tab;
 
         Template::show($player, 'WarManager.stats', compact(
             'tab', 'war', 'teamAPoints', 'teamBPoints', 'teamAColor', 'teamBColor', 'timeLeft',
             'playerRows', 'playerPage', 'playerPageCount', 'visibleMapRows', 'mapPage', 'mapPageCount',
-            'scoredMapCount', 'mapCount'
+            'scoredMapCount', 'mapCount', 'assignment', 'teamAMembers', 'teamBMembers', 'teamLimit',
+            'teamAFull', 'teamBFull', 'joinAvailable', 'confirmTeam'
         ));
     }
 
@@ -100,20 +113,50 @@ final class WarStatsOverlay
             if ($player) {
                 self::show($player, $tab);
             } else {
-                unset(self::$openTabs[$login], self::$playerPages[$login], self::$mapPages[$login]);
+                unset(self::$openTabs[$login], self::$playerPages[$login], self::$mapPages[$login], self::$confirmTeams[$login]);
             }
         }
     }
 
     public static function close(Player $player): void
     {
-        unset(self::$openTabs[$player->Login], self::$playerPages[$player->Login], self::$mapPages[$player->Login]);
+        unset(self::$openTabs[$player->Login], self::$playerPages[$player->Login], self::$mapPages[$player->Login], self::$confirmTeams[$player->Login]);
         Template::hide($player, 'WarManagerStats');
     }
 
     public static function overview(Player $player): void { self::show($player, 'overview'); }
     public static function players(Player $player): void { self::show($player, 'players'); }
     public static function maps(Player $player): void { self::show($player, 'maps'); }
+
+    public static function joinTeamA(Player $player): void { self::joinCurrentTeam($player, true); }
+    public static function joinTeamB(Player $player): void { self::joinCurrentTeam($player, false); }
+
+    public static function confirmTeamA(Player $player): void
+    {
+        $war = WarRepository::current();
+        self::$confirmTeams[$player->Login] = $war ? $war->team_a : '';
+        self::show($player, 'overview');
+    }
+
+    public static function confirmTeamB(Player $player): void
+    {
+        $war = WarRepository::current();
+        self::$confirmTeams[$player->Login] = $war ? $war->team_b : '';
+        self::show($player, 'overview');
+    }
+
+    public static function cancelTeamChange(Player $player): void
+    {
+        unset(self::$confirmTeams[$player->Login]);
+        self::show($player, 'overview');
+    }
+
+    public static function confirmTeamChange(Player $player): void
+    {
+        $team = self::$confirmTeams[$player->Login] ?? '';
+        unset(self::$confirmTeams[$player->Login]);
+        self::joinSelectedTeam($player, $team);
+    }
 
     public static function previousPlayerPage(Player $player): void
     {
@@ -144,6 +187,23 @@ final class WarStatsOverlay
         $scores = DB::table('war-players')->where('war_id', $warId)
             ->selectRaw('locked_team, SUM(total_points) points')->groupBy('locked_team')->pluck('points', 'locked_team');
         return [(int)($scores[$teamA] ?? 0), (int)($scores[$teamB] ?? 0)];
+    }
+
+    private static function joinCurrentTeam(Player $player, bool $teamA): void
+    {
+        $war = WarRepository::current();
+        self::joinSelectedTeam($player, $war ? ($teamA ? $war->team_a : $war->team_b) : '');
+    }
+
+    private static function joinSelectedTeam(Player $player, string $team): void
+    {
+        try {
+            TeamAssignmentService::join($player, $team);
+            infoMessage('You joined team ', $team, '.')->send($player);
+        } catch (Throwable $error) {
+            dangerMessage($error->getMessage())->send($player);
+        }
+        self::show($player, 'overview');
     }
 
     private static function timeLeft($war): string

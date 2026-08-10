@@ -131,6 +131,42 @@ final class WarRepository
         self::audit($war->id, $admin->Login, 'war.duration.updated', compact('days'));
     }
 
+    public static function updateParticipationSettings(
+        Player $admin,
+        bool $overlayJoin,
+        bool $nicknameDetection,
+        bool $allowTeamSwitch,
+        int $teamLimit
+    ): void {
+        $war = self::requireCurrent();
+        if ($war->status !== WarState::DRAFT) {
+            throw new RuntimeException('Participation settings can only be changed while the war is a draft.');
+        }
+        if ($teamLimit < 0 || $teamLimit > 100) {
+            throw new RuntimeException('Team limit must be 0 (unlimited) or between 1 and 100.');
+        }
+        if ($teamLimit > 0) {
+            $largestTeam = DB::table('war-players')->where('war_id', $war->id)
+                ->selectRaw('COUNT(*) members')->groupBy('locked_team')->orderByDesc('members')->first();
+            if ((int)($largestTeam->members ?? 0) > $teamLimit) {
+                throw new RuntimeException('Team limit cannot be lower than the current number of team members.');
+            }
+        }
+        DB::table('wars')->where('id', $war->id)->update([
+            'overlay_join_enabled' => $overlayJoin ? 1 : 0,
+            'nickname_detection_enabled' => $nicknameDetection ? 1 : 0,
+            'allow_team_switch' => $allowTeamSwitch ? 1 : 0,
+            'team_limit' => $teamLimit ?: null,
+            'updated_at' => gmdate('Y-m-d H:i:s'),
+        ]);
+        self::audit($war->id, $admin->Login, 'war.participation.updated', [
+            'overlay_join_enabled' => $overlayJoin,
+            'nickname_detection_enabled' => $nicknameDetection,
+            'allow_team_switch' => $allowTeamSwitch,
+            'team_limit' => $teamLimit,
+        ]);
+    }
+
     public static function setPointProfile(Player $admin, array $profile): void
     {
         $war = self::requireCurrent();
