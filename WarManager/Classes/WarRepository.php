@@ -72,6 +72,15 @@ final class WarRepository
             $values['end_at'] = gmdate('Y-m-d H:i:s', $start + ((int)$scrim->duration_days * 86400));
             $values['map_pool_locked'] = 1;
             $values['points_locked'] = 1;
+        } elseif ($target === WarState::PAUSED) {
+            $values['paused_at'] = gmdate('Y-m-d H:i:s');
+        } elseif ($target === WarState::ACTIVE && $scrim->paused_at) {
+            $pausedFor = max(0, time() - strtotime($scrim->paused_at . ' UTC'));
+            $values['paused_at'] = null;
+            $values['paused_seconds'] = (int)$scrim->paused_seconds + $pausedFor;
+            if ($scrim->end_at) {
+                $values['end_at'] = gmdate('Y-m-d H:i:s', strtotime($scrim->end_at . ' UTC') + $pausedFor);
+            }
         }
         if ($target === WarState::FINISHED || $target === WarState::CANCELLED) {
             $values['finished_at'] = gmdate('Y-m-d H:i:s');
@@ -106,10 +115,52 @@ final class WarRepository
         self::audit($war->id, $admin->Login, 'war.teams.updated', compact('teamA', 'teamB', 'name'));
     }
 
+    public static function updateDuration(Player $admin, int $days): void
+    {
+        $war = self::requireCurrent();
+        if ($war->status !== WarState::DRAFT) {
+            throw new RuntimeException('Duration can only be changed while the war is a draft.');
+        }
+        if ($days < 1 || $days > 14) {
+            throw new RuntimeException('Duration must be between 1 and 14 days.');
+        }
+        DB::table('wars')->where('id', $war->id)->update([
+            'duration_days' => $days,
+            'updated_at' => gmdate('Y-m-d H:i:s'),
+        ]);
+        self::audit($war->id, $admin->Login, 'war.duration.updated', compact('days'));
+    }
+
+    public static function setPointProfile(Player $admin, array $profile): void
+    {
+        $war = self::requireCurrent();
+        if ($war->points_locked) {
+            throw new RuntimeException('The point profile is locked after the war starts.');
+        }
+        $profile = array_slice(array_values($profile), 0, 16);
+        if (count($profile) !== 16) {
+            throw new RuntimeException('The point profile must contain 16 ranks.');
+        }
+        foreach ($profile as $points) {
+            if (!is_numeric($points) || (int)$points < 0) {
+                throw new RuntimeException('Points must be zero or greater.');
+            }
+        }
+        DB::transaction(static function () use ($war, $profile): void {
+            foreach ($profile as $index => $points) {
+                DB::table('war-points')->updateOrInsert(
+                    ['war_id' => $war->id, 'rank' => $index + 1],
+                    ['points' => (int)$points]
+                );
+            }
+        });
+        self::audit($war->id, $admin->Login, 'points.profile.changed', ['points' => array_map('intval', $profile)]);
+    }
+
     public static function finishExpired(): bool
     {
         $scrim = self::current();
-        if (!$scrim || !in_array($scrim->status, [WarState::ACTIVE, WarState::PAUSED], true)
+        if (!$scrim || $scrim->status !== WarState::ACTIVE
             || !$scrim->end_at || strtotime($scrim->end_at . ' UTC') > time()) {
             return false;
         }

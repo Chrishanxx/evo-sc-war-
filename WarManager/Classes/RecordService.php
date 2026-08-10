@@ -70,4 +70,12 @@ final class RecordService
                 ->update(['total_points' => (int)$total->total]);
         }
     }
+
+    public static function recalculateAll(int $warId): void
+    {
+        foreach (DB::table('war-maps')->where('war_id', $warId)->pluck('map_uid') as $mapUid) {
+            self::recalculate($warId, $mapUid);
+        }
+        Hook::fire('WarRecordUpdated');
+    }
 }

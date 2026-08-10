@@ -39,6 +39,8 @@ unrestricted MasterAdmin group receives access automatically.
 - Admin lifecycle commands via `//war ...`
 - Ingame ManiaLink scoreboard opened by `/war` or the WAR QuickButton
 - Draft-only team-name and war-title editing in the overlay
+- Full `//war admin` control panel with Overview, Create/Settings, Maps, Points, Players and Logs tabs
+- Confirmed lifecycle actions and pause-aware war timing
 - EvoSC access rights and a QuickButtons entry
 - Audit log for state and configuration changes
 
@@ -55,6 +57,7 @@ For a local run, install Composer dependencies and execute `composer test`.
 
 ```text
 //war create <durationDays> <teamA> <teamB> [name]
+//war admin
 //war teams <teamA> <teamB> [name]
 //war start
 //war pause
@@ -66,6 +69,10 @@ For a local run, install Composer dependencies and execute `composer test`.
 //war map remove <MapUID>
 //war points <rank> <points>
 ```
+
+The admin overlay uses the same `WarRepository` operations as the chat commands. It can create and configure a draft,
+manage the map pool and 16-rank point profile, inspect team detection and audit logs, and start, pause, resume, finish
+or cancel a war with confirmation. Map and point changes remain locked after the first start to protect scoring integrity.
 
 ## Design notes
 

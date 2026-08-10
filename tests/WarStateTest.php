@@ -16,4 +16,10 @@ final class WarStateTest extends TestCase
         $this->expectException(\DomainException::class);
         WarState::assertTransition(WarState::FINISHED, WarState::ACTIVE);
     }
+
+    public function testPausedWarCanResume(): void
+    {
+        WarState::assertTransition(WarState::PAUSED, WarState::ACTIVE);
+        self::addToAssertionCount(1);
+    }
 }
