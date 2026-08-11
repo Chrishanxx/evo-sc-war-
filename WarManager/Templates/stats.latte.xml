@@ -33,8 +33,8 @@
             <label pos="-45 -49" text="CURRENT MAP" textsize="0.75" textcolor="A6A6A6FF" />
             <label pos="-45 -57" size="75 5" text="{$currentMapName}" textsize="1.65" textcolor="{$currentMapValid ? 'F5F5F5FF' : 'E4DA72FF'}" />
             <label pos="45 -57" text="{$rotationPosition} / {$mapCount}" textsize="1" textcolor="E4DA72FF" halign="right" />
-            {if !$currentMapValid and $war->status == 'ACTIVE'}
-                <label pos="-45 -62" text="MAP NOT PART OF SCRIM - SCORING PAUSED" textsize="0.8" textcolor="E4DA72FF" />
+            {if $displayStatus == 'SCORING PAUSED'}
+                <label pos="-45 -62" text="TIMEATTACK ACTIVE - WAR SCORING PAUSED" textsize="0.8" textcolor="E4DA72FF" />
             {/if}
             {if $joinAvailable}
                 <label pos="0 -65" text="CHOOSE YOUR TEAM" textsize="0.78" textcolor="A6A6A6FF" halign="center" />

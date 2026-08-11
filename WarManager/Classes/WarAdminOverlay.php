@@ -41,6 +41,7 @@ final class WarAdminOverlay
             ->selectRaw('locked_team, SUM(total_points) points')->groupBy('locked_team')->pluck('points', 'locked_team') : new Collection();
         $teamAPoints = $war ? (int)($teamScores[$war->team_a] ?? 0) : 0;
         $teamBPoints = $war ? (int)($teamScores[$war->team_b] ?? 0) : 0;
+        $scoringPaused = $war ? !empty($war->scoring_paused) : false;
         $clockTime = $war && $war->status === WarState::PAUSED && $war->paused_at
             ? strtotime($war->paused_at . ' UTC')
             : time();
@@ -75,7 +76,7 @@ final class WarAdminOverlay
 
         Template::show($player, 'WarManager.admin', compact(
             'tab', 'war', 'current', 'maps', 'players', 'points', 'logs', 'serverMaps', 'unassigned',
-            'teamAPoints', 'teamBPoints', 'timeLeft', 'ready', 'confirmAction', 'serverMapCount',
+            'teamAPoints', 'teamBPoints', 'timeLeft', 'ready', 'confirmAction', 'serverMapCount', 'scoringPaused',
             'mapPage', 'mapPageCount', 'rotationMapCount', 'rotationValidCount', 'rotationHasMissing'
         ));
     }
@@ -284,11 +285,26 @@ final class WarAdminOverlay
     public static function confirmResume(Player $player): void { self::show($player, 'overview', 'resume'); }
     public static function confirmFinish(Player $player): void { self::show($player, 'overview', 'finish'); }
     public static function confirmCancel(Player $player): void { self::show($player, 'overview', 'cancel'); }
+    public static function confirmScoringPause(Player $player): void { self::show($player, 'overview', 'scoring_pause'); }
+    public static function confirmScoringResume(Player $player): void { self::show($player, 'overview', 'scoring_resume'); }
     public static function startWar(Player $player): void { self::transition($player, WarState::ACTIVE, 'War started.'); }
     public static function pauseWar(Player $player): void { self::transition($player, WarState::PAUSED, 'War paused.'); }
     public static function resumeWar(Player $player): void { self::transition($player, WarState::ACTIVE, 'War resumed.'); }
     public static function finishWar(Player $player): void { self::transition($player, WarState::FINISHED, 'War finished.'); }
     public static function cancelWar(Player $player): void { self::transition($player, WarState::CANCELLED, 'War cancelled.'); }
+    public static function pauseScoring(Player $player): void
+    {
+        self::run($player, 'overview', static function () use ($player): void {
+            WarRepository::setScoringPaused($player, true, 'MANUALLY PAUSED');
+        }, 'War scoring paused. TimeAttack remains active.');
+    }
+
+    public static function resumeScoring(Player $player): void
+    {
+        self::run($player, 'overview', static function () use ($player): void {
+            WarRepository::setScoringPaused($player, false);
+        }, 'War scoring resumed.');
+    }
 
     private static function transition(Player $player, string $state, string $message): void
     {

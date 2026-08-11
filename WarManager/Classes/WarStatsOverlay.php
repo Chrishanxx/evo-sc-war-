@@ -40,11 +40,13 @@ final class WarStatsOverlay
         $currentMap = MapController::getCurrentMap();
         $currentMapValid = $currentMap && DB::table('war-maps')->where('war_id', $war->id)
             ->where('map_uid', $currentMap->uid)->exists();
-        $scoringPaused = $war->status === WarState::ACTIVE && !$currentMapValid;
+        $manualScoringPause = !empty($war->scoring_paused);
+        $scoringPaused = $war->status === WarState::ACTIVE && ($manualScoringPause || !$currentMapValid);
         $statusLabel = $scoringPaused ? 'SCORING PAUSED' : ($war->status === WarState::FINISHED ? 'FINAL' : $war->status);
-        $statusDetail = $scoringPaused ? 'MAP NOT PART OF SCRIM' :
+        $statusDetail = $manualScoringPause ? strtoupper((string)($war->scoring_pause_reason ?: 'MANUALLY PAUSED')) :
+            ($scoringPaused ? 'MAP NOT PART OF SCRIM' :
             ($war->status === WarState::DRAFT ? 'WAITING' :
-                ($war->status === WarState::PAUSED ? 'TIMER PAUSED' : $timeLeft));
+                ($war->status === WarState::PAUSED ? 'TIMER PAUSED' : $timeLeft)));
         $mapLabel = $war->status === WarState::DRAFT ? 'MAPS ' . $mapCount :
             'MAP ' . $rotationPosition . '/' . $mapCount;
         $canOpenAdmin = $player->hasAccess('war_manage');
@@ -83,7 +85,7 @@ final class WarStatsOverlay
             ->where('map_uid', $currentMapUid)->exists();
         $currentWarMap = $maps->firstWhere('map_uid', $currentMapUid);
         $currentPosition = $currentWarMap ? (int)$currentWarMap->position : 0;
-        $displayStatus = $war->status === WarState::ACTIVE && !$currentMapValid
+        $displayStatus = $war->status === WarState::ACTIVE && (!empty($war->scoring_paused) || !$currentMapValid)
             ? 'SCORING PAUSED' : ($war->status === WarState::FINISHED ? 'FINAL' : $war->status);
         $mapRows = $maps->map(static function ($map) use ($mapScores, $scoredMapUids, $currentMapUid, $currentPosition, $war) {
             $scores = $mapScores->where('map_uid', $map->map_uid)->pluck('points', 'team');

@@ -233,6 +233,22 @@ final class WarRepository
         self::audit($war->id, $admin->Login, 'points.profile.changed', ['points' => array_map('intval', $profile)]);
     }
 
+    public static function setScoringPaused(Player $admin, bool $paused, string $reason = 'manual'): void
+    {
+        $war = self::requireCurrent();
+        if ($war->status !== WarState::ACTIVE) {
+            throw new RuntimeException('Scoring can only be paused or resumed while the war is live.');
+        }
+        DB::table('wars')->where('id', $war->id)->update([
+            'scoring_paused' => $paused ? 1 : 0,
+            'scoring_pause_reason' => $paused ? trim($reason) ?: 'manual' : null,
+            'updated_at' => gmdate('Y-m-d H:i:s'),
+        ]);
+        self::audit((int)$war->id, $admin->Login, $paused ? 'scoring.paused' : 'scoring.resumed', [
+            'reason' => $paused ? trim($reason) ?: 'manual' : null,
+        ]);
+    }
+
     public static function finishExpired(): bool
     {
         $scrim = self::current();
