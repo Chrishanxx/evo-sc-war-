@@ -40,11 +40,13 @@ final class WarStatsOverlay
         $currentMap = MapController::getCurrentMap();
         $currentMapValid = $currentMap && DB::table('war-maps')->where('war_id', $war->id)
             ->where('map_uid', $currentMap->uid)->exists();
-        $scoringPaused = $war->status === WarState::ACTIVE && !$currentMapValid;
+        $manualScoringPause = !empty($war->scoring_paused);
+        $scoringPaused = $war->status === WarState::ACTIVE && ($manualScoringPause || !$currentMapValid);
         $statusLabel = $scoringPaused ? 'SCORING PAUSED' : ($war->status === WarState::FINISHED ? 'FINAL' : $war->status);
-        $statusDetail = $scoringPaused ? 'MAP NOT PART OF SCRIM' :
+        $statusDetail = $manualScoringPause ? strtoupper((string)($war->scoring_pause_reason ?: 'MANUALLY PAUSED')) :
+            ($scoringPaused ? 'MAP NOT PART OF SCRIM' :
             ($war->status === WarState::DRAFT ? 'WAITING' :
-                ($war->status === WarState::PAUSED ? 'TIMER PAUSED' : $timeLeft));
+                ($war->status === WarState::PAUSED ? 'TIMER PAUSED' : $timeLeft)));
         $mapLabel = $war->status === WarState::DRAFT ? 'MAPS ' . $mapCount :
             'MAP ' . $rotationPosition . '/' . $mapCount;
         $canOpenAdmin = $player->hasAccess('war_manage');
@@ -58,7 +60,7 @@ final class WarStatsOverlay
 
     public static function show(Player $player, string $tab = 'overview'): void
     {
-        $tab = in_array($tab, ['overview', 'maps', 'history'], true) ? $tab : 'overview';
+        $tab = in_array($tab, ['overview', 'teams', 'players', 'maps', 'stats'], true) ? $tab : 'overview';
         $state = WarViewState::latest();
         if (!$state) {
             infoMessage('There is no current war.')->send($player);
@@ -83,7 +85,7 @@ final class WarStatsOverlay
             ->where('map_uid', $currentMapUid)->exists();
         $currentWarMap = $maps->firstWhere('map_uid', $currentMapUid);
         $currentPosition = $currentWarMap ? (int)$currentWarMap->position : 0;
-        $displayStatus = $war->status === WarState::ACTIVE && !$currentMapValid
+        $displayStatus = $war->status === WarState::ACTIVE && (!empty($war->scoring_paused) || !$currentMapValid)
             ? 'SCORING PAUSED' : ($war->status === WarState::FINISHED ? 'FINAL' : $war->status);
         $mapRows = $maps->map(static function ($map) use ($mapScores, $scoredMapUids, $currentMapUid, $currentPosition, $war) {
             $scores = $mapScores->where('map_uid', $map->map_uid)->pluck('points', 'team');
@@ -100,12 +102,23 @@ final class WarStatsOverlay
         $historyRows = $mapRows->where('status', 'DONE')->take(7)->values();
         $players = DB::table('war-players')->where('war_id', $warId)
             ->orderByDesc('total_points')->orderBy('display_name')->get()
-            ->map(static function ($entry) use ($war, $teamAColor, $teamBColor) {
+            ->map(static function ($entry) use ($war, $teamAColor, $teamBColor, $player) {
                 $entry->team_color = $entry->locked_team === $war->team_a ? $teamAColor : $teamBColor;
+                $entry->is_self = $entry->player_login === $player->Login;
                 return $entry;
             });
         $teamARows = $players->where('locked_team', $war->team_a)->take(7)->values();
         $teamBRows = $players->where('locked_team', $war->team_b)->take(7)->values();
+        $teamABestPlayer = (int)($players->where('locked_team', $war->team_a)->max('total_points') ?? 0);
+        $teamBBestPlayer = (int)($players->where('locked_team', $war->team_b)->max('total_points') ?? 0);
+        $teamAMapWins = $mapRows->where('status', 'DONE')->filter(static function ($row) {
+            return $row->team_a_points > $row->team_b_points;
+        })->count();
+        $teamBMapWins = $mapRows->where('status', 'DONE')->filter(static function ($row) {
+            return $row->team_b_points > $row->team_a_points;
+        })->count();
+        $teamARecordCount = DB::table('war-records')->where('war_id', $warId)->where('team', $war->team_a)->count();
+        $teamBRecordCount = DB::table('war-records')->where('war_id', $warId)->where('team', $war->team_b)->count();
 
         $playerPageCount = max(1, (int)ceil($players->count() / self::ROWS_PER_PAGE));
         $playerPage = max(1, min((int)(self::$playerPages[$player->Login] ?? 1), $playerPageCount));
@@ -127,6 +140,8 @@ final class WarStatsOverlay
         $teamLimit = (int)($war->team_limit ?? 0);
         $teamAFull = $teamLimit > 0 && $teamAMembers >= $teamLimit;
         $teamBFull = $teamLimit > 0 && $teamBMembers >= $teamLimit;
+        $teamACountLabel = $teamLimit > 0 ? $teamAMembers . ' / ' . $teamLimit : (string)$teamAMembers;
+        $teamBCountLabel = $teamLimit > 0 ? $teamBMembers . ' / ' . $teamLimit : (string)$teamBMembers;
         $joinAvailable = !$assignment && $war->overlay_join_enabled && $war->status === WarState::ACTIVE;
         $confirmTeam = self::$confirmTeams[$player->Login] ?? '';
         self::$openTabs[$player->Login] = $tab;
@@ -139,7 +154,9 @@ final class WarStatsOverlay
             'playerRows', 'playerPage', 'playerPageCount', 'visibleMapRows', 'mapPage', 'mapPageCount',
             'scoredMapCount', 'mapCount', 'rotationNumber', 'rotationPosition', 'assignment', 'teamAMembers', 'teamBMembers', 'teamLimit',
             'teamAFull', 'teamBFull', 'joinAvailable', 'confirmTeam', 'teamARows', 'teamBRows',
-            'currentMapName', 'currentMapValid', 'displayStatus', 'historyRows'
+            'currentMapName', 'currentMapValid', 'displayStatus', 'historyRows', 'teamABestPlayer',
+            'teamBBestPlayer', 'teamAMapWins', 'teamBMapWins', 'teamARecordCount', 'teamBRecordCount',
+            'teamACountLabel', 'teamBCountLabel'
         ));
     }
 
@@ -162,8 +179,10 @@ final class WarStatsOverlay
     }
 
     public static function overview(Player $player): void { self::show($player, 'overview'); }
+    public static function teams(Player $player): void { self::show($player, 'teams'); }
+    public static function playerTab(Player $player): void { self::show($player, 'players'); }
     public static function maps(Player $player): void { self::show($player, 'maps'); }
-    public static function history(Player $player): void { self::show($player, 'history'); }
+    public static function stats(Player $player): void { self::show($player, 'stats'); }
 
     public static function players(Player $player): void
     {
@@ -219,20 +238,20 @@ final class WarStatsOverlay
     {
         $war = WarRepository::current();
         self::$confirmTeams[$player->Login] = $war ? $war->team_a : '';
-        self::players($player);
+        self::show($player, 'teams');
     }
 
     public static function confirmTeamB(Player $player): void
     {
         $war = WarRepository::current();
         self::$confirmTeams[$player->Login] = $war ? $war->team_b : '';
-        self::players($player);
+        self::show($player, 'teams');
     }
 
     public static function cancelTeamChange(Player $player): void
     {
         unset(self::$confirmTeams[$player->Login]);
-        self::players($player);
+        self::show($player, 'teams');
     }
 
     public static function confirmTeamChange(Player $player): void
@@ -274,7 +293,7 @@ final class WarStatsOverlay
         } catch (Throwable $error) {
             dangerMessage($error->getMessage())->send($player);
         }
-        self::players($player);
+        self::show($player, 'overview');
     }
 
 }

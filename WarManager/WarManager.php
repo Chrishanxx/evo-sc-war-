@@ -47,9 +47,10 @@ class WarManager extends Module implements ModuleInterface
         ManiaLinkEvent::add('war.panel.admin', [WarStatsOverlay::class, 'openAdmin'], 'war_manage');
         ManiaLinkEvent::add('war.stats.close', [WarStatsOverlay::class, 'close']);
         ManiaLinkEvent::add('war.stats.overview', [WarStatsOverlay::class, 'overview']);
-        ManiaLinkEvent::add('war.stats.players', [WarStatsOverlay::class, 'players']);
+        ManiaLinkEvent::add('war.stats.teams', [WarStatsOverlay::class, 'teams']);
+        ManiaLinkEvent::add('war.stats.players', [WarStatsOverlay::class, 'playerTab']);
         ManiaLinkEvent::add('war.stats.maps', [WarStatsOverlay::class, 'maps']);
-        ManiaLinkEvent::add('war.stats.history', [WarStatsOverlay::class, 'history']);
+        ManiaLinkEvent::add('war.stats.summary', [WarStatsOverlay::class, 'stats']);
         ManiaLinkEvent::add('war.stats.players.previous', [WarStatsOverlay::class, 'previousPlayerPage']);
         ManiaLinkEvent::add('war.stats.players.next', [WarStatsOverlay::class, 'nextPlayerPage']);
         ManiaLinkEvent::add('war.stats.maps.previous', [WarStatsOverlay::class, 'previousMapPage']);
@@ -96,14 +97,19 @@ class WarManager extends Module implements ModuleInterface
         ManiaLinkEvent::add('war.admin.control.resume', [WarAdminOverlay::class, 'confirmResume'], 'war_start');
         ManiaLinkEvent::add('war.admin.control.finish', [WarAdminOverlay::class, 'confirmFinish'], 'war_finish');
         ManiaLinkEvent::add('war.admin.control.cancel', [WarAdminOverlay::class, 'confirmCancel'], 'war_cancel');
+        ManiaLinkEvent::add('war.admin.control.scoring.pause', [WarAdminOverlay::class, 'confirmScoringPause'], 'war_points');
+        ManiaLinkEvent::add('war.admin.control.scoring.resume', [WarAdminOverlay::class, 'confirmScoringResume'], 'war_points');
         ManiaLinkEvent::add('war.admin.confirm.start', [WarAdminOverlay::class, 'startWar'], 'war_start');
         ManiaLinkEvent::add('war.admin.confirm.pause', [WarAdminOverlay::class, 'pauseWar'], 'war_pause');
         ManiaLinkEvent::add('war.admin.confirm.resume', [WarAdminOverlay::class, 'resumeWar'], 'war_start');
         ManiaLinkEvent::add('war.admin.confirm.finish', [WarAdminOverlay::class, 'finishWar'], 'war_finish');
         ManiaLinkEvent::add('war.admin.confirm.cancel', [WarAdminOverlay::class, 'cancelWar'], 'war_cancel');
+        ManiaLinkEvent::add('war.admin.confirm.scoring.pause', [WarAdminOverlay::class, 'pauseScoring'], 'war_points');
+        ManiaLinkEvent::add('war.admin.confirm.scoring.resume', [WarAdminOverlay::class, 'resumeScoring'], 'war_points');
 
         if (config('war-manager.show-quick-button', true) && config('quick-buttons.enabled', true)) {
             QuickButtons::addButton('⚔', 'WAR', 'war.show');
+            QuickButtons::addButton('', 'WAR ADMIN', 'war.panel.admin', 'war_manage');
         }
         Timer::create('war-manager.check_expiration', [self::class, 'tick'], '30s', true);
         self::tick();
@@ -287,6 +293,13 @@ class WarManager extends Module implements ModuleInterface
             } elseif ($action === 'points') {
                 self::requireAccess($player, 'war_points');
                 WarRepository::setPoints($player, (int)($args[0] ?? 0), (int)($args[1] ?? -1));
+            } elseif ($action === 'scoring') {
+                self::requireAccess($player, 'war_points');
+                $operation = strtolower((string)($args[0] ?? ''));
+                if (!in_array($operation, ['pause', 'resume'], true)) {
+                    throw new \RuntimeException('Usage: //war scoring pause|resume');
+                }
+                WarRepository::setScoringPaused($player, $operation === 'pause', 'MANUALLY PAUSED');
             } elseif ($action === 'teams') {
                 self::requireAccess($player, 'war_manage');
                 $teamA = (string)array_shift($args); $teamB = (string)array_shift($args);
@@ -294,7 +307,7 @@ class WarManager extends Module implements ModuleInterface
             } elseif ($action === 'status') {
                 self::requireAccess($player, 'war_manage');
             } else {
-                throw new \RuntimeException('Unknown war command. Use create, teams, start, pause, resume, finish, cancel, map, points or status.');
+                throw new \RuntimeException('Unknown war command. Use create, teams, start, pause, resume, finish, cancel, map, points, scoring or status.');
             }
             self::refreshOverlays();
             self::show($player);

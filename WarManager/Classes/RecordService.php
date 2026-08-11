@@ -13,7 +13,7 @@ final class RecordService
     {
         WarRepository::finishExpired();
         $scrim = WarRepository::current();
-        if (!$scrim || $scrim->status !== WarState::ACTIVE) {
+        if (!$scrim || $scrim->status !== WarState::ACTIVE || !empty($scrim->scoring_paused)) {
             return;
         }
         $map = MapController::getCurrentMap();

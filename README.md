@@ -1,6 +1,6 @@
 # EvoSC WarManager
 
-Current module version: **0.10.4**. This release introduces the permanent competitive live bar, separate players and statistics panels, and restores direct team-join buttons in the Stats overview. Administrative access remains permission-protected; scoring, TimeAttack and server rotation behaviour remain unchanged.
+Current module version: **0.10.6**. This release unifies the public player interface into `OVERVIEW`, `TEAMS`, `PLAYERS`, `MAPS` and `STATS`, adds a prominent team-join flow with confirmation, makes the compact live bar open the WAR panel, and registers a separate permission-filtered WAR ADMIN quick button. Team assignments remain account-backed and locked for an active war. MatchSettings continue to use only `Trackmania/TM_TimeAttack_Online.Script.txt`.
 
 External WarManager module for the classic PHP release of EvoSC and Trackmania 2020.
 It keeps `Trackmania/TM_TimeAttack_Online.Script.txt` untouched and calculates a
