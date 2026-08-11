@@ -18,7 +18,7 @@ final class WarAdminOverlay
 
     public static function show(Player $player, string $tab = 'overview', string $confirmAction = ''): void
     {
-        $allowedTabs = ['overview', 'create', 'maps', 'points', 'players', 'logs'];
+        $allowedTabs = ['overview', 'create', 'matchsettings', 'maps', 'points', 'players', 'logs'];
         $tab = in_array($tab, $allowedTabs, true) ? $tab : 'overview';
         $war = WarRepository::latest();
         $current = WarRepository::current();
@@ -94,6 +94,7 @@ final class WarAdminOverlay
 
     public static function overview(Player $player): void { self::show($player, 'overview'); }
     public static function createTab(Player $player): void { self::show($player, 'create'); }
+    public static function matchsettings(Player $player): void { self::show($player, 'matchsettings'); }
     public static function maps(Player $player): void { self::show($player, 'maps'); }
     public static function previousMapPage(Player $player): void
     {
@@ -141,6 +142,28 @@ final class WarAdminOverlay
                 (int)($values->team_limit ?? 0)
             );
         }, 'War settings saved.');
+    }
+
+    public static function saveMatchsettingsProfile(Player $player, $values): void
+    {
+        self::run($player, 'matchsettings', static function () use ($player, $values): void {
+            self::requireValues($values);
+            WarRepository::updateMatchsettingsProfile(
+                $player,
+                (string)($values->team_a_name ?? ''),
+                (string)($values->team_b_name ?? ''),
+                (int)($values->map_time_limit ?? 420),
+                (int)($values->chat_time ?? 15),
+                self::toBool($values->restore_after_restart ?? 1)
+            );
+        }, 'TM_War_Online profile saved.');
+    }
+
+    public static function generateMatchsettings(Player $player): void
+    {
+        self::run($player, 'matchsettings', static function () use ($player): void {
+            WarMatchSettingsService::generate($player);
+        }, 'TimeAttack war matchsettings generated safely.');
     }
 
     public static function addMap(Player $player, $values): void

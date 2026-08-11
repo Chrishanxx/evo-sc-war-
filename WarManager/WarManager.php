@@ -57,12 +57,15 @@ class WarManager extends Module implements ModuleInterface
         ManiaLinkEvent::add('war.admin.close', [WarAdminOverlay::class, 'close']);
         ManiaLinkEvent::add('war.admin.overview', [WarAdminOverlay::class, 'overview'], 'war_manage');
         ManiaLinkEvent::add('war.admin.create.tab', [WarAdminOverlay::class, 'createTab'], 'war_manage');
+        ManiaLinkEvent::add('war.admin.matchsettings', [WarAdminOverlay::class, 'matchsettings'], 'war_manage');
         ManiaLinkEvent::add('war.admin.maps', [WarAdminOverlay::class, 'maps'], 'war_maps');
         ManiaLinkEvent::add('war.admin.points', [WarAdminOverlay::class, 'points'], 'war_points');
         ManiaLinkEvent::add('war.admin.players', [WarAdminOverlay::class, 'players'], 'war_players');
         ManiaLinkEvent::add('war.admin.logs', [WarAdminOverlay::class, 'logs'], 'war_manage');
         ManiaLinkEvent::add('war.admin.create', [WarAdminOverlay::class, 'createWar'], 'war_manage');
         ManiaLinkEvent::add('war.admin.settings.save', [WarAdminOverlay::class, 'saveSettings'], 'war_manage');
+        ManiaLinkEvent::add('war.admin.matchsettings.save', [WarAdminOverlay::class, 'saveMatchsettingsProfile'], 'war_manage');
+        ManiaLinkEvent::add('war.admin.matchsettings.generate', [WarAdminOverlay::class, 'generateMatchsettings'], 'war_manage');
         ManiaLinkEvent::add('war.admin.map.add', [WarAdminOverlay::class, 'addMap'], 'war_maps');
         foreach (range(1, 8) as $position) {
             ManiaLinkEvent::add('war.admin.map.add.server.' . $position,

@@ -50,6 +50,13 @@ unrestricted MasterAdmin group receives access automatically.
 - Confirmed lifecycle actions and pause-aware war timing
 - EvoSC access rights and a QuickButtons entry
 - Audit log for state and configuration changes
+- WarManager-owned `TM_War_Online` profile backed by the official TimeAttack Online script
+- Validated, backup-first matchsettings generation under `MatchSettings/WarManager/`
+- Separate team display names and nickname detection tags in the war profile
+
+`TM_War_Online` is a virtual EvoSC mode, not a custom Trackmania ModeScript. Generated files always use
+`Trackmania/TM_TimeAttack_Online.Script.txt`. Generation is an explicit admin action and never modifies or
+automatically replaces the server's current matchsettings.
 
 Public statistics and administration are deliberately separate. The player window contains no
 management actions; `//war admin` opens the protected configuration and lifecycle controls.
