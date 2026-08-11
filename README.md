@@ -1,6 +1,6 @@
 # EvoSC WarManager
 
-Current module version: **0.10.10**. This release keeps one persistent `WarLiveScoreWidget` instance per player and pushes score, status and remaining-time changes through shared EvoSC UI variables. Data updates no longer replace the widget or restart its visibility animation. The card also receives a calmer competitive layout while continuing to use EvoSC's native grid and shared Hide HUD while driving state. MatchSettings continue to use only `Trackmania/TM_TimeAttack_Online.Script.txt`.
+Current module version: **0.11.0**. Active and paused wars now enforce the configured WAR map pool as the Dedicated Server's exclusive repeating playlist. The original MatchSettings and ordered map selection are backed up persistently before the first start, restored on finish/cancel, and recovered after EvoSC or Dedicated Server reconnects. A next/current-map guard corrects foreign map changes, while the existing scoring guard continues to reject records outside the WAR pool. MatchSettings continue to use only `Trackmania/TM_TimeAttack_Online.Script.txt`.
 
 External WarManager module for the classic PHP release of EvoSC and Trackmania 2020.
 It keeps `Trackmania/TM_TimeAttack_Online.Script.txt` untouched and calculates a
@@ -59,14 +59,13 @@ a separate Trackmania ModeScript. Players may join either team only while the wa
 their login-to-team assignment is authoritative until an administrator uses `RESET TEAM`; records driven before
 joining remain pending and are promoted after the confirmed assignment.
 
-Version 0.10 adds an optional `TM_War_Online` presentation layer with an exclusive, generated TimeAttack
-playlist. The database remains the source of truth for the ordered scrim map pool. Every selected map must exist
-in EvoSC's server map table. Generating `MatchSettings/WarManager/war_<ID>.txt` is optional: a war can start and
-score safely without that file. A generated file contains only enabled scrim maps, uses fixed order and keeps the
-official TimeAttack Online script. On every map start, strict scoring checks the active UID again; foreign maps
-never receive war points and produce an administrator-visible warning. Safe Mode, disabled auto-load and disabled
-auto-restore are the v0.10.x defaults. Loading and restoring playlists remains a deliberate manual action through
-the hosting panel until the classic EvoSC integration has been verified on the target server.
+Version 0.11 makes `TM_War_Online` rotation enforcement mandatory. The database remains the source of truth for
+the ordered scrim map pool, and every selected UID must exist in EvoSC's server map table. Starting a war first
+saves the complete current MatchSettings through the Dedicated Server, persists its ordered UID list, generates
+`MatchSettings/WarManager/war_<ID>.txt`, and loads that fixed TimeAttack playlist automatically. Active and paused
+wars continuously verify both the selection and current/next map. Foreign maps are corrected and never scored.
+Finish, cancel and expiry restore the saved MatchSettings; module/server restarts reconcile unfinished activation
+or restore work from `war-rotation-backups`.
 
 Public statistics and administration are deliberately separate. The player window contains no
 management actions; `//war admin` opens the protected configuration and lifecycle controls.

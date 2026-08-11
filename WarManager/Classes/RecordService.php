@@ -20,7 +20,8 @@ final class RecordService
         if (!$map) {
             return;
         }
-        if (!DB::table('war-maps')->where('war_id', $scrim->id)->where('map_uid', $map->uid)->exists()) {
+        if (!DB::table('war-maps')->where('war_id', $scrim->id)->where('map_uid', $map->uid)
+            ->where('enabled', 1)->exists()) {
             return;
         }
 

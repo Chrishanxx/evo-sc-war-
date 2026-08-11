@@ -162,14 +162,14 @@ final class WarAdminOverlay
                 self::toBool($values->exclusive_rotation ?? 0),
                 self::toBool($values->matchsettings_safe_mode ?? 1)
             );
-        }, 'Scrim rotation settings saved. Generate the playlist again.');
+        }, 'Scrim rotation settings saved. Exclusive repeating rotation is required.');
     }
 
     public static function generateRotation(Player $player): void
     {
         self::run($player, 'rotation', static function () use ($player): void {
             ScrimRotationService::generate($player);
-        }, 'TM_War_Online playlist generated. Load it through the server panel before starting.');
+        }, 'TM_War_Online playlist generated. It will be loaded automatically when the war starts.');
     }
 
     public static function addMap(Player $player, $values): void
@@ -287,7 +287,7 @@ final class WarAdminOverlay
     public static function confirmCancel(Player $player): void { self::show($player, 'overview', 'cancel'); }
     public static function confirmScoringPause(Player $player): void { self::show($player, 'overview', 'scoring_pause'); }
     public static function confirmScoringResume(Player $player): void { self::show($player, 'overview', 'scoring_resume'); }
-    public static function startWar(Player $player): void { self::transition($player, WarState::ACTIVE, 'War started.'); }
+    public static function startWar(Player $player): void { self::transition($player, WarState::ACTIVE, 'War started. Exclusive map rotation is active.'); }
     public static function pauseWar(Player $player): void { self::transition($player, WarState::PAUSED, 'War paused.'); }
     public static function resumeWar(Player $player): void { self::transition($player, WarState::ACTIVE, 'War resumed.'); }
     public static function finishWar(Player $player): void { self::transition($player, WarState::FINISHED, 'War finished.'); }

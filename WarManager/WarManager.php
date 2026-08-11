@@ -38,6 +38,7 @@ class WarManager extends Module implements ModuleInterface
         ChatCommand::add('//war', [self::class, 'adminCommand'], 'Manage the current war.');
         Hook::add('PlayerLocalRecord', [self::class, 'localRecord']);
         Hook::add('BeginMap', [self::class, 'beginMap']);
+        Hook::add('EndMatch', [self::class, 'endMatch']);
         Hook::add('PlayerConnect', [self::class, 'playerConnect']);
         Hook::add('WarRecordUpdated', [self::class, 'refreshOverlays']);
         ManiaLinkEvent::add('war.show', [self::class, 'showOverlay']);
@@ -123,6 +124,7 @@ class WarManager extends Module implements ModuleInterface
             QuickButtons::addButton('', 'ADMIN', 'war.panel.admin', 'war_manage');
         }
         Timer::create('war-manager.check_expiration', [self::class, 'tick'], '30s', true);
+        ScrimRotationService::recover();
         self::tick();
     }
 
@@ -131,6 +133,7 @@ class WarManager extends Module implements ModuleInterface
         if (WarRepository::finishExpired()) {
             infoMessage('The war has finished. Final results are now frozen.')->sendAll();
         }
+        ScrimRotationService::ensureActiveRotation();
         foreach (onlinePlayers() as $player) {
             try {
                 TeamAssignmentService::assignFromNickname($player);
@@ -145,6 +148,11 @@ class WarManager extends Module implements ModuleInterface
     {
         ScrimRotationService::observeCurrentMap();
         self::tick();
+    }
+
+    public static function endMatch(): void
+    {
+        ScrimRotationService::guardNextMap();
     }
 
     public static function playerConnect(Player $player): void
