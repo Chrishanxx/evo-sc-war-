@@ -93,8 +93,9 @@ final class WarStatsOverlay
         $teamLimit = (int)($war->team_limit ?? 0);
         $teamAFull = $teamLimit > 0 && $teamAMembers >= $teamLimit;
         $teamBFull = $teamLimit > 0 && $teamBMembers >= $teamLimit;
-        $joinAvailable = $war->overlay_join_enabled
-            && in_array($war->status, [WarState::DRAFT, WarState::ACTIVE, WarState::PAUSED], true);
+        $joinAvailable = $war->overlay_join_enabled && ($war->status === WarState::DRAFT || $war->allow_team_switch);
+        $switchAvailable = $assignment && $joinAvailable
+            && ($war->status === WarState::DRAFT || $war->allow_team_switch);
         $confirmTeam = self::$confirmTeams[$player->Login] ?? '';
         self::$openTabs[$player->Login] = $tab;
 
@@ -102,7 +103,7 @@ final class WarStatsOverlay
             'tab', 'war', 'teamAPoints', 'teamBPoints', 'teamAColor', 'teamBColor', 'timeLeft',
             'playerRows', 'playerPage', 'playerPageCount', 'visibleMapRows', 'mapPage', 'mapPageCount',
             'scoredMapCount', 'mapCount', 'assignment', 'teamAMembers', 'teamBMembers', 'teamLimit',
-            'teamAFull', 'teamBFull', 'joinAvailable', 'confirmTeam'
+            'teamAFull', 'teamBFull', 'joinAvailable', 'switchAvailable', 'confirmTeam'
         ));
     }
 
@@ -198,8 +199,8 @@ final class WarStatsOverlay
     private static function joinSelectedTeam(Player $player, string $team): void
     {
         try {
-            TeamAssignmentService::join($player, $team);
-            infoMessage('You joined team ', $team, '.')->send($player);
+            $newName = PlayerNameService::joinWithWarName($player, $team);
+            infoMessage('Joined team ', $team, '. Name changed to ', $newName, '.')->send($player);
         } catch (Throwable $error) {
             dangerMessage($error->getMessage())->send($player);
         }

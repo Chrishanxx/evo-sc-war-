@@ -4,14 +4,26 @@ namespace EvoSC\Modules\WarManager\Classes;
 
 final class TeamDetector
 {
-    /** @return array{team:string,name:string}|null */
-    public static function detect(string $nickname, string $teamA, string $teamB): ?array
+    public static function stripWarTag(string $nickname, string $teamA, string $teamB): string
     {
-        $nickname = trim((string)preg_replace(
+        $plain = trim((string)preg_replace(
             '/(?<![$])\${1}(([lh])(\[.+?])|[iwngosz<>]{1}|[a-f0-9]{1,3})/i',
             '',
             $nickname
         ));
+        foreach ([$teamA, $teamB] as $team) {
+            $tag = preg_quote(trim($team), '/');
+            if (preg_match('/^\s*(?:\[' . $tag . '\]|' . $tag . ')\s*(?:\||\.|-|\s)\s*(.+)$/iu', $plain, $match)) {
+                return trim($match[1]);
+            }
+        }
+        return $plain;
+    }
+
+    /** @return array{team:string,name:string}|null */
+    public static function detect(string $nickname, string $teamA, string $teamB): ?array
+    {
+        $nickname = trim((string)preg_replace('/(?<![$])\${1}(([lh])(\[.+?])|[iwngosz<>]{1}|[a-f0-9]{1,3})/i', '', $nickname));
 
         foreach ([$teamA, $teamB] as $team) {
             $tag = preg_quote(trim($team), '/');
