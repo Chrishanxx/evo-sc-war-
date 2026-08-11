@@ -1,7 +1,6 @@
 {
   "enabled": true,
   "show-quick-button": true,
-  "scoreboard-summary-enabled": true,
   "notify-unassigned": true,
   "team-a-color": "D8D184FF",
   "team-b-color": "FFFFFFFF",
