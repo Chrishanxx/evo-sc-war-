@@ -89,7 +89,8 @@ final class ScrimRotationService
         if ($xml === false || simplexml_load_string($xml) === false || file_put_contents($temporary, $xml) === false) {
             throw new RuntimeException('The scrim matchsettings could not be generated safely.');
         }
-        if (is_file($target) && !copy($target, $target . '.backup.txt')) {
+        $backup = $directory . '/war_' . (int)$war->id . '.backup_' . gmdate('Ymd_His') . '.txt';
+        if (is_file($target) && !copy($target, $backup)) {
             @unlink($temporary);
             throw new RuntimeException('The previous scrim matchsettings could not be backed up.');
         }
@@ -102,6 +103,10 @@ final class ScrimRotationService
             'updated_at' => gmdate('Y-m-d H:i:s'),
         ]);
         WarRepository::audit((int)$war->id, $admin->Login, 'scrim.playlist.generated', ['file' => $relative]);
+        if (config('war-manager.debug', false)) {
+            Log::info('[WarManager][MatchSettings] Generated ' . $relative . ' with ' . $maps->count()
+                . ' validated maps and base script ' . self::BASE_SCRIPT . '. Auto load disabled.');
+        }
         return 'MatchSettings/' . $relative;
     }
 
