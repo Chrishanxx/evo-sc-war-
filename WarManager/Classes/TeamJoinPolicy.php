@@ -8,8 +8,8 @@ final class TeamJoinPolicy
 {
     public static function assertCanJoin(string $status, ?string $existingTeam): void
     {
-        if ($status !== WarState::ACTIVE) {
-            throw new RuntimeException('Team joining is only available while the war is active.');
+        if (!in_array($status, [WarState::DRAFT, WarState::ACTIVE], true)) {
+            throw new RuntimeException('Team joining is only available before or during an active war.');
         }
         if ($existingTeam !== null) {
             throw new RuntimeException(

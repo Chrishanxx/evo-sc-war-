@@ -1,6 +1,6 @@
 # EvoSC WarManager
 
-Current module version: **0.10.6**. This release unifies the public player interface into `OVERVIEW`, `TEAMS`, `PLAYERS`, `MAPS` and `STATS`, adds a prominent team-join flow with confirmation, makes the compact live bar open the WAR panel, and registers a separate permission-filtered WAR ADMIN quick button. Team assignments remain account-backed and locked for an active war. MatchSettings continue to use only `Trackmania/TM_TimeAttack_Online.Script.txt`.
+Current module version: **0.10.7**. This release reduces the public player interface to `OVERVIEW`, `TEAMS` and nested `STATS`, adds clickable per-map results with team and player details, and permits account-backed team joining during both DRAFT and ACTIVE. The permanent live HUD now contains only team names, score, remaining time and status; the permission-filtered WAR ADMIN button uses its own shield icon. MatchSettings continue to use only `Trackmania/TM_TimeAttack_Online.Script.txt`.
 
 External WarManager module for the classic PHP release of EvoSC and Trackmania 2020.
 It keeps `Trackmania/TM_TimeAttack_Online.Script.txt` untouched and calculates a
@@ -41,7 +41,7 @@ unrestricted MasterAdmin group receives access automatically.
 - Admin lifecycle commands via `//war ...`
 - Compact EvoSC-style live widget for all players with team totals and a `WAR STATS` button
 - Public War Stats window with Overview, paginated Players and paginated Maps tabs
-- First-time player team joining during an active war, persisted per war and Trackmania login
+- First-time player team joining during draft or an active war, persisted per war and Trackmania login
 - Native `/setname` integration: choosing a team prepends its tag to the visible nickname
 - Original nicknames stored per war; duplicate tags are removed before the selected tag is applied
 - Database assignment only after EvoSC confirms the visible nickname change

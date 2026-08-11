@@ -55,6 +55,16 @@ class WarManager extends Module implements ModuleInterface
         ManiaLinkEvent::add('war.stats.players.next', [WarStatsOverlay::class, 'nextPlayerPage']);
         ManiaLinkEvent::add('war.stats.maps.previous', [WarStatsOverlay::class, 'previousMapPage']);
         ManiaLinkEvent::add('war.stats.maps.next', [WarStatsOverlay::class, 'nextMapPage']);
+        ManiaLinkEvent::add('war.stats.map.details.1', [WarStatsOverlay::class, 'mapDetails1']);
+        ManiaLinkEvent::add('war.stats.map.details.2', [WarStatsOverlay::class, 'mapDetails2']);
+        ManiaLinkEvent::add('war.stats.map.details.3', [WarStatsOverlay::class, 'mapDetails3']);
+        ManiaLinkEvent::add('war.stats.map.details.4', [WarStatsOverlay::class, 'mapDetails4']);
+        ManiaLinkEvent::add('war.stats.map.details.5', [WarStatsOverlay::class, 'mapDetails5']);
+        ManiaLinkEvent::add('war.stats.map.details.6', [WarStatsOverlay::class, 'mapDetails6']);
+        ManiaLinkEvent::add('war.stats.map.details.7', [WarStatsOverlay::class, 'mapDetails7']);
+        ManiaLinkEvent::add('war.stats.map.details.8', [WarStatsOverlay::class, 'mapDetails8']);
+        ManiaLinkEvent::add('war.stats.map.details.9', [WarStatsOverlay::class, 'mapDetails9']);
+        ManiaLinkEvent::add('war.stats.map.details.10', [WarStatsOverlay::class, 'mapDetails10']);
         ManiaLinkEvent::add('war.stats.join.a', [WarStatsOverlay::class, 'joinTeamA']);
         ManiaLinkEvent::add('war.stats.join.b', [WarStatsOverlay::class, 'joinTeamB']);
         ManiaLinkEvent::add('war.stats.team.confirm.a', [WarStatsOverlay::class, 'confirmTeamA']);
@@ -109,7 +119,7 @@ class WarManager extends Module implements ModuleInterface
 
         if (config('war-manager.show-quick-button', true) && config('quick-buttons.enabled', true)) {
             QuickButtons::addButton('⚔', 'WAR', 'war.show');
-            QuickButtons::addButton('', 'WAR ADMIN', 'war.panel.admin', 'war_manage');
+            QuickButtons::addButton('', 'WAR ADMIN', 'war.panel.admin', 'war_manage');
         }
         Timer::create('war-manager.check_expiration', [self::class, 'tick'], '30s', true);
         self::tick();
