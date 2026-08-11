@@ -20,7 +20,7 @@ final class WarStatsOverlay
     public static function showWidget(Player $player): void
     {
         $state = WarViewState::latest();
-        if (!$state) {
+        if (!$state || !in_array($state->war->status, [WarState::ACTIVE, WarState::PAUSED], true)) {
             Template::hide($player, 'WarManager');
             return;
         }
@@ -31,10 +31,20 @@ final class WarStatsOverlay
         $teamBColor = $state->team_b_color;
         $teamAScoreColor = $teamAPoints > $teamBPoints ? 'D8D184FF' : 'FFFFFFFF';
         $teamBScoreColor = $teamBPoints > $teamAPoints ? 'D8D184FF' : 'FFFFFFFF';
-        $widgetTitle = $war->status === WarState::ACTIVE ? 'WAR' : 'WAR · ' . $war->status;
+        $timeLeft = $state->time_left;
+        $mapCount = $state->map_count;
+        $rotationNumber = $state->rotation_number;
+        $rotationPosition = $state->rotation_position;
+        $assignment = DB::table('war-players')->where('war_id', $war->id)
+            ->where('player_login', $player->Login)->first();
+        $currentMap = MapController::getCurrentMap();
+        $currentMapValid = $currentMap && DB::table('war-maps')->where('war_id', $war->id)
+            ->where('map_uid', $currentMap->uid)->exists();
+        $statusLine = $war->status === WarState::PAUSED ? 'WAR PAUSED' : $timeLeft . ' left';
         Template::show($player, 'WarManager.overview', compact(
             'war', 'teamAPoints', 'teamBPoints', 'teamAColor', 'teamBColor',
-            'teamAScoreColor', 'teamBScoreColor', 'widgetTitle'
+            'teamAScoreColor', 'teamBScoreColor', 'timeLeft', 'mapCount',
+            'rotationNumber', 'rotationPosition', 'assignment', 'currentMapValid', 'statusLine'
         ));
     }
 
@@ -60,14 +70,17 @@ final class WarStatsOverlay
         $scoredMapUids = DB::table('war-records')->where('war_id', $warId)->pluck('map_uid')->unique()->all();
         $currentMap = MapController::getCurrentMap();
         $currentMapUid = $currentMap ? $currentMap->uid : '';
+        $currentMapName = $currentMap ? $currentMap->name : '--';
+        $currentMapValid = $currentMap && DB::table('war-maps')->where('war_id', $warId)
+            ->where('map_uid', $currentMapUid)->exists();
         $mapRows = $maps->map(static function ($map) use ($mapScores, $scoredMapUids, $currentMapUid, $war) {
             $scores = $mapScores->where('map_uid', $map->map_uid)->pluck('points', 'team');
             return (object)[
                 'name' => $map->map_name,
                 'team_a_points' => (int)($scores[$war->team_a] ?? 0),
                 'team_b_points' => (int)($scores[$war->team_b] ?? 0),
-                'status' => $map->map_uid === $currentMapUid ? '[>]' :
-                    (in_array($map->map_uid, $scoredMapUids, true) ? '[x]' : '[ ]'),
+                'status' => $map->map_uid === $currentMapUid ? 'CURRENT' :
+                    (in_array($map->map_uid, $scoredMapUids, true) ? 'SCORED' : 'UPCOMING'),
             ];
         });
         $players = DB::table('war-players')->where('war_id', $warId)
@@ -76,6 +89,8 @@ final class WarStatsOverlay
                 $entry->team_color = $entry->locked_team === $war->team_a ? $teamAColor : $teamBColor;
                 return $entry;
             });
+        $teamARows = $players->where('locked_team', $war->team_a)->take(7)->values();
+        $teamBRows = $players->where('locked_team', $war->team_b)->take(7)->values();
 
         $playerPageCount = max(1, (int)ceil($players->count() / self::ROWS_PER_PAGE));
         $playerPage = max(1, min((int)(self::$playerPages[$player->Login] ?? 1), $playerPageCount));
@@ -105,7 +120,8 @@ final class WarStatsOverlay
             'tab', 'war', 'teamAPoints', 'teamBPoints', 'teamAColor', 'teamBColor', 'timeLeft',
             'playerRows', 'playerPage', 'playerPageCount', 'visibleMapRows', 'mapPage', 'mapPageCount',
             'scoredMapCount', 'mapCount', 'rotationNumber', 'rotationPosition', 'assignment', 'teamAMembers', 'teamBMembers', 'teamLimit',
-            'teamAFull', 'teamBFull', 'joinAvailable', 'confirmTeam'
+            'teamAFull', 'teamBFull', 'joinAvailable', 'confirmTeam', 'teamARows', 'teamBRows',
+            'currentMapName', 'currentMapValid'
         ));
     }
 

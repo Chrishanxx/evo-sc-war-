@@ -3,23 +3,30 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <manialink version="3">
     {block id}WarManager{/block}
-    {block size}44 18{/block}
+    {block size}64 13{/block}
     {block globals}{/block}
 
     {block content}
-        <quad pos="0 0" size="44 18" bgcolor="202024E8" />
-        <quad pos="0 0" size="44 4" bgcolor="D8D184FF" />
-        <label pos="2.5 -2.5" text="{$widgetTitle}" textsize="1.25" textcolor="FFFFFFFF" valign="center" />
+        <quad pos="0 0" size="64 13" bgcolor="17171BDD" />
+        <quad pos="0 0" size="64 0.35" bgcolor="D8D184CC" />
 
-        <quad pos="1.5 -5.5" size="1 3" bgcolor="{$teamAColor}" />
-        <label pos="4 -7" size="28 3.5" text="{$war->team_a}" textsize="1.05" textcolor="FFFFFFFF" valign="center" />
-        <label pos="41.5 -7" text="{$teamAPoints}" textsize="1.1" textcolor="{$teamAScoreColor}" halign="right" valign="center" />
+        <quad pos="2 -2" size="0.8 4" bgcolor="{$teamAColor}" />
+        <label pos="4 -4" size="15 4" text="{$war->team_a}" textsize="1.2" textcolor="FFFFFFFF" valign="center" />
+        <label pos="24 -4" text="{$teamAPoints}" textsize="1.9" textcolor="{$teamAScoreColor}" halign="right" valign="center" />
+        <label pos="32 -4" text=":" textsize="1.7" textcolor="A9AAACFF" halign="center" valign="center" />
+        <label pos="40 -4" text="{$teamBPoints}" textsize="1.9" textcolor="{$teamBScoreColor}" valign="center" />
+        <label pos="46 -4" size="14 4" text="{$war->team_b}" textsize="1.2" textcolor="FFFFFFFF" valign="center" />
+        <quad pos="61.2 -2" size="0.8 4" bgcolor="{$teamBColor}" />
 
-        <quad pos="1.5 -9.5" size="1 3" bgcolor="{$teamBColor}" />
-        <label pos="4 -11" size="28 3.5" text="{$war->team_b}" textsize="1.05" textcolor="FFFFFFFF" valign="center" />
-        <label pos="41.5 -11" text="{$teamBPoints}" textsize="1.1" textcolor="{$teamBScoreColor}" halign="right" valign="center" />
-
-        <quad pos="0 -13.5" size="44 4.5" bgcolor="111114F4" action="war.stats.show" />
-        <label pos="22 -15.75" text="WAR STATS" textsize="1.05" textcolor="D8D184FF" halign="center" valign="center" action="war.stats.show" />
+        {if $currentMapValid}
+            <label pos="3 -9.2" size="43 3" text="{$statusLine}  |  MAP {$rotationPosition}/{$mapCount}  |  ROTATION {$rotationNumber}" textsize="0.9" textcolor="BFC0C2FF" valign="center" />
+        {else}
+            <label pos="3 -9.2" size="43 3" text="CURRENT MAP NOT IN WAR | SCORING PAUSED" textsize="0.82" textcolor="D8D184FF" valign="center" />
+        {/if}
+        {if $assignment}
+            <label pos="47 -9.2" text="{$assignment->locked_team}" textsize="0.85" textcolor="D8D184FF" halign="right" valign="center" />
+        {/if}
+        <quad pos="49 -7" size="13 4.2" bgcolor="2B2B30EE" action="war.stats.show" />
+        <label pos="55.5 -9.1" text="STATS" textsize="0.9" textcolor="FFFFFFFF" halign="center" valign="center" action="war.stats.show" />
     {/block}
 </manialink>

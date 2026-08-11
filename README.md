@@ -1,5 +1,7 @@
 # EvoSC WarManager
 
+Current module version: **0.10.2**. This release introduces a compact live-war bar and a minimal dark statistics window with results, player rankings, map progress, and permanent team selection. The live bar is only displayed while a war is active or paused; scoring and server rotation behaviour remain unchanged.
+
 External WarManager module for the classic PHP release of EvoSC and Trackmania 2020.
 It keeps `Trackmania/TM_TimeAttack_Online.Script.txt` untouched and calculates a
 long-running two-team competition from records driven during the active war.
