@@ -10,12 +10,13 @@
         <label pos="71 -5" text="X" textsize="2.6" textcolor="FFFFFFFF" halign="center" valign="center" action="war.admin.close" />
 
         <frame pos="-71 -13">
-            <label pos="0 0" text="OVERVIEW" textsize="1.3" textcolor="FFFFFFFF" action="war.admin.overview" />
-            <label pos="25 0" text="CREATE / SETTINGS" textsize="1.3" textcolor="FFFFFFFF" action="war.admin.create.tab" />
-            <label pos="65 0" text="MAPS" textsize="1.3" textcolor="FFFFFFFF" action="war.admin.maps" />
-            <label pos="82 0" text="POINTS" textsize="1.3" textcolor="FFFFFFFF" action="war.admin.points" />
-            <label pos="103 0" text="PLAYERS" textsize="1.3" textcolor="FFFFFFFF" action="war.admin.players" />
-            <label pos="128 0" text="LOGS" textsize="1.3" textcolor="FFFFFFFF" action="war.admin.logs" />
+            <label pos="0 0" text="OVERVIEW" textsize="1.1" textcolor="FFFFFFFF" action="war.admin.overview" />
+            <label pos="21 0" text="SETTINGS" textsize="1.1" textcolor="FFFFFFFF" action="war.admin.create.tab" />
+            <label pos="43 0" text="ROTATION" textsize="1.1" textcolor="D8D184FF" action="war.admin.rotation" />
+            <label pos="66 0" text="MAPS" textsize="1.1" textcolor="FFFFFFFF" action="war.admin.maps" />
+            <label pos="82 0" text="POINTS" textsize="1.1" textcolor="FFFFFFFF" action="war.admin.points" />
+            <label pos="102 0" text="PLAYERS" textsize="1.1" textcolor="FFFFFFFF" action="war.admin.players" />
+            <label pos="128 0" text="LOGS" textsize="1.1" textcolor="FFFFFFFF" action="war.admin.logs" />
         </frame>
         <quad pos="-71 -17" size="142 0.4" bgcolor="D8D184FF" />
 
@@ -89,12 +90,40 @@
             {/if}
         {/if}
 
+        {if $tab == 'rotation'}
+            <label pos="-66 -24" text="TM_WAR_ONLINE · EXCLUSIVE ROTATION" textsize="2" textcolor="D8D184FF" />
+            {if $current}
+                <label pos="-66 -31" text="TimeAttack base: Trackmania/TM_TimeAttack_Online.Script.txt" textsize="1.05" textcolor="A9B7C3FF" />
+                <label pos="-66 -39" text="Map time (seconds)" textsize="1.1" textcolor="A9B7C3FF" />
+                <entry pos="-66 -42" size="25 5" name="map_time_limit" default="{$current->map_time_limit}" textsize="1.2" />
+                <label pos="-35 -39" text="Chat time (seconds)" textsize="1.1" textcolor="A9B7C3FF" />
+                <entry pos="-35 -42" size="25 5" name="chat_time" default="{$current->chat_time}" textsize="1.2" />
+                <label pos="-66 -51" text="Strict Scrim Maps 1/0" textsize="1.1" textcolor="A9B7C3FF" />
+                <entry pos="-66 -54" size="20 5" name="strict_scrim_maps" default="{$current->strict_scrim_maps}" textsize="1.2" />
+                <label pos="-38 -51" text="Repeat Playlist 1/0" textsize="1.1" textcolor="A9B7C3FF" />
+                <entry pos="-38 -54" size="20 5" name="repeat_playlist" default="{$current->repeat_playlist}" textsize="1.2" />
+                <label pos="-10 -51" text="Restart Recovery 1/0" textsize="1.1" textcolor="A9B7C3FF" />
+                <entry pos="-10 -54" size="20 5" name="restore_after_restart" default="{$current->restore_after_restart}" textsize="1.2" />
+                <label pos="18 -51" text="Restore Normal 1/0" textsize="1.1" textcolor="A9B7C3FF" />
+                <entry pos="18 -54" size="20 5" name="restore_normal_playlist" default="{$current->restore_normal_playlist}" textsize="1.2" />
+                <label pos="-66 -64" text="VALIDATION: {$rotationValidCount} / {$rotationMapCount} MAPS VALID" textsize="1.3" textcolor="{$rotationHasMissing ? 'F05D5EFF' : '50CF84FF'}" />
+                <label pos="-66 -69" size="83 4" text="FILE: {$current->matchsettings_file ?: 'NOT GENERATED'}" textsize="1" textcolor="FFFFFFFF" />
+                <quad pos="23 -75" size="20 7" bgcolor="D8D184FF" action="war.admin.rotation.save" />
+                <label pos="33 -78.5" text="SAVE" textsize="1.2" textcolor="000000FF" halign="center" valign="center" action="war.admin.rotation.save" />
+                <quad pos="46 -75" size="24 7" bgcolor="50CF84FF" action="war.admin.rotation.generate" />
+                <label pos="58 -78.5" text="GENERATE" textsize="1.2" textcolor="000000FF" halign="center" valign="center" action="war.admin.rotation.generate" />
+            {else}
+                <label pos="0 -44" text="Create a war draft before configuring the rotation." textsize="1.5" textcolor="A9B7C3FF" halign="center" />
+            {/if}
+        {/if}
+
         {if $tab == 'maps'}
             <label pos="-66 -24" text="WAR MAPS ({$maps->count()} selected)" textsize="2" textcolor="D8D184FF" />
             {if $current}
                 <entry pos="-66 -30" size="48 6" name="map_uid" default="" textsize="1.3" />
                 <quad pos="-15 -30" size="22 6" bgcolor="D8D184FF" action="war.admin.map.add" />
                 <label pos="-4 -33" text="ADD UID" textsize="1.2" textcolor="000000FF" halign="center" valign="center" action="war.admin.map.add" />
+                <label pos="9 -33" text="+ CURRENT MAP" textsize="1.05" textcolor="D8D184FF" valign="center" action="war.admin.map.add.current" />
                 <label pos="-66 -41" text="Selected maps" textsize="1.4" textcolor="FFFFFFFF" />
                 {foreach $maps->take(7) as $map}
                     <label pos="-63 {$iterator->counter * -5 - 40}" size="53 4" text="{$iterator->counter}. {$map->map_name}" textsize="1.1" textcolor="FFFFFFFF" />

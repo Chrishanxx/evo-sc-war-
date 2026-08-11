@@ -4,6 +4,7 @@ namespace EvoSC\Modules\WarManager\Classes;
 
 use EvoSC\Classes\DB;
 use EvoSC\Classes\Template;
+use EvoSC\Controllers\MapController;
 use EvoSC\Models\Player;
 use Illuminate\Support\Collection;
 use RuntimeException;
@@ -18,12 +19,12 @@ final class WarAdminOverlay
 
     public static function show(Player $player, string $tab = 'overview', string $confirmAction = ''): void
     {
-        $allowedTabs = ['overview', 'create', 'maps', 'points', 'players', 'logs'];
+        $allowedTabs = ['overview', 'create', 'rotation', 'maps', 'points', 'players', 'logs'];
         $tab = in_array($tab, $allowedTabs, true) ? $tab : 'overview';
         $war = WarRepository::latest();
         $current = WarRepository::current();
         $warId = $war ? (int)$war->id : 0;
-        $maps = $warId ? DB::table('war-maps')->where('war_id', $warId)->orderBy('id')->get() : new Collection();
+        $maps = $warId ? DB::table('war-maps')->where('war_id', $warId)->orderBy('position')->orderBy('id')->get() : new Collection();
         $onlineLogins = onlinePlayers()->pluck('Login')->all();
         $players = $warId ? DB::table('war-players')->where('war_id', $warId)
             ->orderBy('locked_team')->orderByDesc('total_points')->get()
@@ -64,12 +65,16 @@ final class WarAdminOverlay
             }
         }
         $ready = $current && $current->status === WarState::DRAFT && $maps->isNotEmpty() && $points->count() === 16;
+        $rotationValidation = $current ? ScrimRotationService::validate($current) : ['count' => 0, 'valid' => 0, 'missing' => []];
+        $rotationMapCount = (int)$rotationValidation['count'];
+        $rotationValidCount = (int)$rotationValidation['valid'];
+        $rotationHasMissing = !empty($rotationValidation['missing']);
         self::$openTabs[$player->Login] = $tab;
 
         Template::show($player, 'WarManager.admin', compact(
             'tab', 'war', 'current', 'maps', 'players', 'points', 'logs', 'serverMaps', 'unassigned',
             'teamAPoints', 'teamBPoints', 'timeLeft', 'ready', 'confirmAction', 'serverMapCount',
-            'mapPage', 'mapPageCount'
+            'mapPage', 'mapPageCount', 'rotationMapCount', 'rotationValidCount', 'rotationHasMissing'
         ));
     }
 
@@ -94,6 +99,7 @@ final class WarAdminOverlay
 
     public static function overview(Player $player): void { self::show($player, 'overview'); }
     public static function createTab(Player $player): void { self::show($player, 'create'); }
+    public static function rotation(Player $player): void { self::show($player, 'rotation'); }
     public static function maps(Player $player): void { self::show($player, 'maps'); }
     public static function previousMapPage(Player $player): void
     {
@@ -141,12 +147,46 @@ final class WarAdminOverlay
         }, 'War settings saved.');
     }
 
+    public static function saveRotation(Player $player, $values): void
+    {
+        self::run($player, 'rotation', static function () use ($player, $values): void {
+            self::requireValues($values);
+            WarRepository::updateRotationSettings(
+                $player,
+                (int)($values->map_time_limit ?? 420),
+                (int)($values->chat_time ?? 15),
+                self::toBool($values->strict_scrim_maps ?? 1),
+                self::toBool($values->repeat_playlist ?? 1),
+                self::toBool($values->restore_after_restart ?? 1),
+                self::toBool($values->restore_normal_playlist ?? 1)
+            );
+        }, 'Scrim rotation settings saved. Generate the playlist again.');
+    }
+
+    public static function generateRotation(Player $player): void
+    {
+        self::run($player, 'rotation', static function () use ($player): void {
+            ScrimRotationService::generate($player);
+        }, 'TM_War_Online playlist generated. Load it through the server panel before starting.');
+    }
+
     public static function addMap(Player $player, $values): void
     {
         self::run($player, 'maps', static function () use ($player, $values): void {
             self::requireValues($values);
             WarRepository::addMap($player, (string)($values->map_uid ?? ''), '');
         }, 'Map added to the war.');
+    }
+
+    public static function addCurrentMap(Player $player): void
+    {
+        self::run($player, 'maps', static function () use ($player): void {
+            $map = MapController::getCurrentMap();
+            if (!$map) {
+                throw new RuntimeException('No current server map is available.');
+            }
+            WarRepository::addMap($player, $map->uid, $map->name);
+        }, 'Current map added to the scrim.');
     }
 
     public static function removeMapAt(Player $player, int $position): void

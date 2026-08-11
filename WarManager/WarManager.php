@@ -15,6 +15,7 @@ use EvoSC\Models\Player;
 use EvoSC\Modules\QuickButtons\QuickButtons;
 use EvoSC\Modules\WarManager\Classes\PlayerNameService;
 use EvoSC\Modules\WarManager\Classes\RecordService;
+use EvoSC\Modules\WarManager\Classes\ScrimRotationService;
 use EvoSC\Modules\WarManager\Classes\WarAdminOverlay;
 use EvoSC\Modules\WarManager\Classes\WarRepository;
 use EvoSC\Modules\WarManager\Classes\WarState;
@@ -35,7 +36,7 @@ class WarManager extends Module implements ModuleInterface
         ChatCommand::add('/war', [self::class, 'playerCommand'], 'Show war status.');
         ChatCommand::add('//war', [self::class, 'adminCommand'], 'Manage the current war.');
         Hook::add('PlayerLocalRecord', [self::class, 'localRecord']);
-        Hook::add('BeginMap', [self::class, 'tick']);
+        Hook::add('BeginMap', [self::class, 'beginMap']);
         Hook::add('PlayerConnect', [self::class, 'playerConnect']);
         Hook::add('WarRecordUpdated', [self::class, 'refreshOverlays']);
         ManiaLinkEvent::add('war.show', [self::class, 'showOverlay']);
@@ -58,6 +59,9 @@ class WarManager extends Module implements ModuleInterface
         ManiaLinkEvent::add('war.admin.close', [WarAdminOverlay::class, 'close']);
         ManiaLinkEvent::add('war.admin.overview', [WarAdminOverlay::class, 'overview'], 'war_manage');
         ManiaLinkEvent::add('war.admin.create.tab', [WarAdminOverlay::class, 'createTab'], 'war_manage');
+        ManiaLinkEvent::add('war.admin.rotation', [WarAdminOverlay::class, 'rotation'], 'war_maps');
+        ManiaLinkEvent::add('war.admin.rotation.save', [WarAdminOverlay::class, 'saveRotation'], 'war_maps');
+        ManiaLinkEvent::add('war.admin.rotation.generate', [WarAdminOverlay::class, 'generateRotation'], 'war_maps');
         ManiaLinkEvent::add('war.admin.maps', [WarAdminOverlay::class, 'maps'], 'war_maps');
         ManiaLinkEvent::add('war.admin.points', [WarAdminOverlay::class, 'points'], 'war_points');
         ManiaLinkEvent::add('war.admin.players', [WarAdminOverlay::class, 'players'], 'war_players');
@@ -65,6 +69,7 @@ class WarManager extends Module implements ModuleInterface
         ManiaLinkEvent::add('war.admin.create', [WarAdminOverlay::class, 'createWar'], 'war_manage');
         ManiaLinkEvent::add('war.admin.settings.save', [WarAdminOverlay::class, 'saveSettings'], 'war_manage');
         ManiaLinkEvent::add('war.admin.map.add', [WarAdminOverlay::class, 'addMap'], 'war_maps');
+        ManiaLinkEvent::add('war.admin.map.add.current', [WarAdminOverlay::class, 'addCurrentMap'], 'war_maps');
         foreach (range(1, 8) as $position) {
             ManiaLinkEvent::add('war.admin.map.add.server.' . $position,
                 [WarAdminOverlay::class, 'addServerMap' . $position], 'war_maps');
@@ -113,6 +118,12 @@ class WarManager extends Module implements ModuleInterface
             }
         }
         self::refreshOverlays();
+    }
+
+    public static function beginMap(): void
+    {
+        ScrimRotationService::observeCurrentMap();
+        self::tick();
     }
 
     public static function playerConnect(Player $player): void

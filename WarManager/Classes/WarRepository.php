@@ -65,6 +65,12 @@ final class WarRepository
             && !DB::table('war-maps')->where('war_id', $scrim->id)->exists()) {
             throw new RuntimeException('Add at least one server map before starting the war.');
         }
+        if ($target === WarState::ACTIVE && !$scrim->start_at) {
+            ScrimRotationService::assertReady($scrim);
+            if (empty($scrim->matchsettings_file)) {
+                throw new RuntimeException('Generate the TM_War_Online scrim playlist before starting the war.');
+            }
+        }
         $values = ['status' => $target, 'updated_at' => gmdate('Y-m-d H:i:s')];
         if ($target === WarState::ACTIVE && !$scrim->start_at) {
             $start = time();
@@ -166,6 +172,43 @@ final class WarRepository
         ]);
     }
 
+    public static function updateRotationSettings(
+        Player $admin,
+        int $mapTimeLimit,
+        int $chatTime,
+        bool $strictMaps,
+        bool $repeatPlaylist,
+        bool $restoreAfterRestart,
+        bool $restoreNormalPlaylist
+    ): void {
+        $war = self::requireCurrent();
+        if ($war->status !== WarState::DRAFT) {
+            throw new RuntimeException('Rotation settings can only be changed while the war is a draft.');
+        }
+        if ($mapTimeLimit < 60 || $mapTimeLimit > 3600) {
+            throw new RuntimeException('Map time must be between 60 and 3600 seconds.');
+        }
+        if ($chatTime < 0 || $chatTime > 300) {
+            throw new RuntimeException('Chat time must be between 0 and 300 seconds.');
+        }
+        DB::table('wars')->where('id', $war->id)->update([
+            'map_time_limit' => $mapTimeLimit,
+            'chat_time' => $chatTime,
+            'strict_scrim_maps' => $strictMaps ? 1 : 0,
+            'repeat_playlist' => $repeatPlaylist ? 1 : 0,
+            'restore_after_restart' => $restoreAfterRestart ? 1 : 0,
+            'restore_normal_playlist' => $restoreNormalPlaylist ? 1 : 0,
+            'matchsettings_file' => null,
+            'updated_at' => gmdate('Y-m-d H:i:s'),
+        ]);
+        self::audit((int)$war->id, $admin->Login, 'scrim.rotation.settings.updated', [
+            'map_time_limit' => $mapTimeLimit, 'chat_time' => $chatTime,
+            'strict_scrim_maps' => $strictMaps, 'repeat_playlist' => $repeatPlaylist,
+            'restore_after_restart' => $restoreAfterRestart,
+            'restore_normal_playlist' => $restoreNormalPlaylist,
+        ]);
+    }
+
     public static function setPointProfile(Player $admin, array $profile): void
     {
         $war = self::requireCurrent();
@@ -223,7 +266,20 @@ final class WarRepository
             throw new RuntimeException('The MapUID is not available on this server.');
         }
         $name = trim($name) ?: $serverMap->name;
-        DB::table('war-maps')->updateOrInsert(['war_id' => $scrim->id, 'map_uid' => $uid], ['map_name' => $name]);
+        $existing = DB::table('war-maps')->where('war_id', $scrim->id)->where('map_uid', $uid)->first();
+        if ($existing) {
+            throw new RuntimeException('This map is already part of the scrim pool.');
+        }
+        $position = (int)DB::table('war-maps')->where('war_id', $scrim->id)->max('position') + 1;
+        DB::table('war-maps')->insert([
+            'war_id' => $scrim->id,
+            'map_uid' => $uid,
+            'map_name' => $name,
+            'map_file' => $serverMap->filename,
+            'position' => $position,
+            'enabled' => 1,
+        ]);
+        DB::table('wars')->where('id', $scrim->id)->update(['matchsettings_file' => null]);
         self::audit($scrim->id, $admin->Login, 'map.added', compact('uid', 'name'));
     }
 
@@ -238,6 +294,11 @@ final class WarRepository
             throw new RuntimeException('A MapUID is required.');
         }
         DB::table('war-maps')->where('war_id', $scrim->id)->where('map_uid', $uid)->delete();
+        $position = 1;
+        foreach (DB::table('war-maps')->where('war_id', $scrim->id)->orderBy('position')->orderBy('id')->get() as $map) {
+            DB::table('war-maps')->where('id', $map->id)->update(['position' => $position++]);
+        }
+        DB::table('wars')->where('id', $scrim->id)->update(['matchsettings_file' => null]);
         self::audit($scrim->id, $admin->Login, 'map.removed', compact('uid'));
     }
 

@@ -54,7 +54,7 @@ final class WarStatsOverlay
         $teamBColor = $state->team_b_color;
         $timeLeft = $state->time_left;
 
-        $maps = DB::table('war-maps')->where('war_id', $warId)->orderBy('id')->get();
+        $maps = DB::table('war-maps')->where('war_id', $warId)->orderBy('position')->orderBy('id')->get();
         $mapScores = DB::table('war-records')->where('war_id', $warId)
             ->selectRaw('map_uid, team, SUM(points) points')->groupBy('map_uid', 'team')->get();
         $scoredMapUids = DB::table('war-records')->where('war_id', $warId)->pluck('map_uid')->unique()->all();
@@ -88,6 +88,8 @@ final class WarStatsOverlay
         $visibleMapRows = $mapRows->slice(($mapPage - 1) * self::ROWS_PER_PAGE, self::ROWS_PER_PAGE)->values();
         $scoredMapCount = $state->scored_map_count;
         $mapCount = $state->map_count;
+        $rotationNumber = $state->rotation_number;
+        $rotationPosition = $state->rotation_position;
         $assignment = DB::table('war-players')->where('war_id', $warId)
             ->where('player_login', $player->Login)->first();
         $teamAMembers = DB::table('war-players')->where('war_id', $warId)->where('locked_team', $war->team_a)->count();
@@ -102,7 +104,7 @@ final class WarStatsOverlay
         Template::show($player, 'WarManager.stats', compact(
             'tab', 'war', 'teamAPoints', 'teamBPoints', 'teamAColor', 'teamBColor', 'timeLeft',
             'playerRows', 'playerPage', 'playerPageCount', 'visibleMapRows', 'mapPage', 'mapPageCount',
-            'scoredMapCount', 'mapCount', 'assignment', 'teamAMembers', 'teamBMembers', 'teamLimit',
+            'scoredMapCount', 'mapCount', 'rotationNumber', 'rotationPosition', 'assignment', 'teamAMembers', 'teamBMembers', 'teamLimit',
             'teamAFull', 'teamBFull', 'joinAvailable', 'confirmTeam'
         ));
     }
