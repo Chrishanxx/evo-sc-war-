@@ -30,11 +30,9 @@ final class WarStatsOverlay
         $teamAScoreColor = $teamAPoints > $teamBPoints ? 'D8D184FF' : 'FFFFFFFF';
         $teamBScoreColor = $teamBPoints > $teamAPoints ? 'D8D184FF' : 'FFFFFFFF';
         $widgetTitle = $war->status === WarState::ACTIVE ? 'WAR' : 'WAR · ' . $war->status;
-        $widgetX = (float)config('war-manager.widget-x', 121);
-        $widgetY = (float)config('war-manager.widget-y', 10);
         Template::show($player, 'WarManager.overview', compact(
             'war', 'teamAPoints', 'teamBPoints', 'teamAColor', 'teamBColor',
-            'teamAScoreColor', 'teamBScoreColor', 'widgetTitle', 'widgetX', 'widgetY'
+            'teamAScoreColor', 'teamBScoreColor', 'widgetTitle'
         ));
     }
 
