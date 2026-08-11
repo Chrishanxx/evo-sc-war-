@@ -20,7 +20,7 @@ use EvoSC\Modules\WarManager\Classes\WarAdminOverlay;
 use EvoSC\Modules\WarManager\Classes\WarRepository;
 use EvoSC\Modules\WarManager\Classes\WarState;
 use EvoSC\Modules\WarManager\Classes\WarStatsOverlay;
-use EvoSC\Modules\WarManager\Classes\WarLiveScoreWidget;
+use EvoSC\Modules\WarManager\Classes\WarScoreboard;
 use EvoSC\Modules\WarManager\Classes\TeamAssignmentService;
 use Throwable;
 
@@ -154,7 +154,7 @@ class WarManager extends Module implements ModuleInterface
         } catch (Throwable $error) {
             // The player can still choose a team manually when automatic assignment is unavailable.
         }
-        WarLiveScoreWidget::show($player);
+        WarScoreboard::show($player);
     }
 
     public static function localRecord(Player $player, int $score): void
@@ -195,7 +195,7 @@ class WarManager extends Module implements ModuleInterface
     public static function refreshOverlays(): void
     {
         foreach (onlinePlayers() as $player) {
-            WarLiveScoreWidget::show($player);
+            WarScoreboard::show($player);
         }
         WarStatsOverlay::refreshOpen();
         WarAdminOverlay::refreshOpen();

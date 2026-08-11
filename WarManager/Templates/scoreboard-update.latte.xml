@@ -8,17 +8,14 @@
     {block content}
         <quad id="bg" pos="0 0" size="44 14" bgcolor="141414E8" action="war.show" />
         <quad pos="0 0" size="44 0.35" bgcolor="E4DA72FF" />
-
         <label pos="2 -2.7" size="24 3" text="{$heading}" textsize="0.72" textcolor="F5F5F5FF" valign="center" action="war.show" />
         <quad pos="32 -2.2" size="1 1" bgcolor="{$statusColor}" />
         <label pos="42 -2.7" size="9 3" text="{$liveStatus}" textsize="0.6" textcolor="{$statusColor}" halign="right" valign="center" action="war.show" />
-
         <label pos="2 -7" size="12 3" text="{$war->team_a}" textsize="0.86" textcolor="{$teamAColor}" valign="center" action="war.show" />
         <label pos="17 -7" text="{$teamAPoints}" textsize="1.45" textcolor="{$teamAColor}" halign="right" valign="center" action="war.show" />
         <label pos="22 -7" text=":" textsize="1.2" textcolor="E4DA72FF" halign="center" valign="center" action="war.show" />
         <label pos="27 -7" text="{$teamBPoints}" textsize="1.45" textcolor="{$teamBColor}" valign="center" action="war.show" />
         <label pos="42 -7" size="12 3" text="{$war->team_b}" textsize="0.86" textcolor="{$teamBColor}" halign="right" valign="center" action="war.show" />
-
         <label pos="22 -11.4" text="{$timeLeft} remaining" textsize="0.68" textcolor="AFAFAFFF" halign="center" valign="center" action="war.show" />
     {/block}
 

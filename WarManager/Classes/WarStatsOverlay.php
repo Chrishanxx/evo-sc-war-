@@ -20,7 +20,7 @@ final class WarStatsOverlay
 
     public static function showWidget(Player $player): void
     {
-        WarLiveScoreWidget::show($player);
+        WarScoreboard::show($player);
     }
 
     public static function show(Player $player, string $tab = 'overview'): void

@@ -7,11 +7,10 @@ use EvoSC\Classes\Template;
 use EvoSC\Controllers\MapController;
 use EvoSC\Models\Player;
 
-final class WarLiveScoreWidget
+final class WarScoreboard
 {
     public static function show(Player $player): void
     {
-        // Remove the pre-0.10.8 widget when upgrading without reconnecting players.
         Template::hide($player, 'WarManager');
         $state = WarViewState::latest();
         if (!$state || !in_array($state->war->status, [WarState::ACTIVE, WarState::PAUSED], true)) {
@@ -25,7 +24,6 @@ final class WarLiveScoreWidget
         $teamAColor = $state->team_a_color;
         $teamBColor = $state->team_b_color;
         $timeLeft = $state->time_left;
-
         $currentMap = MapController::getCurrentMap();
         $currentMapIsWarMap = $currentMap && DB::table('war-maps')
             ->where('war_id', $war->id)->where('map_uid', $currentMap->uid)->exists();
@@ -46,7 +44,7 @@ final class WarLiveScoreWidget
             $statusColor = 'E4DA72FF';
         }
 
-        Template::show($player, 'WarManager.live-score', compact(
+        Template::show($player, 'WarManager.scoreboard-update', compact(
             'war', 'teamAPoints', 'teamBPoints', 'teamAColor', 'teamBColor',
             'timeLeft', 'heading', 'liveStatus', 'statusColor'
         ));
