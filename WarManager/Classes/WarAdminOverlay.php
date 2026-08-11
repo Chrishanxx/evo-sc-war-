@@ -18,7 +18,7 @@ final class WarAdminOverlay
 
     public static function show(Player $player, string $tab = 'overview', string $confirmAction = ''): void
     {
-        $allowedTabs = ['overview', 'create', 'matchsettings', 'maps', 'points', 'players', 'logs'];
+        $allowedTabs = ['overview', 'create', 'maps', 'points', 'players', 'logs'];
         $tab = in_array($tab, $allowedTabs, true) ? $tab : 'overview';
         $war = WarRepository::latest();
         $current = WarRepository::current();
@@ -94,7 +94,6 @@ final class WarAdminOverlay
 
     public static function overview(Player $player): void { self::show($player, 'overview'); }
     public static function createTab(Player $player): void { self::show($player, 'create'); }
-    public static function matchsettings(Player $player): void { self::show($player, 'matchsettings'); }
     public static function maps(Player $player): void { self::show($player, 'maps'); }
     public static function previousMapPage(Player $player): void
     {
@@ -120,8 +119,7 @@ final class WarAdminOverlay
             WarRepository::updateParticipationSettings(
                 $player,
                 self::toBool($values->overlay_join ?? 1),
-                self::toBool($values->nickname_detection ?? 1),
-                self::toBool($values->allow_team_switch ?? 0),
+                self::toBool($values->nickname_detection ?? 0),
                 (int)($values->team_limit ?? 0)
             );
         }, 'War created. Add at least one map before starting.');
@@ -137,33 +135,10 @@ final class WarAdminOverlay
             WarRepository::updateParticipationSettings(
                 $player,
                 self::toBool($values->overlay_join ?? 1),
-                self::toBool($values->nickname_detection ?? 1),
-                self::toBool($values->allow_team_switch ?? 0),
+                self::toBool($values->nickname_detection ?? 0),
                 (int)($values->team_limit ?? 0)
             );
         }, 'War settings saved.');
-    }
-
-    public static function saveMatchsettingsProfile(Player $player, $values): void
-    {
-        self::run($player, 'matchsettings', static function () use ($player, $values): void {
-            self::requireValues($values);
-            WarRepository::updateMatchsettingsProfile(
-                $player,
-                (string)($values->team_a_name ?? ''),
-                (string)($values->team_b_name ?? ''),
-                (int)($values->map_time_limit ?? 420),
-                (int)($values->chat_time ?? 15),
-                self::toBool($values->restore_after_restart ?? 1)
-            );
-        }, 'TM_War_Online profile saved.');
-    }
-
-    public static function generateMatchsettings(Player $player): void
-    {
-        self::run($player, 'matchsettings', static function () use ($player): void {
-            WarMatchSettingsService::generate($player);
-        }, 'TimeAttack war matchsettings generated safely.');
     }
 
     public static function addMap(Player $player, $values): void
@@ -224,14 +199,6 @@ final class WarAdminOverlay
         }, 'Player team assignment reset.');
     }
 
-    public static function movePlayerAt(Player $player, int $position): void
-    {
-        self::run($player, 'players', static function () use ($player, $position): void {
-            $entry = self::playerAt($position);
-            TeamAssignmentService::move($player, $entry->player_login);
-        }, 'Player moved to the other team.');
-    }
-
     public static function resetPlayer1(Player $player): void { self::resetPlayerAt($player, 1); }
     public static function resetPlayer2(Player $player): void { self::resetPlayerAt($player, 2); }
     public static function resetPlayer3(Player $player): void { self::resetPlayerAt($player, 3); }
@@ -244,18 +211,6 @@ final class WarAdminOverlay
     public static function resetPlayer10(Player $player): void { self::resetPlayerAt($player, 10); }
     public static function resetPlayer11(Player $player): void { self::resetPlayerAt($player, 11); }
     public static function resetPlayer12(Player $player): void { self::resetPlayerAt($player, 12); }
-    public static function movePlayer1(Player $player): void { self::movePlayerAt($player, 1); }
-    public static function movePlayer2(Player $player): void { self::movePlayerAt($player, 2); }
-    public static function movePlayer3(Player $player): void { self::movePlayerAt($player, 3); }
-    public static function movePlayer4(Player $player): void { self::movePlayerAt($player, 4); }
-    public static function movePlayer5(Player $player): void { self::movePlayerAt($player, 5); }
-    public static function movePlayer6(Player $player): void { self::movePlayerAt($player, 6); }
-    public static function movePlayer7(Player $player): void { self::movePlayerAt($player, 7); }
-    public static function movePlayer8(Player $player): void { self::movePlayerAt($player, 8); }
-    public static function movePlayer9(Player $player): void { self::movePlayerAt($player, 9); }
-    public static function movePlayer10(Player $player): void { self::movePlayerAt($player, 10); }
-    public static function movePlayer11(Player $player): void { self::movePlayerAt($player, 11); }
-    public static function movePlayer12(Player $player): void { self::movePlayerAt($player, 12); }
 
     public static function savePoints(Player $player, $values): void
     {

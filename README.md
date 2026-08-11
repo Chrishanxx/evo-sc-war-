@@ -39,24 +39,23 @@ unrestricted MasterAdmin group receives access automatically.
 - Admin lifecycle commands via `//war ...`
 - Compact EvoSC-style live widget for all players with team totals and a `WAR STATS` button
 - Public War Stats window with Overview, paginated Players and paginated Maps tabs
-- Direct player team joining through War Stats, persisted per war and Trackmania login
+- First-time player team joining during an active war, persisted per war and Trackmania login
 - Native `/setname` integration: choosing a team prepends its tag to the visible nickname
-- Original nicknames stored per war; duplicate tags are removed during draft team changes
+- Original nicknames stored per war; duplicate tags are removed before the selected tag is applied
 - Database assignment only after EvoSC confirms the visible nickname change
 - Compact HUD uses EvoSC's native widget base, including UI alignment and hide-while-driving settings
-- Optional team limits and confirmed team switching (disabled by default)
-- Admin move/reset actions and pending War-record promotion after joining
+- Optional team limits and a permanent team lock after confirmation
+- Admin reset action and automatic promotion of pending records after joining
+- `/war join TEAM` as a chat alternative to the confirmation overlay
 - Full `//war admin` control panel with Overview, Create/Settings, Maps, Points, Players and Logs tabs
 - Confirmed lifecycle actions and pause-aware war timing
 - EvoSC access rights and a QuickButtons entry
 - Audit log for state and configuration changes
-- WarManager-owned `TM_War_Online` profile backed by the official TimeAttack Online script
-- Validated, backup-first matchsettings generation under `MatchSettings/WarManager/`
-- Separate team display names and nickname detection tags in the war profile
 
-`TM_War_Online` is a virtual EvoSC mode, not a custom Trackmania ModeScript. Generated files always use
-`Trackmania/TM_TimeAttack_Online.Script.txt`. Generation is an explicit admin action and never modifies or
-automatically replaces the server's current matchsettings.
+WarManager deliberately keeps the server on `Trackmania/TM_TimeAttack_Online.Script.txt`. It does not create,
+replace or activate a separate War ModeScript or matchsettings file. Players may join either team only while
+the war is `ACTIVE`. Once stored, their login-to-team assignment is authoritative until an administrator uses
+`RESET TEAM`; records driven before joining remain pending and are promoted after the confirmed assignment.
 
 Public statistics and administration are deliberately separate. The player window contains no
 management actions; `//war admin` opens the protected configuration and lifecycle controls.

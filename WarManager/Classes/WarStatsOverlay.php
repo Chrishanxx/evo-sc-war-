@@ -95,9 +95,7 @@ final class WarStatsOverlay
         $teamLimit = (int)($war->team_limit ?? 0);
         $teamAFull = $teamLimit > 0 && $teamAMembers >= $teamLimit;
         $teamBFull = $teamLimit > 0 && $teamBMembers >= $teamLimit;
-        $joinAvailable = $war->overlay_join_enabled && ($war->status === WarState::DRAFT || $war->allow_team_switch);
-        $switchAvailable = $assignment && $joinAvailable
-            && ($war->status === WarState::DRAFT || $war->allow_team_switch);
+        $joinAvailable = !$assignment && $war->overlay_join_enabled && $war->status === WarState::ACTIVE;
         $confirmTeam = self::$confirmTeams[$player->Login] ?? '';
         self::$openTabs[$player->Login] = $tab;
 
@@ -105,7 +103,7 @@ final class WarStatsOverlay
             'tab', 'war', 'teamAPoints', 'teamBPoints', 'teamAColor', 'teamBColor', 'timeLeft',
             'playerRows', 'playerPage', 'playerPageCount', 'visibleMapRows', 'mapPage', 'mapPageCount',
             'scoredMapCount', 'mapCount', 'assignment', 'teamAMembers', 'teamBMembers', 'teamLimit',
-            'teamAFull', 'teamBFull', 'joinAvailable', 'switchAvailable', 'confirmTeam'
+            'teamAFull', 'teamBFull', 'joinAvailable', 'confirmTeam'
         ));
     }
 
@@ -131,8 +129,8 @@ final class WarStatsOverlay
     public static function players(Player $player): void { self::show($player, 'players'); }
     public static function maps(Player $player): void { self::show($player, 'maps'); }
 
-    public static function joinTeamA(Player $player): void { self::joinCurrentTeam($player, true); }
-    public static function joinTeamB(Player $player): void { self::joinCurrentTeam($player, false); }
+    public static function joinTeamA(Player $player): void { self::confirmTeamA($player); }
+    public static function joinTeamB(Player $player): void { self::confirmTeamB($player); }
 
     public static function confirmTeamA(Player $player): void
     {
@@ -183,12 +181,6 @@ final class WarStatsOverlay
     {
         self::$mapPages[$player->Login] = (int)(self::$mapPages[$player->Login] ?? 1) + 1;
         self::show($player, 'maps');
-    }
-
-    private static function joinCurrentTeam(Player $player, bool $teamA): void
-    {
-        $war = WarRepository::current();
-        self::joinSelectedTeam($player, $war ? ($teamA ? $war->team_a : $war->team_b) : '');
     }
 
     private static function joinSelectedTeam(Player $player, string $team): void
