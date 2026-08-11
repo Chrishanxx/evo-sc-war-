@@ -121,12 +121,6 @@ class WarManager extends Module implements ModuleInterface
         if (config('war-manager.show-quick-button', true) && config('quick-buttons.enabled', true)) {
             QuickButtons::addButton('', 'WAR', 'war.show');
             QuickButtons::addButton('', 'ADMIN', 'war.panel.admin', 'war_manage');
-            // Module reloads can happen while players are already connected.
-            // Re-render the standard EvoSC bar so the new entries are visible
-            // immediately instead of only after the next reconnect.
-            foreach (onlinePlayers() as $player) {
-                QuickButtons::showButtons($player);
-            }
         }
         Timer::create('war-manager.check_expiration', [self::class, 'tick'], '30s', true);
         self::tick();
@@ -160,7 +154,7 @@ class WarManager extends Module implements ModuleInterface
         } catch (Throwable $error) {
             // The player can still choose a team manually when automatic assignment is unavailable.
         }
-        WarLiveScoreWidget::show($player);
+        WarLiveScoreWidget::mount($player);
     }
 
     public static function localRecord(Player $player, int $score): void

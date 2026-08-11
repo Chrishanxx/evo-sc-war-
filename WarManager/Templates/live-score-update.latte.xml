@@ -1,0 +1,25 @@
+{contentType text}
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<manialink name="EvoSC:WarLiveScoreWidgetUpdate" id="WarLiveScoreWidgetUpdate" version="3">
+    <script><!--
+    main(){
+        declare Text EvoSC_WarHeading for UI;
+        declare Text EvoSC_WarStatus for UI;
+        declare Text EvoSC_WarTeamA for UI;
+        declare Text EvoSC_WarTeamB for UI;
+        declare Integer EvoSC_WarScoreA for UI;
+        declare Integer EvoSC_WarScoreB for UI;
+        declare Text EvoSC_WarTime for UI;
+        declare Integer EvoSC_WarLiveScoreUpdate for UI;
+
+        EvoSC_WarHeading = """{$heading}""";
+        EvoSC_WarStatus = """{$liveStatus}""";
+        EvoSC_WarTeamA = """{$war->team_a}""";
+        EvoSC_WarTeamB = """{$war->team_b}""";
+        EvoSC_WarScoreA = {$teamAPoints};
+        EvoSC_WarScoreB = {$teamBPoints};
+        EvoSC_WarTime = """{$timeLeft} remaining""";
+        EvoSC_WarLiveScoreUpdate += 1;
+    }
+    --></script>
+</manialink>
