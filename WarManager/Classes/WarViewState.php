@@ -28,6 +28,8 @@ final class WarViewState
             'team_b_color' => self::color(config('war-manager.team-b-color', 'FFFFFFFF')),
             'map_count' => (int)$mapCount,
             'scored_map_count' => (int)$scoredMapCount,
+            'rotation_number' => (int)($war->rotation_number ?? 0),
+            'rotation_position' => (int)($war->rotation_position ?? 0),
             'time_left' => self::timeLeft($war),
         ];
     }

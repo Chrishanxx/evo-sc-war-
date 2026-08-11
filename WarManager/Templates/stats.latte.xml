@@ -26,8 +26,8 @@
             <label pos="-43 -38" text="STATUS" textsize="1.2" textcolor="A9AAACFF" />
             <label pos="43 -38" text="{$war->status}" textsize="1.3" textcolor="FFFFFFFF" halign="right" />
             <quad pos="-43 -42" size="86 0.2" bgcolor="555559AA" />
-            <label pos="-43 -48" text="MAPS" textsize="1.2" textcolor="A9AAACFF" />
-            <label pos="43 -48" text="{$scoredMapCount} / {$mapCount}" textsize="1.3" textcolor="FFFFFFFF" halign="right" />
+            <label pos="-43 -48" text="ROTATION" textsize="1.2" textcolor="A9AAACFF" />
+            <label pos="43 -48" text="#{$rotationNumber} · MAP {$rotationPosition} / {$mapCount}" textsize="1.3" textcolor="FFFFFFFF" halign="right" />
             <quad pos="-43 -52" size="86 0.2" bgcolor="555559AA" />
             <label pos="-43 -58" text="REMAINING" textsize="1.2" textcolor="A9AAACFF" />
             <label pos="43 -58" text="{$timeLeft}" textsize="1.3" textcolor="FFFFFFFF" halign="right" />
