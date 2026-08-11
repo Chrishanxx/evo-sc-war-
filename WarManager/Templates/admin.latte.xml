@@ -160,8 +160,10 @@
                     <label pos="5 {$iterator->counter * -5 - 34}" text="{$entry->total_points}" textsize="1" textcolor="FFFFFFFF" halign="right" />
                     <label pos="16 {$iterator->counter * -5 - 34}" text="{$entry->online ? 'ONLINE' : 'OFFLINE'}" textsize="0.9" textcolor="{$entry->online ? '50CF84FF' : '778692FF'}" />
                     <label pos="38 {$iterator->counter * -5 - 34}" text="{$entry->assigned_by}" textsize="0.9" textcolor="FFFFFFFF" />
-                    <label pos="57 {$iterator->counter * -5 - 34}" text="MOVE" textsize="0.9" textcolor="D8D184FF" action="war.admin.player.move.{$iterator->counter}" />
-                    <label pos="70 {$iterator->counter * -5 - 34}" text="RESET" textsize="0.9" textcolor="F05D5EFF" action="war.admin.player.reset.{$iterator->counter}" halign="right" />
+                    <quad pos="49 {$iterator->counter * -5 - 32.8}" size="10 3.2" bgcolor="D8D18422" action="war.admin.player.move.{$iterator->counter}" />
+                    <label pos="54 {$iterator->counter * -5 - 34}" text="MOVE" textsize="0.8" textcolor="D8D184FF" action="war.admin.player.move.{$iterator->counter}" halign="center" />
+                    <quad pos="61 {$iterator->counter * -5 - 32.8}" size="11 3.2" bgcolor="F05D5E22" action="war.admin.player.reset.{$iterator->counter}" />
+                    <label pos="66.5 {$iterator->counter * -5 - 34}" text="RESET" textsize="0.8" textcolor="F05D5EFF" action="war.admin.player.reset.{$iterator->counter}" halign="center" />
                 {/foreach}
                 <label pos="-60 -82" text="UNASSIGNED ONLINE: {$unassigned->count()}" textsize="1" textcolor="F05D5EFF" />
             {/if}
