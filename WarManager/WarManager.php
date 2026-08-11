@@ -47,9 +47,10 @@ class WarManager extends Module implements ModuleInterface
         ManiaLinkEvent::add('war.panel.admin', [WarStatsOverlay::class, 'openAdmin'], 'war_manage');
         ManiaLinkEvent::add('war.stats.close', [WarStatsOverlay::class, 'close']);
         ManiaLinkEvent::add('war.stats.overview', [WarStatsOverlay::class, 'overview']);
-        ManiaLinkEvent::add('war.stats.players', [WarStatsOverlay::class, 'players']);
+        ManiaLinkEvent::add('war.stats.teams', [WarStatsOverlay::class, 'teams']);
+        ManiaLinkEvent::add('war.stats.players', [WarStatsOverlay::class, 'playerTab']);
         ManiaLinkEvent::add('war.stats.maps', [WarStatsOverlay::class, 'maps']);
-        ManiaLinkEvent::add('war.stats.history', [WarStatsOverlay::class, 'history']);
+        ManiaLinkEvent::add('war.stats.summary', [WarStatsOverlay::class, 'stats']);
         ManiaLinkEvent::add('war.stats.players.previous', [WarStatsOverlay::class, 'previousPlayerPage']);
         ManiaLinkEvent::add('war.stats.players.next', [WarStatsOverlay::class, 'nextPlayerPage']);
         ManiaLinkEvent::add('war.stats.maps.previous', [WarStatsOverlay::class, 'previousMapPage']);
@@ -108,6 +109,7 @@ class WarManager extends Module implements ModuleInterface
 
         if (config('war-manager.show-quick-button', true) && config('quick-buttons.enabled', true)) {
             QuickButtons::addButton('⚔', 'WAR', 'war.show');
+            QuickButtons::addButton('', 'WAR ADMIN', 'war.panel.admin', 'war_manage');
         }
         Timer::create('war-manager.check_expiration', [self::class, 'tick'], '30s', true);
         self::tick();

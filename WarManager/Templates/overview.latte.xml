@@ -7,7 +7,7 @@
     {block globals}{/block}
 
     {block content}
-        <quad pos="0 0" size="92 15" bgcolor="131313EE" />
+        <quad pos="0 0" size="92 15" bgcolor="131313EE" action="war.stats.show" />
         <quad pos="0 0" size="92 0.35" bgcolor="E4DA72CC" />
 
         <quad pos="3 -2.2" size="0.9 5" bgcolor="E4DA72FF" />
@@ -25,10 +25,8 @@
         <label pos="48 -9.6" text="|" textsize="0.8" textcolor="666666FF" halign="center" valign="center" />
         <label pos="52 -9.6" size="18 3" text="{$statusDetail}" textsize="0.86" textcolor="A6A6A6FF" valign="center" />
 
-        <quad pos="70 -7.5" size="6 5" bgcolor="222222FF" action="war.players.show" />
-        <label pos="73 -10" text="P" textsize="1" textcolor="F5F5F5FF" halign="center" valign="center" action="war.players.show" />
-        <quad pos="77 -7.5" size="6 5" bgcolor="222222FF" action="war.stats.show" />
-        <label pos="80 -10" text="S" textsize="1" textcolor="F5F5F5FF" halign="center" valign="center" action="war.stats.show" />
+        <quad pos="70 -7.5" size="13 5" bgcolor="222222FF" action="war.stats.show" />
+        <label pos="76.5 -10" text="WAR" textsize="0.85" textcolor="F5F5F5FF" halign="center" valign="center" action="war.stats.show" />
         {if $canOpenAdmin}
             <quad pos="84 -7.5" size="6 5" bgcolor="222222FF" action="war.panel.admin" />
             <label pos="87 -10" text="A" textsize="1" textcolor="E4DA72FF" halign="center" valign="center" action="war.panel.admin" />

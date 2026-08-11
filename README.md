@@ -1,6 +1,6 @@
 # EvoSC WarManager
 
-Current module version: **0.10.5**. This release adds a persistent manual scoring-pause state that is independent from the war pause: TimeAttack keeps running while new records are excluded from WarManager scoring. The admin actions are permission-protected and audited. MatchSettings continue to use only `Trackmania/TM_TimeAttack_Online.Script.txt`; automatic loading and restoration remain disabled until the active server playlist can be backed up and restored reliably.
+Current module version: **0.10.6**. This release unifies the public player interface into `OVERVIEW`, `TEAMS`, `PLAYERS`, `MAPS` and `STATS`, adds a prominent team-join flow with confirmation, makes the compact live bar open the WAR panel, and registers a separate permission-filtered WAR ADMIN quick button. Team assignments remain account-backed and locked for an active war. MatchSettings continue to use only `Trackmania/TM_TimeAttack_Online.Script.txt`.
 
 External WarManager module for the classic PHP release of EvoSC and Trackmania 2020.
 It keeps `Trackmania/TM_TimeAttack_Online.Script.txt` untouched and calculates a

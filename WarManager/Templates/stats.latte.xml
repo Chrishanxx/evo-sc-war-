@@ -3,82 +3,140 @@
 <manialink version="3" id="WarManagerStats" name="EvoSC:WarManagerStats">
     {include isManiaPlanet() ? 'Components.stylesheet' : 'Components.stylesheet_noblur'}
 
-    <frame pos="0 37" halign="center" z-index="8450">
-        <quad pos="-55 0" size="110 74" bgcolor="131313F7" />
-        <quad pos="-55 0" size="110 0.4" bgcolor="E4DA72CC" />
-        <label pos="-50 -5" text="STATS" textsize="1.65" textcolor="E4DA72FF" valign="center" />
-        <label pos="50 -5" text="X" textsize="1.8" textcolor="F5F5F5FF" halign="center" valign="center" action="war.stats.close" />
-        <quad pos="-50 -9" size="100 0.25" bgcolor="333333FF" />
+    <frame pos="0 41" halign="center" z-index="8450">
+        <quad pos="-58 0" size="116 82" bgcolor="151515F7" />
+        <quad pos="-58 0" size="116 0.45" bgcolor="FFD500FF" />
+        <label pos="-53 -5" text="WAR" textsize="1.7" textcolor="FFD500FF" valign="center" />
+        <label pos="-53 -9" size="72 3" text="{$war->name}" textsize="0.8" textcolor="AAAAAAFF" />
+        <label pos="53 -5" text="X" textsize="1.8" textcolor="FFFFFFFF" halign="center" valign="center" action="war.stats.close" />
 
-        <label pos="-33 -14" text="OVERVIEW" textsize="1.05" textcolor="{$tab == 'overview' ? 'E4DA72FF' : 'A6A6A6FF'}" halign="center" action="war.stats.overview" />
-        <label pos="0 -14" text="MAPS" textsize="1.05" textcolor="{$tab == 'maps' ? 'E4DA72FF' : 'A6A6A6FF'}" halign="center" action="war.stats.maps" />
-        <label pos="33 -14" text="HISTORY" textsize="1.05" textcolor="{$tab == 'history' ? 'E4DA72FF' : 'A6A6A6FF'}" halign="center" action="war.stats.history" />
-        <quad pos="-50 -17" size="100 0.2" bgcolor="333333FF" />
+        <quad pos="-53 -12" size="106 0.25" bgcolor="343434FF" />
+        <label pos="-42 -16" text="OVERVIEW" textsize="0.9" textcolor="{$tab == 'overview' ? 'FFD500FF' : 'AAAAAAFF'}" halign="center" action="war.stats.overview" />
+        <label pos="-21 -16" text="TEAMS" textsize="0.9" textcolor="{$tab == 'teams' ? 'FFD500FF' : 'AAAAAAFF'}" halign="center" action="war.stats.teams" />
+        <label pos="0 -16" text="PLAYERS" textsize="0.9" textcolor="{$tab == 'players' ? 'FFD500FF' : 'AAAAAAFF'}" halign="center" action="war.stats.players" />
+        <label pos="21 -16" text="MAPS" textsize="0.9" textcolor="{$tab == 'maps' ? 'FFD500FF' : 'AAAAAAFF'}" halign="center" action="war.stats.maps" />
+        <label pos="42 -16" text="STATS" textsize="0.9" textcolor="{$tab == 'stats' ? 'FFD500FF' : 'AAAAAAFF'}" halign="center" action="war.stats.summary" />
+        <quad pos="-53 -19" size="106 0.25" bgcolor="343434FF" />
 
         {if $tab == 'overview'}
-            <quad pos="-49 -21" size="23 20" bgcolor="1A1A1AFF" />
-            <quad pos="-24 -21" size="23 20" bgcolor="1A1A1AFF" />
-            <quad pos="1 -21" size="23 20" bgcolor="1A1A1AFF" />
-            <quad pos="26 -21" size="23 20" bgcolor="1A1A1AFF" />
-            <label pos="-46 -25" text="STATUS" textsize="0.75" textcolor="A6A6A6FF" />
-            <label pos="-46 -33" size="20 4" text="{$displayStatus}" textsize="1.1" textcolor="E4DA72FF" />
-            <label pos="-21 -25" text="MAP" textsize="0.75" textcolor="A6A6A6FF" />
-            <label pos="-21 -33" text="{$rotationPosition} / {$mapCount}" textsize="1.35" textcolor="F5F5F5FF" />
-            <label pos="4 -25" text="REMAINING" textsize="0.75" textcolor="A6A6A6FF" />
-            <label pos="4 -33" text="{$timeLeft}" textsize="1.35" textcolor="F5F5F5FF" />
-            <label pos="29 -25" text="ROTATION" textsize="0.75" textcolor="A6A6A6FF" />
-            <label pos="29 -33" text="{$rotationNumber}" textsize="1.35" textcolor="F5F5F5FF" />
+            <label pos="-47 -27" size="30 5" text="{$war->team_a}" textsize="1.55" textcolor="FFFFFFFF" />
+            <label pos="47 -27" size="30 5" text="{$war->team_b}" textsize="1.55" textcolor="FFFFFFFF" halign="right" />
+            <label pos="-7 -28" text="{$teamAPoints}" textsize="2.7" textcolor="FFD500FF" halign="right" />
+            <label pos="0 -28" text=":" textsize="2.2" textcolor="AAAAAAFF" halign="center" />
+            <label pos="7 -28" text="{$teamBPoints}" textsize="2.7" textcolor="FFD500FF" />
+            <label pos="0 -36" text="{$displayStatus}" textsize="1" textcolor="FFD500FF" halign="center" />
 
-            <quad pos="-49 -44" size="98 18" bgcolor="1A1A1AFF" />
-            <label pos="-45 -49" text="CURRENT MAP" textsize="0.75" textcolor="A6A6A6FF" />
-            <label pos="-45 -57" size="75 5" text="{$currentMapName}" textsize="1.65" textcolor="{$currentMapValid ? 'F5F5F5FF' : 'E4DA72FF'}" />
-            <label pos="45 -57" text="{$rotationPosition} / {$mapCount}" textsize="1" textcolor="E4DA72FF" halign="right" />
+            <quad pos="-49 -41" size="98 18" bgcolor="1B1B1BFF" />
+            <label pos="-45 -46" text="CURRENT MAP" textsize="0.72" textcolor="AAAAAAFF" />
+            <label pos="-45 -53" size="65 4" text="{$currentMapName}" textsize="1.45" textcolor="FFFFFFFF" />
+            <label pos="45 -47" text="MAP {$rotationPosition} / {$mapCount}" textsize="0.9" textcolor="FFD500FF" halign="right" />
+            <label pos="45 -53" text="{$timeLeft} REMAINING" textsize="0.85" textcolor="AAAAAAFF" halign="right" />
             {if $displayStatus == 'SCORING PAUSED'}
-                <label pos="-45 -62" text="TIMEATTACK ACTIVE - WAR SCORING PAUSED" textsize="0.8" textcolor="E4DA72FF" />
+                <label pos="0 -58" text="TIMEATTACK ACTIVE - WAR SCORING PAUSED" textsize="0.72" textcolor="FFD500FF" halign="center" />
             {/if}
+
             {if $joinAvailable}
-                <label pos="0 -65" text="CHOOSE YOUR TEAM" textsize="0.78" textcolor="A6A6A6FF" halign="center" />
+                <quad pos="-20 -63" size="40 7" bgcolor="FFD500FF" action="war.stats.teams" />
+                <label pos="0 -66.5" text="JOIN TEAM" textsize="1.1" textcolor="151515FF" halign="center" valign="center" action="war.stats.teams" />
+            {elseif $assignment}
+                <label pos="0 -65" text="YOUR TEAM" textsize="0.72" textcolor="AAAAAAFF" halign="center" />
+                <label pos="0 -70" text="{$assignment->locked_team}" textsize="1.3" textcolor="FFD500FF" halign="center" />
+                <label pos="0 -74" text="TEAM LOCKED DURING ACTIVE WAR" textsize="0.68" textcolor="777777FF" halign="center" />
+            {elseif $war->status == 'ACTIVE'}
+                <label pos="0 -68" text="TEAM JOIN DISABLED" textsize="0.85" textcolor="AAAAAAFF" halign="center" />
+            {/if}
+        {/if}
+
+        {if $tab == 'teams'}
+            <label pos="0 -25" text="CHOOSE YOUR TEAM" textsize="1.2" textcolor="FFD500FF" halign="center" />
+            <label pos="0 -30" text="Select the team you want to represent." textsize="0.78" textcolor="AAAAAAFF" halign="center" />
+            <quad pos="-49 -35" size="46 25" bgcolor="1B1B1BFF" />
+            <quad pos="3 -35" size="46 25" bgcolor="1B1B1BFF" />
+            <label pos="-26 -42" size="39 4" text="{$war->team_a}" textsize="1.45" textcolor="FFFFFFFF" halign="center" />
+            <label pos="26 -42" size="39 4" text="{$war->team_b}" textsize="1.45" textcolor="FFFFFFFF" halign="center" />
+            <label pos="-26 -48" text="{$teamACountLabel} PLAYERS" textsize="0.82" textcolor="AAAAAAFF" halign="center" />
+            <label pos="26 -48" text="{$teamBCountLabel} PLAYERS" textsize="0.82" textcolor="AAAAAAFF" halign="center" />
+            {if $assignment}
+                <label pos="0 -65" text="YOUR TEAM: {$assignment->locked_team}" textsize="1.1" textcolor="FFD500FF" halign="center" />
+                <label pos="0 -70" text="TEAM SWITCHING IS LOCKED" textsize="0.72" textcolor="AAAAAAFF" halign="center" />
+            {elseif $joinAvailable}
                 {if !$teamAFull}
-                    <quad pos="-45 -67" size="42 5" bgcolor="222222FF" action="war.stats.join.a" />
-                    <label pos="-24 -69.5" size="36 3" text="JOIN {$war->team_a}" textsize="0.9" textcolor="E4DA72FF" halign="center" valign="center" action="war.stats.join.a" />
+                    <quad pos="-43 -52" size="34 6" bgcolor="202020FF" action="war.stats.join.a" />
+                    <label pos="-26 -55" text="JOIN {$war->team_a}" textsize="0.9" textcolor="FFD500FF" halign="center" valign="center" action="war.stats.join.a" />
+                {else}
+                    <label pos="-26 -55" text="TEAM FULL" textsize="0.9" textcolor="AAAAAAFF" halign="center" />
                 {/if}
                 {if !$teamBFull}
-                    <quad pos="3 -67" size="42 5" bgcolor="222222FF" action="war.stats.join.b" />
-                    <label pos="24 -69.5" size="36 3" text="JOIN {$war->team_b}" textsize="0.9" textcolor="E4DA72FF" halign="center" valign="center" action="war.stats.join.b" />
+                    <quad pos="9 -52" size="34 6" bgcolor="202020FF" action="war.stats.join.b" />
+                    <label pos="26 -55" text="JOIN {$war->team_b}" textsize="0.9" textcolor="FFD500FF" halign="center" valign="center" action="war.stats.join.b" />
+                {else}
+                    <label pos="26 -55" text="TEAM FULL" textsize="0.9" textcolor="AAAAAAFF" halign="center" />
                 {/if}
-            {elseif $assignment}
-                <label pos="0 -68" text="YOUR TEAM: {$assignment->locked_team}" textsize="0.82" textcolor="A6A6A6FF" halign="center" />
-            {elseif $war->status == 'ACTIVE'}
-                <label pos="0 -68" text="TEAM JOIN IS DISABLED" textsize="0.82" textcolor="A6A6A6FF" halign="center" />
+            {else}
+                <label pos="0 -66" text="TEAM JOIN IS NOT AVAILABLE" textsize="0.85" textcolor="AAAAAAFF" halign="center" />
             {/if}
+        {/if}
+
+        {if $tab == 'players'}
+            <label pos="-47 -25" text="{$war->team_a}  |  {$teamAMembers} PLAYERS" textsize="1.05" textcolor="FFD500FF" />
+            <label pos="47 -25" text="{$war->team_b}  |  {$teamBMembers} PLAYERS" textsize="1.05" textcolor="FFD500FF" halign="right" />
+            <quad pos="0 -23" size="0.2 47" bgcolor="343434AA" />
+            {foreach $teamARows as $entry}
+                <label pos="-47 {$iterator->counter * -5 - 26}" text="{$iterator->counter}" textsize="0.8" textcolor="777777FF" />
+                <label pos="-41 {$iterator->counter * -5 - 26}" size="31 4" text="{$entry->display_name}" textsize="0.92" textcolor="{$entry->is_self ? 'FFD500FF' : 'FFFFFFFF'}" />
+                <label pos="-4 {$iterator->counter * -5 - 26}" text="{$entry->total_points}" textsize="0.92" textcolor="FFFFFFFF" halign="right" />
+            {/foreach}
+            {foreach $teamBRows as $entry}
+                <label pos="4 {$iterator->counter * -5 - 26}" text="{$iterator->counter}" textsize="0.8" textcolor="777777FF" />
+                <label pos="10 {$iterator->counter * -5 - 26}" size="31 4" text="{$entry->display_name}" textsize="0.92" textcolor="{$entry->is_self ? 'FFD500FF' : 'FFFFFFFF'}" />
+                <label pos="47 {$iterator->counter * -5 - 26}" text="{$entry->total_points}" textsize="0.92" textcolor="FFFFFFFF" halign="right" />
+            {/foreach}
         {/if}
 
         {if $tab == 'maps'}
-            <label pos="-47 -22" text="#" textsize="0.8" textcolor="A6A6A6FF" />
-            <label pos="-39 -22" text="WAR MAP" textsize="0.8" textcolor="A6A6A6FF" />
-            <label pos="47 -22" text="STATUS" textsize="0.8" textcolor="A6A6A6FF" halign="right" />
+            <label pos="-49 -24" text="#" textsize="0.8" textcolor="AAAAAAFF" />
+            <label pos="-41 -24" text="WAR MAP" textsize="0.8" textcolor="AAAAAAFF" />
+            <label pos="49 -24" text="STATUS" textsize="0.8" textcolor="AAAAAAFF" halign="right" />
             {foreach $visibleMapRows as $row}
                 {if $row->status == 'CURRENT'}
-                    <quad pos="-49 {$iterator->counter * -4.5 - 20}" size="0.8 3.6" bgcolor="E4DA72FF" />
+                    <quad pos="-52 {$iterator->counter * -4.6 - 22}" size="0.8 3.7" bgcolor="FFD500FF" />
                 {/if}
-                <label pos="-46 {$iterator->counter * -4.5 - 22}" text="{$iterator->counter + (($mapPage - 1) * 10)}" textsize="0.85" textcolor="A6A6A6FF" />
-                <label pos="-38 {$iterator->counter * -4.5 - 22}" size="60 3.5" text="{$row->name}" textsize="0.95" textcolor="F5F5F5FF" />
-                <label pos="47 {$iterator->counter * -4.5 - 22}" text="{$row->status}" textsize="0.85" textcolor="{$row->status == 'CURRENT' ? 'E4DA72FF' : 'A6A6A6FF'}" halign="right" />
+                <label pos="-49 {$iterator->counter * -4.6 - 24}" text="{$iterator->counter + (($mapPage - 1) * 10)}" textsize="0.82" textcolor="777777FF" />
+                <label pos="-41 {$iterator->counter * -4.6 - 24}" size="65 3.5" text="{$row->name}" textsize="0.92" textcolor="FFFFFFFF" />
+                <label pos="49 {$iterator->counter * -4.6 - 24}" text="{$row->status}" textsize="0.82" textcolor="{$row->status == 'CURRENT' ? 'FFD500FF' : 'AAAAAAFF'}" halign="right" />
             {/foreach}
-            <label pos="-45 -70" text="PREV" textsize="0.9" textcolor="E4DA72FF" action="war.stats.maps.previous" />
-            <label pos="0 -70" text="{$mapPage} / {$mapPageCount}" textsize="0.85" textcolor="A6A6A6FF" halign="center" />
-            <label pos="45 -70" text="NEXT" textsize="0.9" textcolor="E4DA72FF" halign="right" action="war.stats.maps.next" />
+            <label pos="-47 -76" text="PREV" textsize="0.85" textcolor="FFD500FF" action="war.stats.maps.previous" />
+            <label pos="0 -76" text="{$mapPage} / {$mapPageCount}" textsize="0.8" textcolor="AAAAAAFF" halign="center" />
+            <label pos="47 -76" text="NEXT" textsize="0.85" textcolor="FFD500FF" halign="right" action="war.stats.maps.next" />
         {/if}
 
-        {if $tab == 'history'}
-            <label pos="-47 -22" text="COMPLETED MAP RESULTS" textsize="0.8" textcolor="A6A6A6FF" />
-            {if $historyRows->isEmpty()}
-                <label pos="0 -38" text="NO STORED MAP RESULTS YET" textsize="1" textcolor="A6A6A6FF" halign="center" />
-            {/if}
-            {foreach $historyRows as $row}
-                <label pos="-47 {$iterator->counter * -7 - 22}" size="45 3.5" text="{$row->name}" textsize="0.9" textcolor="F5F5F5FF" />
-                <label pos="47 {$iterator->counter * -7 - 22}" text="{$war->team_a}  {$row->team_a_points} : {$row->team_b_points}  {$war->team_b}" textsize="0.95" textcolor="E4DA72FF" halign="right" />
-            {/foreach}
+        {if $tab == 'stats'}
+            <label pos="0 -25" text="TEAM STATS" textsize="1.15" textcolor="FFD500FF" halign="center" />
+            <label pos="-43 -32" text="{$war->team_a}" textsize="1.15" textcolor="FFFFFFFF" />
+            <label pos="43 -32" text="{$war->team_b}" textsize="1.15" textcolor="FFFFFFFF" halign="right" />
+            <label pos="-43 -41" text="{$teamAPoints}" textsize="1.4" textcolor="FFD500FF" />
+            <label pos="0 -41" text="POINTS" textsize="0.85" textcolor="AAAAAAFF" halign="center" />
+            <label pos="43 -41" text="{$teamBPoints}" textsize="1.4" textcolor="FFD500FF" halign="right" />
+            <label pos="-43 -49" text="{$teamAMapWins}" textsize="1.15" textcolor="FFFFFFFF" />
+            <label pos="0 -49" text="MAP WINS" textsize="0.85" textcolor="AAAAAAFF" halign="center" />
+            <label pos="43 -49" text="{$teamBMapWins}" textsize="1.15" textcolor="FFFFFFFF" halign="right" />
+            <label pos="-43 -57" text="{$teamABestPlayer}" textsize="1.15" textcolor="FFFFFFFF" />
+            <label pos="0 -57" text="BEST PLAYER" textsize="0.85" textcolor="AAAAAAFF" halign="center" />
+            <label pos="43 -57" text="{$teamBBestPlayer}" textsize="1.15" textcolor="FFFFFFFF" halign="right" />
+            <label pos="-43 -65" text="{$teamARecordCount}" textsize="1.15" textcolor="FFFFFFFF" />
+            <label pos="0 -65" text="SCORED RECORDS" textsize="0.85" textcolor="AAAAAAFF" halign="center" />
+            <label pos="43 -65" text="{$teamBRecordCount}" textsize="1.15" textcolor="FFFFFFFF" halign="right" />
+        {/if}
+
+        {if $confirmTeam}
+            <frame pos="-40 -45" z-index="8550">
+                <quad pos="0 0" size="80 25" bgcolor="1B1B1BFF" />
+                <quad pos="0 0" size="80 0.4" bgcolor="FFD500FF" />
+                <label pos="40 -6" text="JOIN {$confirmTeam}?" textsize="1.4" textcolor="FFD500FF" halign="center" />
+                <label pos="40 -11" text="Your team is locked for this active war." textsize="0.8" textcolor="AAAAAAFF" halign="center" />
+                <label pos="20 -20" text="BACK" textsize="0.95" textcolor="FFFFFFFF" halign="center" action="war.stats.team.cancel" />
+                <label pos="60 -20" text="CONFIRM" textsize="0.95" textcolor="FFD500FF" halign="center" action="war.stats.team.confirm" />
+            </frame>
         {/if}
     </frame>
 </manialink>
