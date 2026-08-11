@@ -11,11 +11,9 @@
         <label pos="53 -5" text="X" textsize="1.8" textcolor="FFFFFFFF" halign="center" valign="center" action="war.stats.close" />
 
         <quad pos="-53 -12" size="106 0.25" bgcolor="343434FF" />
-        <label pos="-42 -16" text="OVERVIEW" textsize="0.9" textcolor="{$tab == 'overview' ? 'FFD500FF' : 'AAAAAAFF'}" halign="center" action="war.stats.overview" />
-        <label pos="-21 -16" text="TEAMS" textsize="0.9" textcolor="{$tab == 'teams' ? 'FFD500FF' : 'AAAAAAFF'}" halign="center" action="war.stats.teams" />
-        <label pos="0 -16" text="PLAYERS" textsize="0.9" textcolor="{$tab == 'players' ? 'FFD500FF' : 'AAAAAAFF'}" halign="center" action="war.stats.players" />
-        <label pos="21 -16" text="MAPS" textsize="0.9" textcolor="{$tab == 'maps' ? 'FFD500FF' : 'AAAAAAFF'}" halign="center" action="war.stats.maps" />
-        <label pos="42 -16" text="STATS" textsize="0.9" textcolor="{$tab == 'stats' ? 'FFD500FF' : 'AAAAAAFF'}" halign="center" action="war.stats.summary" />
+        <label pos="-35 -16" text="OVERVIEW" textsize="0.9" textcolor="{$tab == 'overview' ? 'FFD500FF' : 'AAAAAAFF'}" halign="center" action="war.stats.overview" />
+        <label pos="0 -16" text="TEAMS" textsize="0.9" textcolor="{$tab == 'teams' ? 'FFD500FF' : 'AAAAAAFF'}" halign="center" action="war.stats.teams" />
+        <label pos="35 -16" text="STATS" textsize="0.9" textcolor="{$tab == 'players' || $tab == 'maps' || $tab == 'map-detail' ? 'FFD500FF' : 'AAAAAAFF'}" halign="center" action="war.stats.summary" />
         <quad pos="-53 -19" size="106 0.25" bgcolor="343434FF" />
 
         {if $tab == 'overview'}
@@ -41,8 +39,8 @@
             {elseif $assignment}
                 <label pos="0 -65" text="YOUR TEAM" textsize="0.72" textcolor="AAAAAAFF" halign="center" />
                 <label pos="0 -70" text="{$assignment->locked_team}" textsize="1.3" textcolor="FFD500FF" halign="center" />
-                <label pos="0 -74" text="TEAM LOCKED DURING ACTIVE WAR" textsize="0.68" textcolor="777777FF" halign="center" />
-            {elseif $war->status == 'ACTIVE'}
+                <label pos="0 -74" text="TEAM LOCKED FOR THIS WAR" textsize="0.68" textcolor="777777FF" halign="center" />
+            {elseif $war->status == 'ACTIVE' || $war->status == 'DRAFT'}
                 <label pos="0 -68" text="TEAM JOIN DISABLED" textsize="0.85" textcolor="AAAAAAFF" halign="center" />
             {/if}
         {/if}
@@ -78,54 +76,66 @@
         {/if}
 
         {if $tab == 'players'}
-            <label pos="-47 -25" text="{$war->team_a}  |  {$teamAMembers} PLAYERS" textsize="1.05" textcolor="FFD500FF" />
-            <label pos="47 -25" text="{$war->team_b}  |  {$teamBMembers} PLAYERS" textsize="1.05" textcolor="FFD500FF" halign="right" />
-            <quad pos="0 -23" size="0.2 47" bgcolor="343434AA" />
-            {foreach $teamARows as $entry}
-                <label pos="-47 {$iterator->counter * -5 - 26}" text="{$iterator->counter}" textsize="0.8" textcolor="777777FF" />
-                <label pos="-41 {$iterator->counter * -5 - 26}" size="31 4" text="{$entry->display_name}" textsize="0.92" textcolor="{$entry->is_self ? 'FFD500FF' : 'FFFFFFFF'}" />
-                <label pos="-4 {$iterator->counter * -5 - 26}" text="{$entry->total_points}" textsize="0.92" textcolor="FFFFFFFF" halign="right" />
+            <label pos="-47 -24" text="PLAYERS" textsize="1.05" textcolor="FFD500FF" action="war.stats.players" />
+            <label pos="-25 -24" text="MAPS" textsize="1.05" textcolor="AAAAAAFF" action="war.stats.maps" />
+            <quad pos="-47 -27" size="18 0.3" bgcolor="FFD500FF" />
+            <label pos="-48 -32" text="#" textsize="0.75" textcolor="777777FF" />
+            <label pos="-41 -32" text="PLAYER" textsize="0.75" textcolor="777777FF" />
+            <label pos="20 -32" text="TEAM" textsize="0.75" textcolor="777777FF" />
+            <label pos="48 -32" text="POINTS" textsize="0.75" textcolor="777777FF" halign="right" />
+            {foreach $playerRows as $entry}
+                <label pos="-48 {$iterator->counter * -4.4 - 32}" text="{$iterator->counter + (($playerPage - 1) * 10)}" textsize="0.82" textcolor="777777FF" />
+                <label pos="-41 {$iterator->counter * -4.4 - 32}" size="54 3.5" text="{$entry->display_name}" textsize="0.9" textcolor="{$entry->is_self ? 'FFD500FF' : 'FFFFFFFF'}" />
+                <label pos="20 {$iterator->counter * -4.4 - 32}" size="20 3.5" text="{$entry->locked_team}" textsize="0.85" textcolor="FFFFFFFF" />
+                <label pos="48 {$iterator->counter * -4.4 - 32}" text="{$entry->total_points}" textsize="0.9" textcolor="FFD500FF" halign="right" />
             {/foreach}
-            {foreach $teamBRows as $entry}
-                <label pos="4 {$iterator->counter * -5 - 26}" text="{$iterator->counter}" textsize="0.8" textcolor="777777FF" />
-                <label pos="10 {$iterator->counter * -5 - 26}" size="31 4" text="{$entry->display_name}" textsize="0.92" textcolor="{$entry->is_self ? 'FFD500FF' : 'FFFFFFFF'}" />
-                <label pos="47 {$iterator->counter * -5 - 26}" text="{$entry->total_points}" textsize="0.92" textcolor="FFFFFFFF" halign="right" />
-            {/foreach}
+            <label pos="-47 -78" text="PREV" textsize="0.85" textcolor="FFD500FF" action="war.stats.players.previous" />
+            <label pos="0 -78" text="{$playerPage} / {$playerPageCount}" textsize="0.8" textcolor="AAAAAAFF" halign="center" />
+            <label pos="47 -78" text="NEXT" textsize="0.85" textcolor="FFD500FF" halign="right" action="war.stats.players.next" />
         {/if}
 
         {if $tab == 'maps'}
-            <label pos="-49 -24" text="#" textsize="0.8" textcolor="AAAAAAFF" />
-            <label pos="-41 -24" text="WAR MAP" textsize="0.8" textcolor="AAAAAAFF" />
-            <label pos="49 -24" text="STATUS" textsize="0.8" textcolor="AAAAAAFF" halign="right" />
+            <label pos="-47 -24" text="PLAYERS" textsize="1.05" textcolor="AAAAAAFF" action="war.stats.players" />
+            <label pos="-25 -24" text="MAPS" textsize="1.05" textcolor="FFD500FF" action="war.stats.maps" />
+            <quad pos="-25 -27" size="14 0.3" bgcolor="FFD500FF" />
+            <label pos="-49 -32" text="#" textsize="0.8" textcolor="AAAAAAFF" />
+            <label pos="-41 -32" text="WAR MAP" textsize="0.8" textcolor="AAAAAAFF" />
+            <label pos="27 -32" text="{$war->team_a}" textsize="0.75" textcolor="AAAAAAFF" halign="right" />
+            <label pos="42 -32" text="{$war->team_b}" textsize="0.75" textcolor="AAAAAAFF" halign="right" />
             {foreach $visibleMapRows as $row}
                 {if $row->status == 'CURRENT'}
-                    <quad pos="-52 {$iterator->counter * -4.6 - 22}" size="0.8 3.7" bgcolor="FFD500FF" />
+                    <quad pos="-52 {$iterator->counter * -4.3 - 31}" size="0.8 3.5" bgcolor="FFD500FF" />
                 {/if}
-                <label pos="-49 {$iterator->counter * -4.6 - 24}" text="{$iterator->counter + (($mapPage - 1) * 10)}" textsize="0.82" textcolor="777777FF" />
-                <label pos="-41 {$iterator->counter * -4.6 - 24}" size="65 3.5" text="{$row->name}" textsize="0.92" textcolor="FFFFFFFF" />
-                <label pos="49 {$iterator->counter * -4.6 - 24}" text="{$row->status}" textsize="0.82" textcolor="{$row->status == 'CURRENT' ? 'FFD500FF' : 'AAAAAAFF'}" halign="right" />
+                <quad pos="-51 {$iterator->counter * -4.3 - 31}" size="102 3.7" bgcolor="1B1B1B77" action="war.stats.map.details.{$iterator->counter}" />
+                <label pos="-49 {$iterator->counter * -4.3 - 33}" text="{$iterator->counter + (($mapPage - 1) * 10)}" textsize="0.82" textcolor="777777FF" action="war.stats.map.details.{$iterator->counter}" />
+                <label pos="-41 {$iterator->counter * -4.3 - 33}" size="56 3.5" text="{$row->name}" textsize="0.88" textcolor="FFFFFFFF" action="war.stats.map.details.{$iterator->counter}" />
+                <label pos="27 {$iterator->counter * -4.3 - 33}" text="{$row->team_a_points}" textsize="0.88" textcolor="FFD500FF" halign="right" action="war.stats.map.details.{$iterator->counter}" />
+                <label pos="42 {$iterator->counter * -4.3 - 33}" text="{$row->team_b_points}" textsize="0.88" textcolor="FFD500FF" halign="right" action="war.stats.map.details.{$iterator->counter}" />
+                <label pos="49 {$iterator->counter * -4.3 - 33}" text="&gt;" textsize="0.82" textcolor="AAAAAAFF" halign="right" action="war.stats.map.details.{$iterator->counter}" />
             {/foreach}
             <label pos="-47 -76" text="PREV" textsize="0.85" textcolor="FFD500FF" action="war.stats.maps.previous" />
             <label pos="0 -76" text="{$mapPage} / {$mapPageCount}" textsize="0.8" textcolor="AAAAAAFF" halign="center" />
             <label pos="47 -76" text="NEXT" textsize="0.85" textcolor="FFD500FF" halign="right" action="war.stats.maps.next" />
         {/if}
 
-        {if $tab == 'stats'}
-            <label pos="0 -25" text="TEAM STATS" textsize="1.15" textcolor="FFD500FF" halign="center" />
-            <label pos="-43 -32" text="{$war->team_a}" textsize="1.15" textcolor="FFFFFFFF" />
-            <label pos="43 -32" text="{$war->team_b}" textsize="1.15" textcolor="FFFFFFFF" halign="right" />
-            <label pos="-43 -41" text="{$teamAPoints}" textsize="1.4" textcolor="FFD500FF" />
-            <label pos="0 -41" text="POINTS" textsize="0.85" textcolor="AAAAAAFF" halign="center" />
-            <label pos="43 -41" text="{$teamBPoints}" textsize="1.4" textcolor="FFD500FF" halign="right" />
-            <label pos="-43 -49" text="{$teamAMapWins}" textsize="1.15" textcolor="FFFFFFFF" />
-            <label pos="0 -49" text="MAP WINS" textsize="0.85" textcolor="AAAAAAFF" halign="center" />
-            <label pos="43 -49" text="{$teamBMapWins}" textsize="1.15" textcolor="FFFFFFFF" halign="right" />
-            <label pos="-43 -57" text="{$teamABestPlayer}" textsize="1.15" textcolor="FFFFFFFF" />
-            <label pos="0 -57" text="BEST PLAYER" textsize="0.85" textcolor="AAAAAAFF" halign="center" />
-            <label pos="43 -57" text="{$teamBBestPlayer}" textsize="1.15" textcolor="FFFFFFFF" halign="right" />
-            <label pos="-43 -65" text="{$teamARecordCount}" textsize="1.15" textcolor="FFFFFFFF" />
-            <label pos="0 -65" text="SCORED RECORDS" textsize="0.85" textcolor="AAAAAAFF" halign="center" />
-            <label pos="43 -65" text="{$teamBRecordCount}" textsize="1.15" textcolor="FFFFFFFF" halign="right" />
+        {if $tab == 'map-detail' && $detailMap}
+            <label pos="-49 -24" text="&lt; MAPS" textsize="0.9" textcolor="FFD500FF" action="war.stats.maps" />
+            <label pos="0 -24" size="72 4" text="{$detailMap->name}" textsize="1.25" textcolor="FFFFFFFF" halign="center" />
+            <label pos="-47 -31" text="{$war->team_a}  {$detailTeamAPoints} PTS" textsize="1.05" textcolor="FFD500FF" />
+            <label pos="47 -31" text="{$detailTeamBPoints} PTS  {$war->team_b}" textsize="1.05" textcolor="FFD500FF" halign="right" />
+            <quad pos="0 -29" size="0.25 45" bgcolor="343434AA" />
+            {foreach $detailTeamARows as $entry}
+                <label pos="-47 {$iterator->counter * -5 - 32}" text="LR {$entry->rank}" textsize="0.72" textcolor="777777FF" />
+                <label pos="-37 {$iterator->counter * -5 - 32}" size="21 3.6" text="{$entry->display_name}" textsize="0.82" textcolor="FFFFFFFF" />
+                <label pos="-14 {$iterator->counter * -5 - 32}" text="{$entry->formatted_time}" textsize="0.78" textcolor="AAAAAAFF" halign="right" />
+                <label pos="-3 {$iterator->counter * -5 - 32}" text="{$entry->points}" textsize="0.85" textcolor="FFD500FF" halign="right" />
+            {/foreach}
+            {foreach $detailTeamBRows as $entry}
+                <label pos="3 {$iterator->counter * -5 - 32}" text="LR {$entry->rank}" textsize="0.72" textcolor="777777FF" />
+                <label pos="13 {$iterator->counter * -5 - 32}" size="21 3.6" text="{$entry->display_name}" textsize="0.82" textcolor="FFFFFFFF" />
+                <label pos="37 {$iterator->counter * -5 - 32}" text="{$entry->formatted_time}" textsize="0.78" textcolor="AAAAAAFF" halign="right" />
+                <label pos="48 {$iterator->counter * -5 - 32}" text="{$entry->points}" textsize="0.85" textcolor="FFD500FF" halign="right" />
+            {/foreach}
         {/if}
 
         {if $confirmTeam}
@@ -133,7 +143,7 @@
                 <quad pos="0 0" size="80 25" bgcolor="1B1B1BFF" />
                 <quad pos="0 0" size="80 0.4" bgcolor="FFD500FF" />
                 <label pos="40 -6" text="JOIN {$confirmTeam}?" textsize="1.4" textcolor="FFD500FF" halign="center" />
-                <label pos="40 -11" text="Your team is locked for this active war." textsize="0.8" textcolor="AAAAAAFF" halign="center" />
+                <label pos="40 -11" text="Your team is locked for this war." textsize="0.8" textcolor="AAAAAAFF" halign="center" />
                 <label pos="20 -20" text="BACK" textsize="0.95" textcolor="FFFFFFFF" halign="center" action="war.stats.team.cancel" />
                 <label pos="60 -20" text="CONFIRM" textsize="0.95" textcolor="FFD500FF" halign="center" action="war.stats.team.confirm" />
             </frame>

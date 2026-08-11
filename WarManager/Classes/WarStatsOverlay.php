@@ -15,12 +15,13 @@ final class WarStatsOverlay
     private static array $openTabs = [];
     private static array $playerPages = [];
     private static array $mapPages = [];
+    private static array $selectedMapUids = [];
     private static array $confirmTeams = [];
 
     public static function showWidget(Player $player): void
     {
         $state = WarViewState::latest();
-        if (!$state || $state->war->status === WarState::CANCELLED) {
+        if (!$state || !in_array($state->war->status, [WarState::ACTIVE, WarState::PAUSED], true)) {
             Template::hide($player, 'WarManager');
             return;
         }
@@ -60,7 +61,7 @@ final class WarStatsOverlay
 
     public static function show(Player $player, string $tab = 'overview'): void
     {
-        $tab = in_array($tab, ['overview', 'teams', 'players', 'maps', 'stats'], true) ? $tab : 'overview';
+        $tab = in_array($tab, ['overview', 'teams', 'players', 'maps', 'map-detail'], true) ? $tab : 'overview';
         $state = WarViewState::latest();
         if (!$state) {
             infoMessage('There is no current war.')->send($player);
@@ -93,6 +94,7 @@ final class WarStatsOverlay
                 (in_array($map->map_uid, $scoredMapUids, true) ? 'DONE' :
                     ($currentPosition > 0 && (int)$map->position === $currentPosition + 1 ? 'NEXT' : 'UPCOMING'));
             return (object)[
+                'uid' => $map->map_uid,
                 'name' => $map->map_name,
                 'team_a_points' => (int)($scores[$war->team_a] ?? 0),
                 'team_b_points' => (int)($scores[$war->team_b] ?? 0),
@@ -142,8 +144,31 @@ final class WarStatsOverlay
         $teamBFull = $teamLimit > 0 && $teamBMembers >= $teamLimit;
         $teamACountLabel = $teamLimit > 0 ? $teamAMembers . ' / ' . $teamLimit : (string)$teamAMembers;
         $teamBCountLabel = $teamLimit > 0 ? $teamBMembers . ' / ' . $teamLimit : (string)$teamBMembers;
-        $joinAvailable = !$assignment && $war->overlay_join_enabled && $war->status === WarState::ACTIVE;
+        $joinAvailable = !$assignment && $war->overlay_join_enabled && in_array($war->status, [WarState::DRAFT, WarState::ACTIVE], true);
         $confirmTeam = self::$confirmTeams[$player->Login] ?? '';
+        $detailMap = null;
+        $detailTeamARows = collect();
+        $detailTeamBRows = collect();
+        $detailTeamAPoints = 0;
+        $detailTeamBPoints = 0;
+        if ($tab === 'map-detail') {
+            $selectedUid = self::$selectedMapUids[$player->Login] ?? '';
+            $detailMap = $mapRows->firstWhere('uid', $selectedUid);
+            if (!$detailMap) {
+                $tab = 'maps';
+            } else {
+                $detailRecords = DB::table('war-records')->where('war_id', $warId)
+                    ->where('map_uid', $selectedUid)->orderBy('rank')->orderBy('record_time')->get()
+                    ->map(static function ($record) {
+                        $record->formatted_time = self::formatTime((int)$record->record_time);
+                        return $record;
+                    });
+                $detailTeamARows = $detailRecords->where('team', $war->team_a)->take(8)->values();
+                $detailTeamBRows = $detailRecords->where('team', $war->team_b)->take(8)->values();
+                $detailTeamAPoints = (int)$detailMap->team_a_points;
+                $detailTeamBPoints = (int)$detailMap->team_b_points;
+            }
+        }
         self::$openTabs[$player->Login] = $tab;
 
         Template::hide($player, 'WarManagerPlayers');
@@ -156,7 +181,8 @@ final class WarStatsOverlay
             'teamAFull', 'teamBFull', 'joinAvailable', 'confirmTeam', 'teamARows', 'teamBRows',
             'currentMapName', 'currentMapValid', 'displayStatus', 'historyRows', 'teamABestPlayer',
             'teamBBestPlayer', 'teamAMapWins', 'teamBMapWins', 'teamARecordCount', 'teamBRecordCount',
-            'teamACountLabel', 'teamBCountLabel'
+            'teamACountLabel', 'teamBCountLabel', 'detailMap', 'detailTeamARows', 'detailTeamBRows',
+            'detailTeamAPoints', 'detailTeamBPoints'
         ));
     }
 
@@ -167,14 +193,14 @@ final class WarStatsOverlay
             if ($player) {
                 $tab === 'players-panel' ? self::players($player) : self::show($player, $tab);
             } else {
-                unset(self::$openTabs[$login], self::$playerPages[$login], self::$mapPages[$login], self::$confirmTeams[$login]);
+                unset(self::$openTabs[$login], self::$playerPages[$login], self::$mapPages[$login], self::$confirmTeams[$login], self::$selectedMapUids[$login]);
             }
         }
     }
 
     public static function close(Player $player): void
     {
-        unset(self::$openTabs[$player->Login], self::$playerPages[$player->Login], self::$mapPages[$player->Login], self::$confirmTeams[$player->Login]);
+        unset(self::$openTabs[$player->Login], self::$playerPages[$player->Login], self::$mapPages[$player->Login], self::$confirmTeams[$player->Login], self::$selectedMapUids[$player->Login]);
         Template::hide($player, 'WarManagerStats');
     }
 
@@ -182,7 +208,7 @@ final class WarStatsOverlay
     public static function teams(Player $player): void { self::show($player, 'teams'); }
     public static function playerTab(Player $player): void { self::show($player, 'players'); }
     public static function maps(Player $player): void { self::show($player, 'maps'); }
-    public static function stats(Player $player): void { self::show($player, 'stats'); }
+    public static function stats(Player $player): void { self::show($player, 'players'); }
 
     public static function players(Player $player): void
     {
@@ -202,7 +228,7 @@ final class WarStatsOverlay
         $teamLimit = (int)($war->team_limit ?? 0);
         $teamAFull = $teamLimit > 0 && $teamAMembers >= $teamLimit;
         $teamBFull = $teamLimit > 0 && $teamBMembers >= $teamLimit;
-        $joinAvailable = !$assignment && $war->overlay_join_enabled && $war->status === WarState::ACTIVE;
+        $joinAvailable = !$assignment && $war->overlay_join_enabled && in_array($war->status, [WarState::DRAFT, WarState::ACTIVE], true);
         $confirmTeam = self::$confirmTeams[$player->Login] ?? '';
         $currentLogin = $player->Login;
         self::$openTabs[$player->Login] = 'players-panel';
@@ -283,6 +309,40 @@ final class WarStatsOverlay
     {
         self::$mapPages[$player->Login] = (int)(self::$mapPages[$player->Login] ?? 1) + 1;
         self::show($player, 'maps');
+    }
+
+    public static function mapDetails1(Player $player): void { self::openMapDetailsAt($player, 1); }
+    public static function mapDetails2(Player $player): void { self::openMapDetailsAt($player, 2); }
+    public static function mapDetails3(Player $player): void { self::openMapDetailsAt($player, 3); }
+    public static function mapDetails4(Player $player): void { self::openMapDetailsAt($player, 4); }
+    public static function mapDetails5(Player $player): void { self::openMapDetailsAt($player, 5); }
+    public static function mapDetails6(Player $player): void { self::openMapDetailsAt($player, 6); }
+    public static function mapDetails7(Player $player): void { self::openMapDetailsAt($player, 7); }
+    public static function mapDetails8(Player $player): void { self::openMapDetailsAt($player, 8); }
+    public static function mapDetails9(Player $player): void { self::openMapDetailsAt($player, 9); }
+    public static function mapDetails10(Player $player): void { self::openMapDetailsAt($player, 10); }
+
+    private static function openMapDetailsAt(Player $player, int $position): void
+    {
+        $state = WarViewState::latest();
+        if (!$state) {
+            return;
+        }
+        $offset = ((int)(self::$mapPages[$player->Login] ?? 1) - 1) * self::ROWS_PER_PAGE + $position - 1;
+        $map = DB::table('war-maps')->where('war_id', $state->war->id)
+            ->orderBy('position')->orderBy('id')->skip($offset)->first();
+        if ($map) {
+            self::$selectedMapUids[$player->Login] = $map->map_uid;
+            self::show($player, 'map-detail');
+        }
+    }
+
+    private static function formatTime(int $milliseconds): string
+    {
+        $minutes = intdiv($milliseconds, 60000);
+        $seconds = intdiv($milliseconds % 60000, 1000);
+        $millis = $milliseconds % 1000;
+        return sprintf('%d:%02d.%03d', $minutes, $seconds, $millis);
     }
 
     private static function joinSelectedTeam(Player $player, string $team): void

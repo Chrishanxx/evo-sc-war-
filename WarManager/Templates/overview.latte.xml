@@ -3,33 +3,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <manialink version="3">
     {block id}WarManager{/block}
-    {block size}92 15{/block}
+    {block size}48 12{/block}
     {block globals}{/block}
 
     {block content}
-        <quad pos="0 0" size="92 15" bgcolor="131313EE" action="war.stats.show" />
-        <quad pos="0 0" size="92 0.35" bgcolor="E4DA72CC" />
-
-        <quad pos="3 -2.2" size="0.9 5" bgcolor="E4DA72FF" />
-        <label pos="6 -4.8" size="23 4" text="{$war->team_a}" textsize="1.35" textcolor="F5F5F5FF" valign="center" />
-        <label pos="38 -4.8" text="{$teamAPoints}" textsize="2.35" textcolor="{$teamAScoreColor}" halign="right" valign="center" />
-        <label pos="46 -4.8" text=":" textsize="2" textcolor="E4DA72FF" halign="center" valign="center" />
-        <label pos="54 -4.8" text="{$teamBPoints}" textsize="2.35" textcolor="{$teamBScoreColor}" valign="center" />
-        <label pos="85 -4.8" size="23 4" text="{$war->team_b}" textsize="1.35" textcolor="F5F5F5FF" halign="right" valign="center" />
-        <quad pos="88.1 -2.2" size="0.9 5" bgcolor="E4DA72FF" />
-
-        <quad pos="3 -9" size="1.1 1.1" bgcolor="{$scoringPaused ? 'F59E0BFF' : 'E4DA72FF'}" />
-        <label pos="6 -9.6" size="21 3" text="{$statusLabel}" textsize="0.86" textcolor="{$scoringPaused ? 'F59E0BFF' : 'F5F5F5FF'}" valign="center" />
-        <label pos="27 -9.6" text="|" textsize="0.8" textcolor="666666FF" halign="center" valign="center" />
-        <label pos="31 -9.6" size="17 3" text="{$mapLabel}" textsize="0.86" textcolor="A6A6A6FF" valign="center" />
-        <label pos="48 -9.6" text="|" textsize="0.8" textcolor="666666FF" halign="center" valign="center" />
-        <label pos="52 -9.6" size="18 3" text="{$statusDetail}" textsize="0.86" textcolor="A6A6A6FF" valign="center" />
-
-        <quad pos="70 -7.5" size="13 5" bgcolor="222222FF" action="war.stats.show" />
-        <label pos="76.5 -10" text="WAR" textsize="0.85" textcolor="F5F5F5FF" halign="center" valign="center" action="war.stats.show" />
-        {if $canOpenAdmin}
-            <quad pos="84 -7.5" size="6 5" bgcolor="222222FF" action="war.panel.admin" />
-            <label pos="87 -10" text="A" textsize="1" textcolor="E4DA72FF" halign="center" valign="center" action="war.panel.admin" />
-        {/if}
+        <quad pos="0 0" size="48 12" bgcolor="131313EE" action="war.stats.show" />
+        <quad pos="0 0" size="48 0.35" bgcolor="E4DA72FF" />
+        <label pos="3 -3.1" size="14 3" text="{$war->team_a}" textsize="0.95" textcolor="F5F5F5FF" valign="center" action="war.stats.show" />
+        <label pos="18 -3.1" text="{$teamAPoints}" textsize="1.45" textcolor="{$teamAScoreColor}" halign="right" valign="center" action="war.stats.show" />
+        <label pos="24 -3.1" text=":" textsize="1.2" textcolor="E4DA72FF" halign="center" valign="center" action="war.stats.show" />
+        <label pos="30 -3.1" text="{$teamBPoints}" textsize="1.45" textcolor="{$teamBScoreColor}" valign="center" action="war.stats.show" />
+        <label pos="45 -3.1" size="14 3" text="{$war->team_b}" textsize="0.95" textcolor="F5F5F5FF" halign="right" valign="center" action="war.stats.show" />
+        <quad pos="3 -7.7" size="1 1" bgcolor="{$scoringPaused ? 'F59E0BFF' : 'E4DA72FF'}" />
+        <label pos="6 -8.2" text="{$scoringPaused ? 'SCORING PAUSED' : 'LIVE'}" textsize="0.72" textcolor="{$scoringPaused ? 'F59E0BFF' : 'A6A6A6FF'}" valign="center" action="war.stats.show" />
+        <label pos="45 -8.2" text="{$timeLeft}" textsize="0.78" textcolor="A6A6A6FF" halign="right" valign="center" action="war.stats.show" />
     {/block}
 </manialink>

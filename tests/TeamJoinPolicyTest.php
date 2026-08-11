@@ -12,6 +12,12 @@ final class TeamJoinPolicyTest extends TestCase
         self::assertTrue(true);
     }
 
+    public function testUnassignedPlayerCanJoinDraftWar(): void
+    {
+        TeamJoinPolicy::assertCanJoin(WarState::DRAFT, null);
+        self::assertTrue(true);
+    }
+
     /** @dataProvider unavailableStates */
     public function testJoiningIsRejectedOutsideActiveWar(string $status): void
     {
@@ -29,7 +35,6 @@ final class TeamJoinPolicyTest extends TestCase
     public function unavailableStates(): array
     {
         return [
-            [WarState::DRAFT],
             [WarState::PAUSED],
             [WarState::FINISHED],
             [WarState::CANCELLED],
