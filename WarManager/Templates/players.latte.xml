@@ -1,0 +1,53 @@
+{contentType text}
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<manialink version="3" id="WarManagerPlayers" name="EvoSC:WarManagerPlayers">
+    {include isManiaPlanet() ? 'Components.stylesheet' : 'Components.stylesheet_noblur'}
+
+    <frame pos="0 34" halign="center" z-index="8450">
+        <quad pos="-50 0" size="100 68" bgcolor="131313F7" />
+        <quad pos="-50 0" size="100 0.4" bgcolor="E4DA72CC" />
+        <label pos="-46 -5" text="PLAYERS" textsize="1.65" textcolor="E4DA72FF" valign="center" />
+        <label pos="46 -5" text="X" textsize="1.8" textcolor="F5F5F5FF" halign="center" valign="center" action="war.players.close" />
+        <quad pos="-46 -9" size="92 0.25" bgcolor="333333FF" />
+
+        <label pos="-42 -15" size="30 4" text="{$war->team_a}" textsize="1.45" textcolor="F5F5F5FF" />
+        <label pos="42 -15" size="30 4" text="{$war->team_b}" textsize="1.45" textcolor="F5F5F5FF" halign="right" />
+        <label pos="-42 -19" text="{$teamAMembers} PLAYERS" textsize="0.8" textcolor="A6A6A6FF" />
+        <label pos="42 -19" text="{$teamBMembers} PLAYERS" textsize="0.8" textcolor="A6A6A6FF" halign="right" />
+        <quad pos="0 -12" size="0.2 42" bgcolor="333333AA" />
+
+        {foreach $teamARows as $entry}
+            <label pos="-43 {$iterator->counter * -4 - 20}" text="{$iterator->counter}" textsize="0.85" textcolor="A6A6A6FF" />
+            <label pos="-36 {$iterator->counter * -4 - 20}" size="26 3.4" text="{$entry->display_name}" textsize="0.95" textcolor="{$entry->player_login == $currentLogin ? 'E4DA72FF' : 'F5F5F5FF'}" />
+            <label pos="-4 {$iterator->counter * -4 - 20}" text="{$entry->total_points}" textsize="0.95" textcolor="F5F5F5FF" halign="right" />
+        {/foreach}
+        {foreach $teamBRows as $entry}
+            <label pos="4 {$iterator->counter * -4 - 20}" text="{$iterator->counter}" textsize="0.85" textcolor="A6A6A6FF" />
+            <label pos="11 {$iterator->counter * -4 - 20}" size="26 3.4" text="{$entry->display_name}" textsize="0.95" textcolor="{$entry->player_login == $currentLogin ? 'E4DA72FF' : 'F5F5F5FF'}" />
+            <label pos="43 {$iterator->counter * -4 - 20}" text="{$entry->total_points}" textsize="0.95" textcolor="F5F5F5FF" halign="right" />
+        {/foreach}
+
+        {if !$assignment and $joinAvailable}
+            <label pos="0 -57" text="YOU ARE NOT ASSIGNED TO A TEAM" textsize="0.9" textcolor="A6A6A6FF" halign="center" />
+            {if !$teamAFull}
+                <quad pos="-42 -60" size="39 5" bgcolor="222222FF" action="war.stats.join.a" />
+                <label pos="-22.5 -62.5" text="JOIN {$war->team_a}" textsize="0.9" textcolor="E4DA72FF" halign="center" valign="center" action="war.stats.join.a" />
+            {/if}
+            {if !$teamBFull}
+                <quad pos="3 -60" size="39 5" bgcolor="222222FF" action="war.stats.join.b" />
+                <label pos="22.5 -62.5" text="JOIN {$war->team_b}" textsize="0.9" textcolor="E4DA72FF" halign="center" valign="center" action="war.stats.join.b" />
+            {/if}
+        {/if}
+
+        {if $confirmTeam}
+            <frame pos="-37 -37" z-index="8500">
+                <quad pos="0 0" size="74 24" bgcolor="1A1A1AFF" />
+                <quad pos="0 0" size="74 0.35" bgcolor="E4DA72FF" />
+                <label pos="37 -6" text="JOIN {$confirmTeam}" textsize="1.35" textcolor="E4DA72FF" halign="center" />
+                <label pos="37 -11" text="This team assignment is permanent for this war." textsize="0.82" textcolor="F5F5F5FF" halign="center" />
+                <label pos="18 -19" text="CANCEL" textsize="0.95" textcolor="A6A6A6FF" halign="center" action="war.stats.team.cancel" />
+                <label pos="56 -19" text="CONFIRM" textsize="0.95" textcolor="E4DA72FF" halign="center" action="war.stats.team.confirm" />
+            </frame>
+        {/if}
+    </frame>
+</manialink>
