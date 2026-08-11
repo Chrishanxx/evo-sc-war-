@@ -16,6 +16,7 @@ use EvoSC\Modules\QuickButtons\QuickButtons;
 use EvoSC\Modules\WarManager\Classes\RecordService;
 use EvoSC\Modules\WarManager\Classes\WarAdminOverlay;
 use EvoSC\Modules\WarManager\Classes\WarRepository;
+use EvoSC\Modules\WarManager\Classes\WarScoreboard;
 use EvoSC\Modules\WarManager\Classes\WarState;
 use EvoSC\Modules\WarManager\Classes\WarStatsOverlay;
 use EvoSC\Modules\WarManager\Classes\TeamAssignmentService;
@@ -94,6 +95,10 @@ class WarManager extends Module implements ModuleInterface
         ManiaLinkEvent::add('war.admin.confirm.finish', [WarAdminOverlay::class, 'finishWar'], 'war_finish');
         ManiaLinkEvent::add('war.admin.confirm.cancel', [WarAdminOverlay::class, 'cancelWar'], 'war_cancel');
 
+        if (config('war-manager.scoreboard-summary-enabled', true)) {
+            WarScoreboard::register();
+        }
+
         if (config('war-manager.show-quick-button', true) && config('quick-buttons.enabled', true)) {
             QuickButtons::addButton('⚔', 'WAR', 'war.show');
         }
@@ -157,6 +162,9 @@ class WarManager extends Module implements ModuleInterface
         }
         WarStatsOverlay::refreshOpen();
         WarAdminOverlay::refreshOpen();
+        if (config('war-manager.scoreboard-summary-enabled', true)) {
+            WarScoreboard::refresh();
+        }
     }
 
     public static function saveTeams(Player $player, $values): void
