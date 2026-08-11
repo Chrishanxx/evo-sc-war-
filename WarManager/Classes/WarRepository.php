@@ -60,6 +60,7 @@ final class WarRepository
     public static function transition(Player $admin, string $target): void
     {
         $scrim = self::requireCurrent();
+        $activatedFirstStart = false;
         WarState::assertTransition($scrim->status, $target);
         if ($target === WarState::ACTIVE && !$scrim->start_at
             && !DB::table('war-maps')->where('war_id', $scrim->id)->exists()) {
@@ -67,6 +68,32 @@ final class WarRepository
         }
         if ($target === WarState::ACTIVE && !$scrim->start_at) {
             ScrimRotationService::assertReady($scrim);
+            ScrimRotationService::activate($scrim, $admin->Login);
+            $activatedFirstStart = true;
+        } elseif ($target === WarState::ACTIVE && $scrim->start_at) {
+            if (!ScrimRotationService::ensureActiveRotation($scrim, true)) {
+                throw new RuntimeException('The exclusive WAR rotation is not ready. Resume was cancelled.');
+            }
+        }
+        if (in_array($target, [WarState::FINISHED, WarState::CANCELLED], true)) {
+            $now = gmdate('Y-m-d H:i:s');
+            DB::table('wars')->where('id', $scrim->id)->update([
+                'status' => $target,
+                'finished_at' => $now,
+                'updated_at' => $now,
+            ]);
+            try {
+                ScrimRotationService::restore($scrim, $admin->Login);
+            } catch (\Throwable $error) {
+                DB::table('wars')->where('id', $scrim->id)->update([
+                    'status' => $scrim->status,
+                    'finished_at' => null,
+                    'updated_at' => gmdate('Y-m-d H:i:s'),
+                ]);
+                throw $error;
+            }
+            self::audit($scrim->id, $admin->Login, 'war.transition', ['from' => $scrim->status, 'to' => $target]);
+            return;
         }
         $values = ['status' => $target, 'updated_at' => gmdate('Y-m-d H:i:s')];
         if ($target === WarState::ACTIVE && !$scrim->start_at) {
@@ -85,10 +112,19 @@ final class WarRepository
                 $values['end_at'] = gmdate('Y-m-d H:i:s', strtotime($scrim->end_at . ' UTC') + $pausedFor);
             }
         }
-        if ($target === WarState::FINISHED || $target === WarState::CANCELLED) {
-            $values['finished_at'] = gmdate('Y-m-d H:i:s');
+        try {
+            DB::table('wars')->where('id', $scrim->id)->update($values);
+        } catch (\Throwable $error) {
+            if ($activatedFirstStart) {
+                try {
+                    ScrimRotationService::restore($scrim, 'system-start-rollback');
+                } catch (\Throwable $rollbackError) {
+                    throw new RuntimeException($error->getMessage()
+                        . ' Automatic playlist rollback also failed: ' . $rollbackError->getMessage(), 0, $error);
+                }
+            }
+            throw $error;
         }
-        DB::table('wars')->where('id', $scrim->id)->update($values);
         self::audit($scrim->id, $admin->Login, 'war.transition', ['from' => $scrim->status, 'to' => $target]);
     }
 
@@ -191,19 +227,19 @@ final class WarRepository
             'map_time_limit' => $mapTimeLimit,
             'chat_time' => $chatTime,
             'strict_scrim_maps' => 1,
-            'repeat_playlist' => $repeatPlaylist ? 1 : 0,
-            'exclusive_rotation' => $exclusiveRotation ? 1 : 0,
+            'repeat_playlist' => 1,
+            'exclusive_rotation' => 1,
             'matchsettings_safe_mode' => $safeMode ? 1 : 0,
-            'auto_load_matchsettings' => 0,
-            'auto_restore_matchsettings' => 0,
+            'auto_load_matchsettings' => 1,
+            'auto_restore_matchsettings' => 1,
             'matchsettings_file' => null,
             'updated_at' => gmdate('Y-m-d H:i:s'),
         ]);
         self::audit((int)$war->id, $admin->Login, 'scrim.rotation.settings.updated', [
             'map_time_limit' => $mapTimeLimit, 'chat_time' => $chatTime,
-            'strict_scrim_maps' => true, 'repeat_playlist' => $repeatPlaylist,
-            'exclusive_rotation' => $exclusiveRotation, 'matchsettings_safe_mode' => $safeMode,
-            'auto_load_matchsettings' => false, 'auto_restore_matchsettings' => false,
+            'strict_scrim_maps' => true, 'repeat_playlist' => true,
+            'exclusive_rotation' => true, 'matchsettings_safe_mode' => $safeMode,
+            'auto_load_matchsettings' => true, 'auto_restore_matchsettings' => true,
         ]);
     }
 
@@ -256,11 +292,25 @@ final class WarRepository
             || !$scrim->end_at || strtotime($scrim->end_at . ' UTC') > time()) {
             return false;
         }
+        $now = gmdate('Y-m-d H:i:s');
         DB::table('wars')->where('id', $scrim->id)->update([
             'status' => WarState::FINISHED,
-            'finished_at' => gmdate('Y-m-d H:i:s'),
-            'updated_at' => gmdate('Y-m-d H:i:s'),
+            'finished_at' => $now,
+            'updated_at' => $now,
         ]);
+        try {
+            ScrimRotationService::restore($scrim, 'system-expiration');
+        } catch (\Throwable $error) {
+            DB::table('wars')->where('id', $scrim->id)->update([
+                'status' => WarState::ACTIVE,
+                'finished_at' => null,
+                'scoring_paused' => 1,
+                'scoring_pause_reason' => 'ROTATION RESTORE ERROR: ' . $error->getMessage(),
+                'updated_at' => gmdate('Y-m-d H:i:s'),
+            ]);
+            self::audit($scrim->id, 'system', 'war.expiration.restore_failed', ['error' => $error->getMessage()]);
+            return false;
+        }
         self::audit($scrim->id, 'system', 'war.expired', []);
         return true;
     }

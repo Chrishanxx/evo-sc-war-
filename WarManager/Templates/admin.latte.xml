@@ -64,11 +64,11 @@
                 <entry pos="-18 -49" size="42 6" name="team_b" default="{$current->team_b}" textsize="1.4" />
                 <label pos="30 -46" text="Duration (1-14 days)" textsize="1.2" textcolor="A9B7C3FF" />
                 <entry pos="30 -49" size="30 6" name="duration" default="{$current->duration_days}" textsize="1.4" />
-                <label pos="-66 -60" text="Overlay join 1/0" textsize="1.1" textcolor="A9B7C3FF" />
+                <label pos="-66 -60" text="Join buttons (1 = on)" textsize="1.05" textcolor="A9B7C3FF" />
                 <entry pos="-66 -63" size="20 5" name="overlay_join" default="{$current->overlay_join_enabled}" textsize="1.2" />
-                <label pos="-38 -60" text="Tag detection 1/0" textsize="1.1" textcolor="A9B7C3FF" />
+                <label pos="-38 -60" text="Tag detection (1 = on)" textsize="1.05" textcolor="A9B7C3FF" />
                 <entry pos="-38 -63" size="20 5" name="nickname_detection" default="{$current->nickname_detection_enabled}" textsize="1.2" />
-                <label pos="-10 -60" text="Team limit (0 = none)" textsize="1.1" textcolor="A9B7C3FF" />
+                <label pos="-10 -60" text="Players/team (0 = unlimited)" textsize="1.0" textcolor="A9B7C3FF" />
                 <entry pos="-10 -63" size="24 5" name="team_limit" default="{$current->team_limit ?: 0}" textsize="1.2" />
                 <quad pos="37 -75" size="29 7" bgcolor="D8D184FF" action="war.admin.settings.save" />
                 <label pos="51.5 -78.5" text="SAVE SETTINGS" textsize="1.3" textcolor="000000FF" halign="center" valign="center" action="war.admin.settings.save" />
@@ -82,11 +82,11 @@
                 <entry pos="-18 -49" size="42 6" name="team_b" default="ZOOP" textsize="1.4" />
                 <label pos="30 -46" text="Duration (1-14 days)" textsize="1.2" textcolor="A9B7C3FF" />
                 <entry pos="30 -49" size="30 6" name="duration" default="7" textsize="1.4" />
-                <label pos="-66 -60" text="Overlay join 1/0" textsize="1.1" textcolor="A9B7C3FF" />
+                <label pos="-66 -60" text="Join buttons (1 = on)" textsize="1.05" textcolor="A9B7C3FF" />
                 <entry pos="-66 -63" size="20 5" name="overlay_join" default="1" textsize="1.2" />
-                <label pos="-38 -60" text="Tag detection 1/0" textsize="1.1" textcolor="A9B7C3FF" />
+                <label pos="-38 -60" text="Tag detection (1 = on)" textsize="1.05" textcolor="A9B7C3FF" />
                 <entry pos="-38 -63" size="20 5" name="nickname_detection" default="0" textsize="1.2" />
-                <label pos="-10 -60" text="Team limit (0 = none)" textsize="1.1" textcolor="A9B7C3FF" />
+                <label pos="-10 -60" text="Players/team (0 = unlimited)" textsize="1.0" textcolor="A9B7C3FF" />
                 <entry pos="-10 -63" size="24 5" name="team_limit" default="0" textsize="1.2" />
                 <quad pos="37 -75" size="29 7" bgcolor="D8D184FF" action="war.admin.create" />
                 <label pos="51.5 -78.5" text="CREATE WAR" textsize="1.3" textcolor="000000FF" halign="center" valign="center" action="war.admin.create" />
@@ -103,16 +103,16 @@
                 <entry pos="-35 -42" size="25 5" name="chat_time" default="{$current->chat_time}" textsize="1.2" />
                 <label pos="-66 -51" text="Strict War Scoring" textsize="1.1" textcolor="A9B7C3FF" />
                 <label pos="-66 -55" text="ON (REQUIRED)" textsize="1.2" textcolor="50CF84FF" />
-                <label pos="-38 -51" text="Repeat Playlist 1/0" textsize="1.1" textcolor="A9B7C3FF" />
-                <entry pos="-38 -54" size="20 5" name="repeat_playlist" default="{$current->repeat_playlist}" textsize="1.2" />
-                <label pos="-10 -51" text="Exclusive Rotation 1/0" textsize="1.1" textcolor="A9B7C3FF" />
-                <entry pos="-10 -54" size="20 5" name="exclusive_rotation" default="{$current->exclusive_rotation}" textsize="1.2" />
-                <label pos="18 -51" text="Safe Mode 1/0" textsize="1.1" textcolor="A9B7C3FF" />
-                <entry pos="18 -54" size="20 5" name="matchsettings_safe_mode" default="{$current->matchsettings_safe_mode}" textsize="1.2" />
+                <label pos="-38 -51" text="Repeat Playlist" textsize="1.1" textcolor="A9B7C3FF" />
+                <label pos="-38 -55" text="ON (REQUIRED)" textsize="1.2" textcolor="50CF84FF" />
+                <label pos="-10 -51" text="Exclusive Rotation" textsize="1.1" textcolor="A9B7C3FF" />
+                <label pos="-10 -55" text="ON (REQUIRED)" textsize="1.2" textcolor="50CF84FF" />
+                <label pos="18 -51" text="Persistent backup" textsize="1.1" textcolor="A9B7C3FF" />
+                <label pos="18 -55" text="ON (REQUIRED)" textsize="1.2" textcolor="50CF84FF" />
                 <label pos="-66 -64" text="VALIDATION: {$rotationValidCount} / {$rotationMapCount} MAPS VALID" textsize="1.3" textcolor="{$rotationHasMissing ? 'F05D5EFF' : '50CF84FF'}" />
                 <label pos="-66 -69" size="83 4" text="FILE: {$current->matchsettings_file ?: 'NOT GENERATED'}" textsize="1" textcolor="FFFFFFFF" />
-                <label pos="18 -64" text="AUTO LOAD: OFF · AUTO RESTORE: OFF" textsize="0.95" textcolor="50CF84FF" />
-                <label pos="18 -69" text="EXCLUSIVE: {$current->matchsettings_file ? 'PREPARED' : 'OFF'}" textsize="0.95" textcolor="D8D184FF" />
+                <label pos="18 -64" text="AUTO LOAD + RESTORE: ON" textsize="0.95" textcolor="50CF84FF" />
+                <label pos="18 -69" text="EXCLUSIVE: {$current->status == 'DRAFT' ? 'READY ON START' : 'ACTIVE'}" textsize="0.95" textcolor="D8D184FF" />
                 <quad pos="23 -75" size="20 7" bgcolor="D8D184FF" action="war.admin.rotation.save" />
                 <label pos="33 -78.5" text="SAVE" textsize="1.2" textcolor="000000FF" halign="center" valign="center" action="war.admin.rotation.save" />
                 <quad pos="46 -75" size="24 7" bgcolor="50CF84FF" action="war.admin.rotation.generate" />
@@ -123,13 +123,15 @@
         {/if}
 
         {if $tab == 'maps'}
-            <label pos="-66 -24" text="WAR MAPS ({$maps->count()} selected)" textsize="2" textcolor="D8D184FF" />
+            <label pos="-66 -24" text="WAR MAPS ({$maps->count()} selected){$current && $current->status != 'DRAFT' ? ' - ACTIVE ROTATION' : ''}" textsize="2" textcolor="D8D184FF" />
             {if $current}
-                <entry pos="-66 -30" size="48 6" name="map_uid" default="" textsize="1.3" />
-                <quad pos="-15 -30" size="22 6" bgcolor="D8D184FF" action="war.admin.map.add" />
-                <label pos="-4 -33" text="ADD UID" textsize="1.2" textcolor="000000FF" halign="center" valign="center" action="war.admin.map.add" />
-                <quad pos="10 -30" size="25 6" bgcolor="222222FF" action="war.admin.map.add.current" />
-                <label pos="22.5 -33" text="+ CURRENT MAP" textsize="0.9" textcolor="D8D184FF" halign="center" valign="center" action="war.admin.map.add.current" />
+                {if $current->status == 'DRAFT'}
+                    <entry pos="-66 -30" size="48 6" name="map_uid" default="" textsize="1.3" />
+                    <quad pos="-15 -30" size="22 6" bgcolor="D8D184FF" action="war.admin.map.add" />
+                    <label pos="-4 -33" text="ADD UID" textsize="1.2" textcolor="000000FF" halign="center" valign="center" action="war.admin.map.add" />
+                {else}
+                    <label pos="-66 -32" text="MAP POOL LOCKED UNTIL FINISH / CANCEL" textsize="1.15" textcolor="50CF84FF" />
+                {/if}
                 <label pos="-66 -41" text="Selected maps" textsize="1.4" textcolor="FFFFFFFF" />
                 {foreach $maps->take(7) as $map}
                     <label pos="-63 {$iterator->counter * -5 - 40}" size="53 4" text="{$iterator->counter}. {$map->map_name}" textsize="1.1" textcolor="FFFFFFFF" />
