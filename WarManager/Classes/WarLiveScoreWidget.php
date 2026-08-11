@@ -17,6 +17,15 @@ use EvoSC\Models\Player;
 final class WarLiveScoreWidget
 {
     private const MANIALINK_ID = 'WarLiveScoreWidget';
+    private static array $rendered = [];
+
+    public static function mount(Player $player): void
+    {
+        // A reconnect creates a fresh Trackmania UI context even when the PHP
+        // process still remembers this login from the previous connection.
+        unset(self::$rendered[$player->Login]);
+        self::show($player);
+    }
 
     public static function show(Player $player): void
     {
@@ -54,18 +63,30 @@ final class WarLiveScoreWidget
             $statusColor = 'E4DA72FF';
         }
 
-        // Remove both historical IDs first so a module update cannot leave an
-        // obsolete card competing with the dedicated live widget.
-        Template::hide($player, 'WarManager');
-        Template::show($player, 'WarManager.live-score-widget', compact(
+        $data = compact(
             'war', 'teamAPoints', 'teamBPoints', 'teamAColor', 'teamBColor',
             'timeLeft', 'heading', 'liveStatus', 'statusColor'
-        ));
+        );
+
+        if (!isset(self::$rendered[$player->Login])) {
+            // Create the persistent widget exactly once. Components.widget-base
+            // owns visibility from this point on, including Hide HUD while driving.
+            Template::hide($player, 'WarManager');
+            Template::show($player, 'WarManager.live-score-widget', $data);
+            self::$rendered[$player->Login] = true;
+            return;
+        }
+
+        // Push data through UI variables without replacing the widget. Replacing
+        // the ManiaLink would restart widget-base and replay its hide/show animation.
+        Template::show($player, 'WarManager.live-score-update', $data);
     }
 
     public static function hide(Player $player): void
     {
+        unset(self::$rendered[$player->Login]);
         Template::hide($player, 'WarManager');
         Template::hide($player, self::MANIALINK_ID);
+        Template::hide($player, 'WarLiveScoreWidgetUpdate');
     }
 }

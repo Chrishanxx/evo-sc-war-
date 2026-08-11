@@ -1,6 +1,6 @@
 # EvoSC WarManager
 
-Current module version: **0.10.9**. This correction gives `WarLiveScoreWidget` its own controller and template, refreshes it on connect and every WarManager update, removes stale legacy ManiaLinks, and immediately refreshes EvoSC QuickButtons after a module reload. It uses EvoSC's native right-side widget grid and shared HUD visibility settings, so positioning, scale, hide speed and show delay remain synchronized with the standard EvoSC HUD. MatchSettings continue to use only `Trackmania/TM_TimeAttack_Online.Script.txt`.
+Current module version: **0.10.10**. This release keeps one persistent `WarLiveScoreWidget` instance per player and pushes score, status and remaining-time changes through shared EvoSC UI variables. Data updates no longer replace the widget or restart its visibility animation. The card also receives a calmer competitive layout while continuing to use EvoSC's native grid and shared Hide HUD while driving state. MatchSettings continue to use only `Trackmania/TM_TimeAttack_Online.Script.txt`.
 
 External WarManager module for the classic PHP release of EvoSC and Trackmania 2020.
 It keeps `Trackmania/TM_TimeAttack_Online.Script.txt` untouched and calculates a

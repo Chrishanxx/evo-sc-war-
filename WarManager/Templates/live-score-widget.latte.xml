@@ -4,20 +4,21 @@
 <manialink version="3">
     {block id}WarLiveScoreWidget{/block}
     {block size}44 14{/block}
-
     {block content}
-        <quad id="bg" pos="0 0" size="44 14" bgcolor="151515E8" action="war.show" />
-        <quad pos="0 0" size="44 0.35" bgcolor="E4DA72FF" />
-        <label pos="2 -2.7" size="24 3" text="{$heading}" textsize="0.72" textcolor="E4DA72FF" valign="center" action="war.show" />
-        <quad pos="32 -2.2" size="1 1" bgcolor="{$statusColor}" />
-        <label pos="42 -2.7" size="9 3" text="{$liveStatus}" textsize="0.6" textcolor="{$statusColor}" halign="right" valign="center" action="war.show" />
-        <quad pos="2 -4.2" size="40 0.15" bgcolor="FFFFFF18" />
-        <label pos="2 -7" size="12 3" text="{$war->team_a}" textsize="0.86" textcolor="{$teamAColor}" valign="center" action="war.show" />
-        <label pos="17 -7" text="{$teamAPoints}" textsize="1.45" textcolor="F5F5F5FF" halign="right" valign="center" action="war.show" />
-        <label pos="22 -7" text=":" textsize="1.2" textcolor="E4DA72FF" halign="center" valign="center" action="war.show" />
-        <label pos="27 -7" text="{$teamBPoints}" textsize="1.45" textcolor="F5F5F5FF" valign="center" action="war.show" />
-        <label pos="42 -7" size="12 3" text="{$war->team_b}" textsize="0.86" textcolor="{$teamBColor}" halign="right" valign="center" action="war.show" />
-        <label pos="22 -11.4" text="{$timeLeft} remaining" textsize="0.68" textcolor="A6A6A6FF" halign="center" valign="center" action="war.show" />
+        <quad id="bg" pos="0 0" size="44 14" bgcolor="111315EE" action="war.show" />
+        <quad pos="0 0" size="44 0.32" bgcolor="E7DD55FF" />
+        <quad pos="1.4 -1.45" size="0.35 2.3" bgcolor="E7DD55FF" />
+        <label id="war-heading" pos="2.6 -2.65" size="25 3" text="{$heading}" textsize="0.66" textcolor="E7DD55FF" valign="center" action="war.show" />
+        <label pos="34 -2.65" text="●" textsize="0.6" textcolor="E7DD55FF" halign="center" valign="center" action="war.show" />
+        <label id="war-status" pos="42 -2.65" size="7 3" text="{$liveStatus}" textsize="0.55" textcolor="E7DD55FF" halign="right" valign="center" action="war.show" />
+        <quad pos="2 -4.25" size="40 0.12" bgcolor="FFFFFF20" />
+        <label id="war-team-a" pos="2.5 -7.45" size="12 3" text="{$war->team_a}" textsize="0.78" textcolor="{$teamAColor}" valign="center" action="war.show" />
+        <label id="war-score-a" pos="17.5 -7.35" text="{$teamAPoints}" textsize="1.65" textcolor="F5F5F5FF" halign="right" valign="center" action="war.show" />
+        <label pos="22 -7.35" text=":" textsize="1.05" textcolor="A7A7A7FF" halign="center" valign="center" action="war.show" />
+        <label id="war-score-b" pos="26.5 -7.35" text="{$teamBPoints}" textsize="1.65" textcolor="F5F5F5FF" valign="center" action="war.show" />
+        <label id="war-team-b" pos="41.5 -7.45" size="12 3" text="{$war->team_b}" textsize="0.78" textcolor="{$teamBColor}" halign="right" valign="center" action="war.show" />
+        <quad pos="8 -10.3" size="28 0.08" bgcolor="FFFFFF12" />
+        <label id="war-time" pos="22 -11.75" text="{$timeLeft} remaining" textsize="0.62" textcolor="A7A7A7FF" halign="center" valign="center" action="war.show" />
     {/block}
 
     {block script}
@@ -25,8 +26,55 @@
     --></script>
     {/block}
 
+    <script><!--
+    {block globals}
+    declare CMlLabel warHeading;
+    declare CMlLabel warStatus;
+    declare CMlLabel warTeamA;
+    declare CMlLabel warScoreA;
+    declare CMlLabel warScoreB;
+    declare CMlLabel warTeamB;
+    declare CMlLabel warTime;
+    {/block}
+
     {block bootScript}
         left__ = {config('war-manager.ui.position', 'right') == 'left'|ms_bool};
         slot__ = {config('war-manager.ui.slot', 70)};
+
+        declare Text EvoSC_WarHeading for UI = """{$heading}""";
+        declare Text EvoSC_WarStatus for UI = """{$liveStatus}""";
+        declare Text EvoSC_WarTeamA for UI = """{$war->team_a}""";
+        declare Text EvoSC_WarTeamB for UI = """{$war->team_b}""";
+        declare Integer EvoSC_WarScoreA for UI = {$teamAPoints};
+        declare Integer EvoSC_WarScoreB for UI = {$teamBPoints};
+        declare Text EvoSC_WarTime for UI = """{$timeLeft} remaining""";
+        declare Integer EvoSC_WarLiveScoreUpdate for UI = 0;
+        declare lastWarLiveScoreUpdate = EvoSC_WarLiveScoreUpdate;
+
+        warHeading <=> (Page.MainFrame.GetFirstChild("war-heading") as CMlLabel);
+        warStatus <=> (Page.MainFrame.GetFirstChild("war-status") as CMlLabel);
+        warTeamA <=> (Page.MainFrame.GetFirstChild("war-team-a") as CMlLabel);
+        warScoreA <=> (Page.MainFrame.GetFirstChild("war-score-a") as CMlLabel);
+        warScoreB <=> (Page.MainFrame.GetFirstChild("war-score-b") as CMlLabel);
+        warTeamB <=> (Page.MainFrame.GetFirstChild("war-team-b") as CMlLabel);
+        warTime <=> (Page.MainFrame.GetFirstChild("war-time") as CMlLabel);
     {/block}
+
+    {block loop}
+    if(lastWarLiveScoreUpdate != EvoSC_WarLiveScoreUpdate){
+        lastWarLiveScoreUpdate = EvoSC_WarLiveScoreUpdate;
+        warHeading.Value = EvoSC_WarHeading;
+        warStatus.Value = EvoSC_WarStatus;
+        warTeamA.Value = EvoSC_WarTeamA;
+        warScoreA.Value = "" ^ EvoSC_WarScoreA;
+        warScoreB.Value = "" ^ EvoSC_WarScoreB;
+        warTeamB.Value = EvoSC_WarTeamB;
+        warTime.Value = EvoSC_WarTime;
+    }
+    {/block}
+
+    {block pendingEvents}
+    // Clicks are handled by the native ManiaLink action attributes.
+    {/block}
+    --></script>
 </manialink>
