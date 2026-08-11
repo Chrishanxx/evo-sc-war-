@@ -4,6 +4,7 @@
 <manialink version="3">
     {block id}WarManager{/block}
     {block size}44 18{/block}
+    {block globals}{/block}
 
     {block content}
         <quad pos="0 0" size="44 18" bgcolor="202024E8" />
