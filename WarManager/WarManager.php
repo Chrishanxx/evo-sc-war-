@@ -106,6 +106,13 @@ class WarManager extends Module implements ModuleInterface
         if (WarRepository::finishExpired()) {
             infoMessage('The war has finished. Final results are now frozen.')->sendAll();
         }
+        foreach (onlinePlayers() as $player) {
+            try {
+                TeamAssignmentService::assignFromNickname($player);
+            } catch (Throwable $error) {
+                // Name detection must never interrupt the war timer or scoring.
+            }
+        }
         self::refreshOverlays();
     }
 

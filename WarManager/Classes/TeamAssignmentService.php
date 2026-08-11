@@ -8,7 +8,14 @@ use RuntimeException;
 
 final class TeamAssignmentService
 {
-    public static function join(Player $player, string $team, string $assignedBy = 'overlay', bool $adminOverride = false): void
+    public static function join(
+        Player $player,
+        string $team,
+        string $assignedBy = 'overlay',
+        bool $adminOverride = false,
+        ?string $originalName = null,
+        ?string $warDisplayName = null
+    ): void
     {
         $war = WarRepository::current();
         if (!$war || !in_array($war->status, [WarState::DRAFT, WarState::ACTIVE, WarState::PAUSED], true)) {
@@ -22,36 +29,37 @@ final class TeamAssignmentService
         }
         $existing = DB::table('war-players')->where('war_id', $war->id)
             ->where('player_login', $player->Login)->first();
-        if ($existing && $existing->locked_team === $team) {
-            return;
-        }
-        if ($existing && !$adminOverride && !$war->allow_team_switch) {
+        $sameTeam = $existing && $existing->locked_team === $team;
+        if ($existing && !$adminOverride && $war->status !== WarState::DRAFT && !$war->allow_team_switch) {
             throw new RuntimeException('Team switching is disabled for this war.');
         }
-        if ($war->team_limit) {
+        if (!$sameTeam && $war->team_limit) {
             $members = DB::table('war-players')->where('war_id', $war->id)->where('locked_team', $team)->count();
             if ($members >= (int)$war->team_limit) {
                 throw new RuntimeException('This team is full.');
             }
         }
 
-        DB::transaction(static function () use ($war, $player, $team, $assignedBy, $existing): void {
+        $scoringName = $originalName ?: ($existing->display_name ?? $player->NickName);
+        DB::transaction(static function () use ($war, $player, $team, $assignedBy, $existing, $originalName, $warDisplayName, $scoringName): void {
             DB::table('war-players')->updateOrInsert(
                 ['war_id' => $war->id, 'player_login' => $player->Login],
                 [
-                    'display_name' => $player->NickName,
+                    'display_name' => $scoringName,
                     'locked_team' => $team,
                     'total_points' => $existing ? (int)$existing->total_points : 0,
                     'joined_at' => $existing && $existing->joined_at ? $existing->joined_at : gmdate('Y-m-d H:i:s'),
                     'assigned_by' => $assignedBy,
+                    'original_name' => $originalName ?: ($existing->original_name ?? $player->NickName),
+                    'war_display_name' => $warDisplayName ?: $player->NickName,
                     'updated_at' => gmdate('Y-m-d H:i:s'),
                 ]
             );
             if ($existing) {
                 DB::table('war-records')->where('war_id', $war->id)->where('player_login', $player->Login)
-                    ->update(['team' => $team, 'display_name' => $player->NickName]);
+                    ->update(['team' => $team, 'display_name' => $scoringName]);
             }
-            self::promotePending((int)$war->id, $player->Login, $player->NickName, $team);
+            self::promotePending((int)$war->id, $player->Login, $scoringName, $team);
         });
         RecordService::recalculateAll((int)$war->id);
         WarRepository::audit((int)$war->id, $player->Login, 'player.team.assigned', [
@@ -65,16 +73,27 @@ final class TeamAssignmentService
         if (!$war || !$war->nickname_detection_enabled) {
             return false;
         }
-        if (DB::table('war-players')->where('war_id', $war->id)->where('player_login', $player->Login)->exists()) {
+        $detected = TeamDetector::detect($player->NickName, $war->team_a, $war->team_b);
+        $existing = DB::table('war-players')->where('war_id', $war->id)
+            ->where('player_login', $player->Login)->first();
+        if ($existing) {
+            if ($detected && $detected['team'] !== $existing->locked_team && $war->status === WarState::DRAFT) {
+                self::join($player, $detected['team'], 'nickname', true,
+                    $existing->original_name ?: $detected['name'], $player->NickName);
+                return true;
+            }
             DB::table('war-players')->where('war_id', $war->id)->where('player_login', $player->Login)
-                ->update(['display_name' => $player->NickName, 'updated_at' => gmdate('Y-m-d H:i:s')]);
+                ->update([
+                    'display_name' => $detected ? $detected['name'] : $player->NickName,
+                    'war_display_name' => $player->NickName,
+                    'updated_at' => gmdate('Y-m-d H:i:s'),
+                ]);
             return true;
         }
-        $detected = TeamDetector::detect($player->NickName, $war->team_a, $war->team_b);
         if (!$detected) {
             return false;
         }
-        self::join($player, $detected['team'], 'nickname', true);
+        self::join($player, $detected['team'], 'nickname', true, $detected['name'], $player->NickName);
         DB::table('war-players')->where('war_id', $war->id)->where('player_login', $player->Login)
             ->update(['display_name' => $detected['name'], 'updated_at' => gmdate('Y-m-d H:i:s')]);
         return true;

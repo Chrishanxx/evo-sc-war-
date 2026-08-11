@@ -4,19 +4,19 @@
     {include isManiaPlanet() ? 'Components.stylesheet' : 'Components.stylesheet_noblur'}
 
     <frame pos="{$widgetX} {$widgetY}" z-index="120">
-        <quad pos="0 0" size="43 22" bgcolor="202024E8" />
-        <quad pos="0 0" size="43 5" bgcolor="D8D184FF" />
+        <quad pos="0 0" size="39 18" bgcolor="202024E8" />
+        <quad pos="0 0" size="39 4" bgcolor="D8D184FF" />
         <label pos="2.5 -2.5" text="{$widgetTitle}" textsize="1.25" textcolor="FFFFFFFF" valign="center" />
 
-        <quad pos="1.5 -7" size="1 3.5" bgcolor="{$teamAColor}" />
-        <label pos="4 -8.7" size="27 4" text="{$war->team_a}" textsize="1.2" textcolor="FFFFFFFF" valign="center" />
-        <label pos="40.5 -8.7" text="{$teamAPoints}" textsize="1.25" textcolor="{$teamAScoreColor}" halign="right" valign="center" />
+        <quad pos="1.5 -5.5" size="1 3" bgcolor="{$teamAColor}" />
+        <label pos="4 -7" size="24 3.5" text="{$war->team_a}" textsize="1.05" textcolor="FFFFFFFF" valign="center" />
+        <label pos="36.5 -7" text="{$teamAPoints}" textsize="1.1" textcolor="{$teamAScoreColor}" halign="right" valign="center" />
 
-        <quad pos="1.5 -12" size="1 3.5" bgcolor="{$teamBColor}" />
-        <label pos="4 -13.7" size="27 4" text="{$war->team_b}" textsize="1.2" textcolor="FFFFFFFF" valign="center" />
-        <label pos="40.5 -13.7" text="{$teamBPoints}" textsize="1.25" textcolor="{$teamBScoreColor}" halign="right" valign="center" />
+        <quad pos="1.5 -9.5" size="1 3" bgcolor="{$teamBColor}" />
+        <label pos="4 -11" size="24 3.5" text="{$war->team_b}" textsize="1.05" textcolor="FFFFFFFF" valign="center" />
+        <label pos="36.5 -11" text="{$teamBPoints}" textsize="1.1" textcolor="{$teamBScoreColor}" halign="right" valign="center" />
 
-        <quad pos="0 -17" size="43 5" bgcolor="111114F4" action="war.stats.show" />
-        <label pos="21.5 -19.5" text="WAR STATS" textsize="1.15" textcolor="D8D184FF" halign="center" valign="center" action="war.stats.show" />
+        <quad pos="0 -13.5" size="39 4.5" bgcolor="111114F4" action="war.stats.show" />
+        <label pos="19.5 -15.75" text="WAR STATS" textsize="1.05" textcolor="D8D184FF" halign="center" valign="center" action="war.stats.show" />
     </frame>
 </manialink>

@@ -34,24 +34,29 @@
             {if !$assignment and $joinAvailable}
                 <label pos="0 -64" text="CHOOSE YOUR TEAM" textsize="1.2" textcolor="D8D184FF" halign="center" />
                 {if !$teamAFull}
-                    <label pos="-23 -71" text="JOIN {$war->team_a} · {$teamAMembers} PLAYERS" textsize="1.05" textcolor="D8D184FF" halign="center" action="war.stats.join.a" />
+                    <quad pos="-48 -67" size="47 7" bgcolor="D8D18422" action="war.stats.join.a" />
+                    <label pos="-24.5 -70.5" text="JOIN {$war->team_a} · {$teamAMembers} PLAYERS" textsize="1.05" textcolor="D8D184FF" halign="center" valign="center" action="war.stats.join.a" />
                 {else}
                     <label pos="-23 -71" text="{$war->team_a} FULL ({$teamAMembers}/{$teamLimit})" textsize="1.05" textcolor="77777BFF" halign="center" />
                 {/if}
                 {if !$teamBFull}
-                    <label pos="23 -71" text="JOIN {$war->team_b} · {$teamBMembers} PLAYERS" textsize="1.05" textcolor="D8D184FF" halign="center" action="war.stats.join.b" />
+                    <quad pos="1 -67" size="47 7" bgcolor="D8D18422" action="war.stats.join.b" />
+                    <label pos="24.5 -70.5" text="JOIN {$war->team_b} · {$teamBMembers} PLAYERS" textsize="1.05" textcolor="D8D184FF" halign="center" valign="center" action="war.stats.join.b" />
                 {else}
                     <label pos="23 -71" text="{$war->team_b} FULL ({$teamBMembers}/{$teamLimit})" textsize="1.05" textcolor="77777BFF" halign="center" />
                 {/if}
             {/if}
             {if $assignment}
-                <label pos="0 -66" text="YOUR TEAM: {$assignment->locked_team}" textsize="1.25" textcolor="D8D184FF" halign="center" />
-                {if $war->allow_team_switch}
+                <label pos="0 -63" text="YOUR TEAM: {$assignment->locked_team}" textsize="1.25" textcolor="D8D184FF" halign="center" />
+                <label pos="0 -67" size="75 4" text="{$assignment->war_display_name ?: $assignment->display_name}" textsize="0.95" textcolor="FFFFFFFF" halign="center" />
+                {if $switchAvailable}
                     {if $assignment->locked_team == $war->team_a}
-                        <label pos="0 -72" text="SWITCH TO {$war->team_b}" textsize="1" textcolor="FFFFFFFF" halign="center" action="war.stats.team.confirm.b" />
+                        <label pos="0 -73" text="SWITCH TO {$war->team_b}" textsize="1" textcolor="FFFFFFFF" halign="center" action="war.stats.team.confirm.b" />
                     {else}
-                        <label pos="0 -72" text="SWITCH TO {$war->team_a}" textsize="1" textcolor="FFFFFFFF" halign="center" action="war.stats.team.confirm.a" />
+                        <label pos="0 -73" text="SWITCH TO {$war->team_a}" textsize="1" textcolor="FFFFFFFF" halign="center" action="war.stats.team.confirm.a" />
                     {/if}
+                {else}
+                    <label pos="0 -73" text="TEAM SELECTION LOCKED" textsize="0.9" textcolor="77777BFF" halign="center" />
                 {/if}
             {/if}
         {/if}

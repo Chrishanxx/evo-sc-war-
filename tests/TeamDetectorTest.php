@@ -31,4 +31,20 @@ final class TeamDetectorTest extends TestCase
     {
         self::assertNull(TeamDetector::detect('RandomPlayer', 'FAST', 'ZOOP'));
     }
+
+    /** @dataProvider taggedNames */
+    public function testItStripsExistingWarTags(string $nickname, string $expected): void
+    {
+        self::assertSame($expected, TeamDetector::stripWarTag($nickname, 'FAST', 'ZOOP'));
+    }
+
+    public static function taggedNames(): array
+    {
+        return [
+            ['FAST Chrishan', 'Chrishan'],
+            ['[ZOOP] Propanoia', 'Propanoia'],
+            ['$fffFAST $zChrishan', 'Chrishan'],
+            ['RandomPlayer', 'RandomPlayer'],
+        ];
+    }
 }
