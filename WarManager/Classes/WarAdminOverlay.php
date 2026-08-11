@@ -155,10 +155,9 @@ final class WarAdminOverlay
                 $player,
                 (int)($values->map_time_limit ?? 420),
                 (int)($values->chat_time ?? 15),
-                self::toBool($values->strict_scrim_maps ?? 1),
                 self::toBool($values->repeat_playlist ?? 1),
-                self::toBool($values->restore_after_restart ?? 1),
-                self::toBool($values->restore_normal_playlist ?? 1)
+                self::toBool($values->exclusive_rotation ?? 0),
+                self::toBool($values->matchsettings_safe_mode ?? 1)
             );
         }, 'Scrim rotation settings saved. Generate the playlist again.');
     }

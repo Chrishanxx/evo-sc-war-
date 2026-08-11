@@ -67,9 +67,6 @@ final class WarRepository
         }
         if ($target === WarState::ACTIVE && !$scrim->start_at) {
             ScrimRotationService::assertReady($scrim);
-            if (empty($scrim->matchsettings_file)) {
-                throw new RuntimeException('Generate the TM_War_Online scrim playlist before starting the war.');
-            }
         }
         $values = ['status' => $target, 'updated_at' => gmdate('Y-m-d H:i:s')];
         if ($target === WarState::ACTIVE && !$scrim->start_at) {
@@ -176,10 +173,9 @@ final class WarRepository
         Player $admin,
         int $mapTimeLimit,
         int $chatTime,
-        bool $strictMaps,
         bool $repeatPlaylist,
-        bool $restoreAfterRestart,
-        bool $restoreNormalPlaylist
+        bool $exclusiveRotation,
+        bool $safeMode
     ): void {
         $war = self::requireCurrent();
         if ($war->status !== WarState::DRAFT) {
@@ -194,18 +190,20 @@ final class WarRepository
         DB::table('wars')->where('id', $war->id)->update([
             'map_time_limit' => $mapTimeLimit,
             'chat_time' => $chatTime,
-            'strict_scrim_maps' => $strictMaps ? 1 : 0,
+            'strict_scrim_maps' => 1,
             'repeat_playlist' => $repeatPlaylist ? 1 : 0,
-            'restore_after_restart' => $restoreAfterRestart ? 1 : 0,
-            'restore_normal_playlist' => $restoreNormalPlaylist ? 1 : 0,
+            'exclusive_rotation' => $exclusiveRotation ? 1 : 0,
+            'matchsettings_safe_mode' => $safeMode ? 1 : 0,
+            'auto_load_matchsettings' => 0,
+            'auto_restore_matchsettings' => 0,
             'matchsettings_file' => null,
             'updated_at' => gmdate('Y-m-d H:i:s'),
         ]);
         self::audit((int)$war->id, $admin->Login, 'scrim.rotation.settings.updated', [
             'map_time_limit' => $mapTimeLimit, 'chat_time' => $chatTime,
-            'strict_scrim_maps' => $strictMaps, 'repeat_playlist' => $repeatPlaylist,
-            'restore_after_restart' => $restoreAfterRestart,
-            'restore_normal_playlist' => $restoreNormalPlaylist,
+            'strict_scrim_maps' => true, 'repeat_playlist' => $repeatPlaylist,
+            'exclusive_rotation' => $exclusiveRotation, 'matchsettings_safe_mode' => $safeMode,
+            'auto_load_matchsettings' => false, 'auto_restore_matchsettings' => false,
         ]);
     }
 

@@ -58,12 +58,13 @@ their login-to-team assignment is authoritative until an administrator uses `RES
 joining remain pending and are promoted after the confirmed assignment.
 
 Version 0.10 adds an optional `TM_War_Online` presentation layer with an exclusive, generated TimeAttack
-playlist. The database remains the source of truth for the ordered scrim map pool. Before starting, every map
-must exist in EvoSC's server map table and `MatchSettings/WarManager/war_<ID>.txt` must be generated. The file
-contains only enabled scrim maps, uses fixed order and keeps the official TimeAttack Online script. On every
-map start, strict mode checks the active UID again; foreign maps never receive war points and produce an
-administrator-visible warning. The generated playlist is intentionally loaded through the hosting panel until
-the panel-specific classic EvoSC XML-RPC integration has been verified on the target server.
+playlist. The database remains the source of truth for the ordered scrim map pool. Every selected map must exist
+in EvoSC's server map table. Generating `MatchSettings/WarManager/war_<ID>.txt` is optional: a war can start and
+score safely without that file. A generated file contains only enabled scrim maps, uses fixed order and keeps the
+official TimeAttack Online script. On every map start, strict scoring checks the active UID again; foreign maps
+never receive war points and produce an administrator-visible warning. Safe Mode, disabled auto-load and disabled
+auto-restore are the v0.10.x defaults. Loading and restoring playlists remains a deliberate manual action through
+the hosting panel until the classic EvoSC integration has been verified on the target server.
 
 Public statistics and administration are deliberately separate. The player window contains no
 management actions; `//war admin` opens the protected configuration and lifecycle controls.

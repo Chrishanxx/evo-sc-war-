@@ -98,16 +98,18 @@
                 <entry pos="-66 -42" size="25 5" name="map_time_limit" default="{$current->map_time_limit}" textsize="1.2" />
                 <label pos="-35 -39" text="Chat time (seconds)" textsize="1.1" textcolor="A9B7C3FF" />
                 <entry pos="-35 -42" size="25 5" name="chat_time" default="{$current->chat_time}" textsize="1.2" />
-                <label pos="-66 -51" text="Strict Scrim Maps 1/0" textsize="1.1" textcolor="A9B7C3FF" />
-                <entry pos="-66 -54" size="20 5" name="strict_scrim_maps" default="{$current->strict_scrim_maps}" textsize="1.2" />
+                <label pos="-66 -51" text="Strict War Scoring" textsize="1.1" textcolor="A9B7C3FF" />
+                <label pos="-66 -55" text="ON (REQUIRED)" textsize="1.2" textcolor="50CF84FF" />
                 <label pos="-38 -51" text="Repeat Playlist 1/0" textsize="1.1" textcolor="A9B7C3FF" />
                 <entry pos="-38 -54" size="20 5" name="repeat_playlist" default="{$current->repeat_playlist}" textsize="1.2" />
-                <label pos="-10 -51" text="Restart Recovery 1/0" textsize="1.1" textcolor="A9B7C3FF" />
-                <entry pos="-10 -54" size="20 5" name="restore_after_restart" default="{$current->restore_after_restart}" textsize="1.2" />
-                <label pos="18 -51" text="Restore Normal 1/0" textsize="1.1" textcolor="A9B7C3FF" />
-                <entry pos="18 -54" size="20 5" name="restore_normal_playlist" default="{$current->restore_normal_playlist}" textsize="1.2" />
+                <label pos="-10 -51" text="Exclusive Rotation 1/0" textsize="1.1" textcolor="A9B7C3FF" />
+                <entry pos="-10 -54" size="20 5" name="exclusive_rotation" default="{$current->exclusive_rotation}" textsize="1.2" />
+                <label pos="18 -51" text="Safe Mode 1/0" textsize="1.1" textcolor="A9B7C3FF" />
+                <entry pos="18 -54" size="20 5" name="matchsettings_safe_mode" default="{$current->matchsettings_safe_mode}" textsize="1.2" />
                 <label pos="-66 -64" text="VALIDATION: {$rotationValidCount} / {$rotationMapCount} MAPS VALID" textsize="1.3" textcolor="{$rotationHasMissing ? 'F05D5EFF' : '50CF84FF'}" />
                 <label pos="-66 -69" size="83 4" text="FILE: {$current->matchsettings_file ?: 'NOT GENERATED'}" textsize="1" textcolor="FFFFFFFF" />
+                <label pos="18 -64" text="AUTO LOAD: OFF · AUTO RESTORE: OFF" textsize="0.95" textcolor="50CF84FF" />
+                <label pos="18 -69" text="EXCLUSIVE: {$current->matchsettings_file ? 'PREPARED' : 'OFF'}" textsize="0.95" textcolor="D8D184FF" />
                 <quad pos="23 -75" size="20 7" bgcolor="D8D184FF" action="war.admin.rotation.save" />
                 <label pos="33 -78.5" text="SAVE" textsize="1.2" textcolor="000000FF" halign="center" valign="center" action="war.admin.rotation.save" />
                 <quad pos="46 -75" size="24 7" bgcolor="50CF84FF" action="war.admin.rotation.generate" />
