@@ -7,12 +7,19 @@ use EvoSC\Classes\Template;
 use EvoSC\Controllers\MapController;
 use EvoSC\Models\Player;
 
+/**
+ * Permanent compact HUD for a running war.
+ *
+ * This is deliberately independent from the large player and admin overlays.
+ * Extending Components.widget-base in the template makes the widget participate
+ * in EvoSC's shared grid, scale and Hide HUD while driving behaviour.
+ */
 final class WarLiveScoreWidget
 {
+    private const MANIALINK_ID = 'WarLiveScoreWidget';
+
     public static function show(Player $player): void
     {
-        // Remove the pre-0.10.8 widget when upgrading without reconnecting players.
-        Template::hide($player, 'WarManager');
         $state = WarViewState::latest();
         if (!$state || !in_array($state->war->status, [WarState::ACTIVE, WarState::PAUSED], true)) {
             self::hide($player);
@@ -25,10 +32,11 @@ final class WarLiveScoreWidget
         $teamAColor = $state->team_a_color;
         $teamBColor = $state->team_b_color;
         $timeLeft = $state->time_left;
-
         $currentMap = MapController::getCurrentMap();
         $currentMapIsWarMap = $currentMap && DB::table('war-maps')
-            ->where('war_id', $war->id)->where('map_uid', $currentMap->uid)->exists();
+            ->where('war_id', $war->id)
+            ->where('map_uid', $currentMap->uid)
+            ->exists();
         $scoringPaused = $war->status === WarState::ACTIVE
             && (!empty($war->scoring_paused) || !$currentMapIsWarMap);
 
@@ -46,7 +54,10 @@ final class WarLiveScoreWidget
             $statusColor = 'E4DA72FF';
         }
 
-        Template::show($player, 'WarManager.live-score', compact(
+        // Remove both historical IDs first so a module update cannot leave an
+        // obsolete card competing with the dedicated live widget.
+        Template::hide($player, 'WarManager');
+        Template::show($player, 'WarManager.live-score-widget', compact(
             'war', 'teamAPoints', 'teamBPoints', 'teamAColor', 'teamBColor',
             'timeLeft', 'heading', 'liveStatus', 'statusColor'
         ));
@@ -55,6 +66,6 @@ final class WarLiveScoreWidget
     public static function hide(Player $player): void
     {
         Template::hide($player, 'WarManager');
-        Template::hide($player, 'WarLiveScoreWidget');
+        Template::hide($player, self::MANIALINK_ID);
     }
 }
