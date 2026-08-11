@@ -13,6 +13,7 @@ use EvoSC\Interfaces\ModuleInterface;
 use EvoSC\Models\AccessRight;
 use EvoSC\Models\Player;
 use EvoSC\Modules\QuickButtons\QuickButtons;
+use EvoSC\Modules\WarManager\Classes\PlayerNameService;
 use EvoSC\Modules\WarManager\Classes\RecordService;
 use EvoSC\Modules\WarManager\Classes\WarAdminOverlay;
 use EvoSC\Modules\WarManager\Classes\WarRepository;
@@ -57,15 +58,12 @@ class WarManager extends Module implements ModuleInterface
         ManiaLinkEvent::add('war.admin.close', [WarAdminOverlay::class, 'close']);
         ManiaLinkEvent::add('war.admin.overview', [WarAdminOverlay::class, 'overview'], 'war_manage');
         ManiaLinkEvent::add('war.admin.create.tab', [WarAdminOverlay::class, 'createTab'], 'war_manage');
-        ManiaLinkEvent::add('war.admin.matchsettings', [WarAdminOverlay::class, 'matchsettings'], 'war_manage');
         ManiaLinkEvent::add('war.admin.maps', [WarAdminOverlay::class, 'maps'], 'war_maps');
         ManiaLinkEvent::add('war.admin.points', [WarAdminOverlay::class, 'points'], 'war_points');
         ManiaLinkEvent::add('war.admin.players', [WarAdminOverlay::class, 'players'], 'war_players');
         ManiaLinkEvent::add('war.admin.logs', [WarAdminOverlay::class, 'logs'], 'war_manage');
         ManiaLinkEvent::add('war.admin.create', [WarAdminOverlay::class, 'createWar'], 'war_manage');
         ManiaLinkEvent::add('war.admin.settings.save', [WarAdminOverlay::class, 'saveSettings'], 'war_manage');
-        ManiaLinkEvent::add('war.admin.matchsettings.save', [WarAdminOverlay::class, 'saveMatchsettingsProfile'], 'war_manage');
-        ManiaLinkEvent::add('war.admin.matchsettings.generate', [WarAdminOverlay::class, 'generateMatchsettings'], 'war_manage');
         ManiaLinkEvent::add('war.admin.map.add', [WarAdminOverlay::class, 'addMap'], 'war_maps');
         foreach (range(1, 8) as $position) {
             ManiaLinkEvent::add('war.admin.map.add.server.' . $position,
@@ -76,8 +74,6 @@ class WarManager extends Module implements ModuleInterface
                 [WarAdminOverlay::class, 'removeMap' . $position], 'war_maps');
         }
         foreach (range(1, 12) as $position) {
-            ManiaLinkEvent::add('war.admin.player.move.' . $position,
-                [WarAdminOverlay::class, 'movePlayer' . $position], 'war_players');
             ManiaLinkEvent::add('war.admin.player.reset.' . $position,
                 [WarAdminOverlay::class, 'resetPlayer' . $position], 'war_players');
         }
@@ -138,6 +134,17 @@ class WarManager extends Module implements ModuleInterface
     {
         if (!$args || strtolower($args[0]) === 'overlay') {
             self::showOverlay($player);
+            return;
+        }
+        if (strtolower($args[0]) === 'join') {
+            $team = trim(implode(' ', array_slice($args, 1)));
+            try {
+                $newName = PlayerNameService::joinWithWarName($player, $team);
+                infoMessage('Joined team ', $team, '. Name changed to ', $newName, '.')->send($player);
+            } catch (Throwable $error) {
+                dangerMessage($error->getMessage())->send($player);
+            }
+            WarStatsOverlay::show($player);
             return;
         }
         self::show($player, strtolower($args[0]));

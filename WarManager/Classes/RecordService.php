@@ -6,7 +6,6 @@ use EvoSC\Classes\DB;
 use EvoSC\Classes\Hook;
 use EvoSC\Controllers\MapController;
 use EvoSC\Models\Player;
-use Throwable;
 
 final class RecordService
 {
@@ -26,15 +25,6 @@ final class RecordService
         }
 
         $assignment = DB::table('war-players')->where('war_id', $scrim->id)->where('player_login', $player->Login)->first();
-        if (!$assignment && $scrim->nickname_detection_enabled) {
-            try {
-                TeamAssignmentService::assignFromNickname($player);
-            } catch (Throwable $error) {
-                // Keep the record pending when automatic assignment is not possible.
-            }
-            $assignment = DB::table('war-players')->where('war_id', $scrim->id)
-                ->where('player_login', $player->Login)->first();
-        }
         if (!$assignment) {
             $oldPending = DB::table('war-pending-records')->where('war_id', $scrim->id)
                 ->where('map_uid', $map->uid)->where('player_login', $player->Login)->first();

@@ -12,21 +12,24 @@ final class PlayerNameService
     public static function joinWithWarName(Player $player, string $team): string
     {
         $war = WarRepository::current();
-        if (!$war || !in_array($team, [$war->team_a, $war->team_b], true)) {
+        if (!$war) {
+            throw new RuntimeException('There is no current war.');
+        }
+        if (strcasecmp($team, $war->team_a) === 0) {
+            $team = $war->team_a;
+        } elseif (strcasecmp($team, $war->team_b) === 0) {
+            $team = $war->team_b;
+        } else {
             throw new RuntimeException('The selected war team is unavailable.');
-        }
-        if ($war->status !== WarState::DRAFT && !$war->allow_team_switch) {
-            throw new RuntimeException('Team selection is locked because the war has started.');
-        }
-        if ($player->isSetnameBlacklisted()) {
-            throw new RuntimeException('You are not allowed to change your player name.');
         }
 
         $existing = DB::table('war-players')->where('war_id', $war->id)
             ->where('player_login', $player->Login)->first();
-        $original = $existing && !empty($existing->original_name)
-            ? trim($existing->original_name)
-            : TeamDetector::stripWarTag($player->NickName, $war->team_a, $war->team_b);
+        TeamJoinPolicy::assertCanJoin($war->status, $existing ? $existing->locked_team : null);
+        if ($player->isSetnameBlacklisted()) {
+            throw new RuntimeException('You are not allowed to change your player name.');
+        }
+        $original = TeamDetector::stripWarTag($player->NickName, $war->team_a, $war->team_b);
         if ($original === '') {
             throw new RuntimeException('Your original player name could not be determined.');
         }
@@ -41,7 +44,7 @@ final class PlayerNameService
             throw new RuntimeException('Could not change your player name. Please try again.');
         }
 
-        TeamAssignmentService::join($player, $team, 'overlay', false, $original, $newName);
+        TeamAssignmentService::join($player, $team, 'overlay', $original, $newName);
         return $newName;
     }
 }

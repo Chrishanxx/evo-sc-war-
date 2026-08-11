@@ -131,53 +131,10 @@ final class WarRepository
         self::audit($war->id, $admin->Login, 'war.duration.updated', compact('days'));
     }
 
-    public static function updateMatchsettingsProfile(
-        Player $admin,
-        string $teamAName,
-        string $teamBName,
-        int $mapTimeLimit,
-        int $chatTime,
-        bool $restoreAfterRestart
-    ): void {
-        $war = self::requireCurrent();
-        if ($war->status !== WarState::DRAFT) {
-            throw new RuntimeException('The TM_War_Online profile can only be changed while the war is a draft.');
-        }
-        $teamAName = trim($teamAName) ?: $war->team_a;
-        $teamBName = trim($teamBName) ?: $war->team_b;
-        if (mb_strlen($teamAName) > 64 || mb_strlen($teamBName) > 64) {
-            throw new RuntimeException('Team display names cannot exceed 64 characters.');
-        }
-        if ($mapTimeLimit < 60 || $mapTimeLimit > 3600) {
-            throw new RuntimeException('Map time must be between 60 and 3600 seconds.');
-        }
-        if ($chatTime < 0 || $chatTime > 300) {
-            throw new RuntimeException('Chat time must be between 0 and 300 seconds.');
-        }
-        DB::table('wars')->where('id', $war->id)->update([
-            'mode_type' => 'WAR',
-            'trackmania_script' => WarMatchSettingsService::BASE_SCRIPT,
-            'team_a_name' => $teamAName,
-            'team_b_name' => $teamBName,
-            'map_time_limit' => $mapTimeLimit,
-            'chat_time' => $chatTime,
-            'restore_after_restart' => $restoreAfterRestart ? 1 : 0,
-            'updated_at' => gmdate('Y-m-d H:i:s'),
-        ]);
-        self::audit($war->id, $admin->Login, 'matchsettings.profile.updated', [
-            'team_a_name' => $teamAName,
-            'team_b_name' => $teamBName,
-            'map_time_limit' => $mapTimeLimit,
-            'chat_time' => $chatTime,
-            'restore_after_restart' => $restoreAfterRestart,
-        ]);
-    }
-
     public static function updateParticipationSettings(
         Player $admin,
         bool $overlayJoin,
         bool $nicknameDetection,
-        bool $allowTeamSwitch,
         int $teamLimit
     ): void {
         $war = self::requireCurrent();
@@ -197,14 +154,14 @@ final class WarRepository
         DB::table('wars')->where('id', $war->id)->update([
             'overlay_join_enabled' => $overlayJoin ? 1 : 0,
             'nickname_detection_enabled' => $nicknameDetection ? 1 : 0,
-            'allow_team_switch' => $allowTeamSwitch ? 1 : 0,
+            'allow_team_switch' => 0,
             'team_limit' => $teamLimit ?: null,
             'updated_at' => gmdate('Y-m-d H:i:s'),
         ]);
         self::audit($war->id, $admin->Login, 'war.participation.updated', [
             'overlay_join_enabled' => $overlayJoin,
             'nickname_detection_enabled' => $nicknameDetection,
-            'allow_team_switch' => $allowTeamSwitch,
+            'allow_team_switch' => false,
             'team_limit' => $teamLimit,
         ]);
     }
