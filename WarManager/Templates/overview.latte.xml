@@ -18,4 +18,9 @@
         <label pos="6 -8.2" text="{$scoringPaused ? 'SCORING PAUSED' : 'LIVE'}" textsize="0.72" textcolor="{$scoringPaused ? 'F59E0BFF' : 'A6A6A6FF'}" valign="center" action="war.stats.show" />
         <label pos="45 -8.2" text="{$timeLeft}" textsize="0.78" textcolor="A6A6A6FF" halign="right" valign="center" action="war.stats.show" />
     {/block}
+
+    {block script}
+    <script><!--
+    --></script>
+    {/block}
 </manialink>
