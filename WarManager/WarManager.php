@@ -42,10 +42,14 @@ class WarManager extends Module implements ModuleInterface
         ManiaLinkEvent::add('war.show', [self::class, 'showOverlay']);
         ManiaLinkEvent::add('war.close', [self::class, 'closeOverlay']);
         ManiaLinkEvent::add('war.stats.show', [WarStatsOverlay::class, 'show']);
+        ManiaLinkEvent::add('war.players.show', [WarStatsOverlay::class, 'players']);
+        ManiaLinkEvent::add('war.players.close', [WarStatsOverlay::class, 'closePlayers']);
+        ManiaLinkEvent::add('war.panel.admin', [WarStatsOverlay::class, 'openAdmin'], 'war_manage');
         ManiaLinkEvent::add('war.stats.close', [WarStatsOverlay::class, 'close']);
         ManiaLinkEvent::add('war.stats.overview', [WarStatsOverlay::class, 'overview']);
         ManiaLinkEvent::add('war.stats.players', [WarStatsOverlay::class, 'players']);
         ManiaLinkEvent::add('war.stats.maps', [WarStatsOverlay::class, 'maps']);
+        ManiaLinkEvent::add('war.stats.history', [WarStatsOverlay::class, 'history']);
         ManiaLinkEvent::add('war.stats.players.previous', [WarStatsOverlay::class, 'previousPlayerPage']);
         ManiaLinkEvent::add('war.stats.players.next', [WarStatsOverlay::class, 'nextPlayerPage']);
         ManiaLinkEvent::add('war.stats.maps.previous', [WarStatsOverlay::class, 'previousMapPage']);

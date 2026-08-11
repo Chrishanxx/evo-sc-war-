@@ -4,21 +4,20 @@
     {include isManiaPlanet() ? 'Components.stylesheet' : 'Components.stylesheet_noblur'}
 
     <frame pos="0 46" halign="center" z-index="8600">
-        <quad pos="-76 0" size="152 92" bgcolor="000000F7" />
-        <quad pos="-76 0" size="152 10" bgcolor="080808FF" />
-        <label pos="-71 -5" text="WAR CONTROL" textsize="2.6" textcolor="D8D184FF" valign="center" />
+        <quad pos="-76 0" size="152 92" bgcolor="131313F7" />
+        <quad pos="-76 0" size="152 10" bgcolor="1A1A1AFF" />
+        <label pos="-71 -5" text="ADMIN" textsize="2.3" textcolor="E4DA72FF" valign="center" />
         <label pos="71 -5" text="X" textsize="2.6" textcolor="FFFFFFFF" halign="center" valign="center" action="war.admin.close" />
 
         <frame pos="-71 -13">
-            <label pos="0 0" text="OVERVIEW" textsize="1.1" textcolor="FFFFFFFF" action="war.admin.overview" />
-            <label pos="21 0" text="SETTINGS" textsize="1.1" textcolor="FFFFFFFF" action="war.admin.create.tab" />
-            <label pos="43 0" text="ROTATION" textsize="1.1" textcolor="D8D184FF" action="war.admin.rotation" />
-            <label pos="66 0" text="MAPS" textsize="1.1" textcolor="FFFFFFFF" action="war.admin.maps" />
-            <label pos="82 0" text="POINTS" textsize="1.1" textcolor="FFFFFFFF" action="war.admin.points" />
-            <label pos="102 0" text="PLAYERS" textsize="1.1" textcolor="FFFFFFFF" action="war.admin.players" />
-            <label pos="128 0" text="LOGS" textsize="1.1" textcolor="FFFFFFFF" action="war.admin.logs" />
+            <label pos="0 0" text="GENERAL" textsize="1.1" textcolor="{$tab == 'overview' ? 'E4DA72FF' : 'A6A6A6FF'}" action="war.admin.overview" />
+            <label pos="29 0" text="MAP POOL" textsize="1.1" textcolor="{$tab == 'maps' ? 'E4DA72FF' : 'A6A6A6FF'}" action="war.admin.maps" />
+            <label pos="63 0" text="TEAMS" textsize="1.1" textcolor="{$tab == 'create' ? 'E4DA72FF' : 'A6A6A6FF'}" action="war.admin.create.tab" />
+            <label pos="91 0" text="ADVANCED" textsize="1.1" textcolor="{$tab == 'rotation' ? 'E4DA72FF' : 'A6A6A6FF'}" action="war.admin.rotation" />
+            <label pos="117 0" text="POINTS" textsize="0.85" textcolor="A6A6A6FF" action="war.admin.points" />
+            <label pos="134 0" text="LOGS" textsize="0.85" textcolor="A6A6A6FF" action="war.admin.logs" />
         </frame>
-        <quad pos="-71 -17" size="142 0.4" bgcolor="D8D184FF" />
+        <quad pos="-71 -17" size="142 0.4" bgcolor="E4DA72FF" />
 
         {if $tab == 'overview'}
             {if $war}

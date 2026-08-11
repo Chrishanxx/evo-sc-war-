@@ -19,6 +19,8 @@ final class WarAdminOverlay
 
     public static function show(Player $player, string $tab = 'overview', string $confirmAction = ''): void
     {
+        WarStatsOverlay::close($player);
+        WarStatsOverlay::closePlayers($player);
         $allowedTabs = ['overview', 'create', 'rotation', 'maps', 'points', 'players', 'logs'];
         $tab = in_array($tab, $allowedTabs, true) ? $tab : 'overview';
         $war = WarRepository::latest();
