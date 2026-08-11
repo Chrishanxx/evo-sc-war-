@@ -1,0 +1,31 @@
+{contentType text}
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<manialink version="3" id="WarManagerScoreboardData" name="EvoSC:WarManagerScoreboardData">
+    <script><!--
+    main() {
+        declare Boolean WarManager_Visible for UIManager = False;
+        declare Text WarManager_TeamA for UIManager = "";
+        declare Text WarManager_TeamB for UIManager = "";
+        declare Integer WarManager_TeamAPoints for UIManager = 0;
+        declare Integer WarManager_TeamBPoints for UIManager = 0;
+        declare Text WarManager_Status for UIManager = "";
+        declare Integer WarManager_MapsPlayed for UIManager = 0;
+        declare Integer WarManager_MapsTotal for UIManager = 0;
+        declare Text WarManager_TimeLeft for UIManager = "";
+        declare Text WarManager_TeamAColor for UIManager = "FFF";
+        declare Text WarManager_TeamBColor for UIManager = "FFF";
+
+        WarManager_Visible = {$visible ? 'True' : 'False'};
+        WarManager_TeamA = {$teamA|noescape};
+        WarManager_TeamB = {$teamB|noescape};
+        WarManager_TeamAPoints = {$teamAPoints};
+        WarManager_TeamBPoints = {$teamBPoints};
+        WarManager_Status = {$status|noescape};
+        WarManager_MapsPlayed = {$scoredMapCount};
+        WarManager_MapsTotal = {$mapCount};
+        WarManager_TimeLeft = {$timeLeft|noescape};
+        WarManager_TeamAColor = {$teamAColor|noescape};
+        WarManager_TeamBColor = {$teamBColor|noescape};
+    }
+    --></script>
+</manialink>

@@ -43,6 +43,8 @@ unrestricted MasterAdmin group receives access automatically.
 - Native `/setname` integration: choosing a team prepends its tag to the visible nickname
 - Original nicknames stored per war; duplicate tags are removed during draft team changes
 - Database assignment only after EvoSC confirms the visible nickname change
+- Compact HUD uses EvoSC's native widget base, including UI alignment and hide-while-driving settings
+- Native TimeAttack TAB scoreboard summary for teams, points, status, map progress, and remaining time
 - Optional team limits and confirmed team switching (disabled by default)
 - Admin move/reset actions and pending War-record promotion after joining
 - Full `//war admin` control panel with Overview, Create/Settings, Maps, Points, Players and Logs tabs

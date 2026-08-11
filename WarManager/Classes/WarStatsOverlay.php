@@ -19,38 +19,40 @@ final class WarStatsOverlay
 
     public static function showWidget(Player $player): void
     {
-        $war = WarRepository::latest();
-        if (!$war) {
+        $state = WarViewState::latest();
+        if (!$state) {
             Template::hide($player, 'WarManager');
             return;
         }
-        [$teamAPoints, $teamBPoints] = self::teamScores((int)$war->id, $war->team_a, $war->team_b);
-        $teamAColor = self::color(config('war-manager.team-a-color', 'D8D184FF'));
-        $teamBColor = self::color(config('war-manager.team-b-color', 'FFFFFFFF'));
+        $war = $state->war;
+        $teamAPoints = $state->team_a_points;
+        $teamBPoints = $state->team_b_points;
+        $teamAColor = $state->team_a_color;
+        $teamBColor = $state->team_b_color;
         $teamAScoreColor = $teamAPoints > $teamBPoints ? 'D8D184FF' : 'FFFFFFFF';
         $teamBScoreColor = $teamBPoints > $teamAPoints ? 'D8D184FF' : 'FFFFFFFF';
         $widgetTitle = $war->status === WarState::ACTIVE ? 'WAR' : 'WAR · ' . $war->status;
-        $widgetX = (float)config('war-manager.widget-x', 116);
-        $widgetY = (float)config('war-manager.widget-y', 10);
         Template::show($player, 'WarManager.overview', compact(
             'war', 'teamAPoints', 'teamBPoints', 'teamAColor', 'teamBColor',
-            'teamAScoreColor', 'teamBScoreColor', 'widgetTitle', 'widgetX', 'widgetY'
+            'teamAScoreColor', 'teamBScoreColor', 'widgetTitle'
         ));
     }
 
     public static function show(Player $player, string $tab = 'overview'): void
     {
         $tab = in_array($tab, ['overview', 'players', 'maps'], true) ? $tab : 'overview';
-        $war = WarRepository::latest();
-        if (!$war) {
+        $state = WarViewState::latest();
+        if (!$state) {
             infoMessage('There is no current war.')->send($player);
             return;
         }
+        $war = $state->war;
         $warId = (int)$war->id;
-        [$teamAPoints, $teamBPoints] = self::teamScores($warId, $war->team_a, $war->team_b);
-        $teamAColor = self::color(config('war-manager.team-a-color', 'D8D184FF'));
-        $teamBColor = self::color(config('war-manager.team-b-color', 'FFFFFFFF'));
-        $timeLeft = self::timeLeft($war);
+        $teamAPoints = $state->team_a_points;
+        $teamBPoints = $state->team_b_points;
+        $teamAColor = $state->team_a_color;
+        $teamBColor = $state->team_b_color;
+        $timeLeft = $state->time_left;
 
         $maps = DB::table('war-maps')->where('war_id', $warId)->orderBy('id')->get();
         $mapScores = DB::table('war-records')->where('war_id', $warId)
@@ -84,8 +86,8 @@ final class WarStatsOverlay
         $mapPage = max(1, min((int)(self::$mapPages[$player->Login] ?? 1), $mapPageCount));
         self::$mapPages[$player->Login] = $mapPage;
         $visibleMapRows = $mapRows->slice(($mapPage - 1) * self::ROWS_PER_PAGE, self::ROWS_PER_PAGE)->values();
-        $scoredMapCount = count($scoredMapUids);
-        $mapCount = $maps->count();
+        $scoredMapCount = $state->scored_map_count;
+        $mapCount = $state->map_count;
         $assignment = DB::table('war-players')->where('war_id', $warId)
             ->where('player_login', $player->Login)->first();
         $teamAMembers = DB::table('war-players')->where('war_id', $warId)->where('locked_team', $war->team_a)->count();
@@ -183,13 +185,6 @@ final class WarStatsOverlay
         self::show($player, 'maps');
     }
 
-    private static function teamScores(int $warId, string $teamA, string $teamB): array
-    {
-        $scores = DB::table('war-players')->where('war_id', $warId)
-            ->selectRaw('locked_team, SUM(total_points) points')->groupBy('locked_team')->pluck('points', 'locked_team');
-        return [(int)($scores[$teamA] ?? 0), (int)($scores[$teamB] ?? 0)];
-    }
-
     private static function joinCurrentTeam(Player $player, bool $teamA): void
     {
         $war = WarRepository::current();
@@ -207,25 +202,4 @@ final class WarStatsOverlay
         self::show($player, 'overview');
     }
 
-    private static function timeLeft($war): string
-    {
-        if (!$war->end_at) {
-            return $war->status === WarState::DRAFT ? 'Waiting' : '--';
-        }
-        $clock = $war->status === WarState::PAUSED && $war->paused_at
-            ? strtotime($war->paused_at . ' UTC') : time();
-        $seconds = max(0, strtotime($war->end_at . ' UTC') - $clock);
-        if ($seconds >= 86400) {
-            return floor($seconds / 86400) . 'd ' . floor(($seconds % 86400) / 3600) . 'h';
-        }
-        if ($seconds >= 3600) {
-            return floor($seconds / 3600) . 'h ' . floor(($seconds % 3600) / 60) . 'm';
-        }
-        return floor($seconds / 60) . 'm';
-    }
-
-    private static function color(string $color): string
-    {
-        return preg_match('/^[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$/', $color) ? strtoupper($color) : 'FFFFFFFF';
-    }
 }
