@@ -36,6 +36,21 @@
             {if !$currentMapValid and $war->status == 'ACTIVE'}
                 <label pos="-45 -62" text="MAP NOT PART OF SCRIM - SCORING PAUSED" textsize="0.8" textcolor="E4DA72FF" />
             {/if}
+            {if $joinAvailable}
+                <label pos="0 -65" text="CHOOSE YOUR TEAM" textsize="0.78" textcolor="A6A6A6FF" halign="center" />
+                {if !$teamAFull}
+                    <quad pos="-45 -67" size="42 5" bgcolor="222222FF" action="war.stats.join.a" />
+                    <label pos="-24 -69.5" size="36 3" text="JOIN {$war->team_a}" textsize="0.9" textcolor="E4DA72FF" halign="center" valign="center" action="war.stats.join.a" />
+                {/if}
+                {if !$teamBFull}
+                    <quad pos="3 -67" size="42 5" bgcolor="222222FF" action="war.stats.join.b" />
+                    <label pos="24 -69.5" size="36 3" text="JOIN {$war->team_b}" textsize="0.9" textcolor="E4DA72FF" halign="center" valign="center" action="war.stats.join.b" />
+                {/if}
+            {elseif $assignment}
+                <label pos="0 -68" text="YOUR TEAM: {$assignment->locked_team}" textsize="0.82" textcolor="A6A6A6FF" halign="center" />
+            {elseif $war->status == 'ACTIVE'}
+                <label pos="0 -68" text="TEAM JOIN IS DISABLED" textsize="0.82" textcolor="A6A6A6FF" halign="center" />
+            {/if}
         {/if}
 
         {if $tab == 'maps'}
