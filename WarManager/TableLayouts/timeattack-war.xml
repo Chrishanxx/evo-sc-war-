@@ -1,7 +1,5 @@
 {contentType text}
-<frame>
-    {include 'WarManager.ScoreTableBase'}
-
+<!-- WAR_FRAME_START -->
     <frame id="war-scoreboard-summary" pos="5.5 14" z-index="150" hidden="1">
         <quad pos="0 1" size="171 11" bgcolor="111114E8" />
         <label id="war-team-a-color" class="text-light" pos="2 -3" size="2 5" textsize="1.4" text="|" />
@@ -13,9 +11,9 @@
         <label id="war-summary-status" class="text-light" pos="85.5 -8" size="150 4" textsize="0.9" halign="center" opacity="0.75" />
         <quad pos="2 -10.5" size="167 0.25" bgcolor="D8D184AA" />
     </frame>
-</frame>
+<!-- WAR_FRAME_END -->
 
-<script><!--
+<!-- WAR_SCRIPT_START -->
 *** SB_Boot ***
 ***
     declare warSummaryFrame <=> (Page.MainFrame.GetFirstChild("war-scoreboard-summary") as CMlFrame);
@@ -53,8 +51,7 @@
         warTeamAPoints.Value = WarManager_TeamAPoints ^ "";
         warTeamBPoints.Value = WarManager_TeamBPoints ^ "";
         if (WarManager_Status == "FINISHED" || WarManager_Status == "CANCELLED") {
-            warStatus.Value = WarManager_Status ^ "  |  Maps " ^ WarManager_MapsPlayed ^ " / " ^
-                WarManager_MapsTotal;
+            warStatus.Value = WarManager_Status ^ "  |  Maps " ^ WarManager_MapsPlayed ^ " / " ^ WarManager_MapsTotal;
         } else {
             warStatus.Value = WarManager_Status ^ "  |  Maps " ^ WarManager_MapsPlayed ^ " / " ^
                 WarManager_MapsTotal ^ "  |  Remaining " ^ WarManager_TimeLeft;
@@ -66,4 +63,4 @@
         warPagerFrame.RelativePosition_V3 = <-14., -66., 0.>;
     }
 ***
---></script>
+<!-- WAR_SCRIPT_END -->
