@@ -1,6 +1,6 @@
 # EvoSC WarManager
 
-Current module version: **0.10.7**. This release reduces the public player interface to `OVERVIEW`, `TEAMS` and nested `STATS`, adds clickable per-map results with team and player details, and permits account-backed team joining during both DRAFT and ACTIVE. The permanent live HUD now contains only team names, score, remaining time and status; the permission-filtered WAR ADMIN button uses its own shield icon. MatchSettings continue to use only `Trackmania/TM_TimeAttack_Online.Script.txt`.
+Current module version: **0.10.8**. This release adds a dedicated `WarLiveScoreWidget` for ACTIVE and PAUSED scrims. It uses EvoSC's native right-side widget grid and shared HUD visibility settings, so positioning, scale, hide speed and show delay remain synchronized with the standard EvoSC HUD. The compact card contains only status, teams, total score and remaining scrim time. MatchSettings continue to use only `Trackmania/TM_TimeAttack_Online.Script.txt`.
 
 External WarManager module for the classic PHP release of EvoSC and Trackmania 2020.
 It keeps `Trackmania/TM_TimeAttack_Online.Script.txt` untouched and calculates a

@@ -20,43 +20,7 @@ final class WarStatsOverlay
 
     public static function showWidget(Player $player): void
     {
-        $state = WarViewState::latest();
-        if (!$state || !in_array($state->war->status, [WarState::ACTIVE, WarState::PAUSED], true)) {
-            Template::hide($player, 'WarManager');
-            return;
-        }
-        $war = $state->war;
-        $teamAPoints = $state->team_a_points;
-        $teamBPoints = $state->team_b_points;
-        $teamAColor = $state->team_a_color;
-        $teamBColor = $state->team_b_color;
-        $teamAScoreColor = $teamAPoints > $teamBPoints ? 'E4DA72FF' : 'F5F5F5FF';
-        $teamBScoreColor = $teamBPoints > $teamAPoints ? 'E4DA72FF' : 'F5F5F5FF';
-        $timeLeft = $state->time_left;
-        $mapCount = $state->map_count;
-        $rotationNumber = $state->rotation_number;
-        $rotationPosition = $state->rotation_position;
-        $assignment = DB::table('war-players')->where('war_id', $war->id)
-            ->where('player_login', $player->Login)->first();
-        $currentMap = MapController::getCurrentMap();
-        $currentMapValid = $currentMap && DB::table('war-maps')->where('war_id', $war->id)
-            ->where('map_uid', $currentMap->uid)->exists();
-        $manualScoringPause = !empty($war->scoring_paused);
-        $scoringPaused = $war->status === WarState::ACTIVE && ($manualScoringPause || !$currentMapValid);
-        $statusLabel = $scoringPaused ? 'SCORING PAUSED' : ($war->status === WarState::FINISHED ? 'FINAL' : $war->status);
-        $statusDetail = $manualScoringPause ? strtoupper((string)($war->scoring_pause_reason ?: 'MANUALLY PAUSED')) :
-            ($scoringPaused ? 'MAP NOT PART OF SCRIM' :
-            ($war->status === WarState::DRAFT ? 'WAITING' :
-                ($war->status === WarState::PAUSED ? 'TIMER PAUSED' : $timeLeft)));
-        $mapLabel = $war->status === WarState::DRAFT ? 'MAPS ' . $mapCount :
-            'MAP ' . $rotationPosition . '/' . $mapCount;
-        $canOpenAdmin = $player->hasAccess('war_manage');
-        Template::show($player, 'WarManager.overview', compact(
-            'war', 'teamAPoints', 'teamBPoints', 'teamAColor', 'teamBColor',
-            'teamAScoreColor', 'teamBScoreColor', 'timeLeft', 'mapCount',
-            'rotationNumber', 'rotationPosition', 'assignment', 'currentMapValid', 'scoringPaused',
-            'statusLabel', 'statusDetail', 'mapLabel', 'canOpenAdmin'
-        ));
+        WarLiveScoreWidget::show($player);
     }
 
     public static function show(Player $player, string $tab = 'overview'): void
