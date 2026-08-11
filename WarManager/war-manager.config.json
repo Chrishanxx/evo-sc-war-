@@ -2,6 +2,7 @@
   "enabled": true,
   "show-quick-button": true,
   "notify-unassigned": true,
+  "debug": false,
   "team-a-color": "D8D184FF",
   "team-b-color": "FFFFFFFF",
   "overlay-map-limit": 5,
