@@ -7,14 +7,14 @@
         <quad pos="-76 0" size="152 92" bgcolor="131313F7" />
         <quad pos="-76 0" size="152 10" bgcolor="1A1A1AFF" />
         <label pos="-71 -5" text="ADMIN" textsize="2.3" textcolor="E4DA72FF" valign="center" />
-        <label pos="71 -5" text="X" textsize="2.6" textcolor="FFFFFFFF" halign="center" valign="center" action="war.admin.close" />
+        <label id="war-admin-close" pos="71 -5" size="9 6" text="X" textsize="2.6" textcolor="FFFFFFFF" halign="center" valign="center" action="war.admin.close" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7266" />
 
         <frame pos="-71 -13">
-            <label pos="0 0" text="GENERAL" textsize="1.1" textcolor="{$tab == 'overview' ? 'E4DA72FF' : 'A6A6A6FF'}" action="war.admin.overview" />
-            <label pos="29 0" text="MAP POOL" textsize="1.1" textcolor="{$tab == 'maps' ? 'E4DA72FF' : 'A6A6A6FF'}" action="war.admin.maps" />
-            <label pos="63 0" text="TEAMS" textsize="1.1" textcolor="{$tab == 'create' ? 'E4DA72FF' : 'A6A6A6FF'}" action="war.admin.create.tab" />
-            <label pos="96 0" text="POINTS" textsize="1.1" textcolor="{$tab == 'points' ? 'E4DA72FF' : 'A6A6A6FF'}" action="war.admin.points" />
-            <label pos="130 0" text="LOGS" textsize="1.1" textcolor="{$tab == 'logs' ? 'E4DA72FF' : 'A6A6A6FF'}" action="war.admin.logs" />
+            <label id="war-admin-tab-overview" pos="0 0" size="23 5" text="GENERAL" textsize="1.1" textcolor="{$tab == 'overview' ? 'E4DA72FF' : 'A6A6A6FF'}" valign="center" action="war.admin.overview" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
+            <label id="war-admin-tab-maps" pos="29 0" size="25 5" text="MAP POOL" textsize="1.1" textcolor="{$tab == 'maps' ? 'E4DA72FF' : 'A6A6A6FF'}" valign="center" action="war.admin.maps" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
+            <label id="war-admin-tab-create" pos="63 0" size="21 5" text="TEAMS" textsize="1.1" textcolor="{$tab == 'create' ? 'E4DA72FF' : 'A6A6A6FF'}" valign="center" action="war.admin.create.tab" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
+            <label id="war-admin-tab-points" pos="96 0" size="20 5" text="POINTS" textsize="1.1" textcolor="{$tab == 'points' ? 'E4DA72FF' : 'A6A6A6FF'}" valign="center" action="war.admin.points" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
+            <label id="war-admin-tab-logs" pos="130 0" size="18 5" text="LOGS" textsize="1.1" textcolor="{$tab == 'logs' ? 'E4DA72FF' : 'A6A6A6FF'}" valign="center" action="war.admin.logs" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
         </frame>
         <quad pos="-71 -17" size="142 0.4" bgcolor="E4DA72FF" />
 
@@ -30,22 +30,22 @@
                 {/if}
 
                 {if $war->status == 'DRAFT'}
-                    <label pos="0 -66" text="START WAR" textsize="1.8" textcolor="50CF84FF" halign="center" action="war.admin.control.start" />
+                    <label id="war-admin-start" pos="0 -66" size="32 6" text="START WAR" textsize="1.8" textcolor="50CF84FF" halign="center" action="war.admin.control.start" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 {/if}
                 {if $war->status == 'ACTIVE'}
-                    <label pos="-25 -66" text="PAUSE" textsize="1.8" textcolor="D8D184FF" halign="center" action="war.admin.control.pause" />
-                    <label pos="25 -66" text="FINISH" textsize="1.8" textcolor="50CF84FF" halign="center" action="war.admin.control.finish" />
-                    <label pos="0 -74" text="CANCEL WAR" textsize="1.4" textcolor="F05D5EFF" halign="center" action="war.admin.control.cancel" />
+                    <label id="war-admin-pause" pos="-25 -66" size="24 6" text="PAUSE" textsize="1.8" textcolor="D8D184FF" halign="center" action="war.admin.control.pause" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
+                    <label id="war-admin-finish" pos="25 -66" size="24 6" text="FINISH" textsize="1.8" textcolor="50CF84FF" halign="center" action="war.admin.control.finish" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
+                    <label id="war-admin-cancel" pos="0 -74" size="32 5" text="CANCEL WAR" textsize="1.4" textcolor="F05D5EFF" halign="center" action="war.admin.control.cancel" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                     {if $scoringPaused}
-                        <label pos="0 -82" text="RESUME SCORING" textsize="1.3" textcolor="50CF84FF" halign="center" action="war.admin.control.scoring.resume" />
+                        <label id="war-admin-scoring-resume" pos="0 -82" size="38 5" text="RESUME SCORING" textsize="1.3" textcolor="50CF84FF" halign="center" action="war.admin.control.scoring.resume" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                     {else}
-                        <label pos="0 -82" text="PAUSE SCORING" textsize="1.3" textcolor="E4DA72FF" halign="center" action="war.admin.control.scoring.pause" />
+                        <label id="war-admin-scoring-pause" pos="0 -82" size="38 5" text="PAUSE SCORING" textsize="1.3" textcolor="E4DA72FF" halign="center" action="war.admin.control.scoring.pause" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                     {/if}
                 {/if}
                 {if $war->status == 'PAUSED'}
-                    <label pos="-25 -66" text="RESUME" textsize="1.8" textcolor="50CF84FF" halign="center" action="war.admin.control.resume" />
-                    <label pos="25 -66" text="FINISH" textsize="1.8" textcolor="FFFFFFFF" halign="center" action="war.admin.control.finish" />
-                    <label pos="0 -74" text="CANCEL WAR" textsize="1.4" textcolor="F05D5EFF" halign="center" action="war.admin.control.cancel" />
+                    <label id="war-admin-resume" pos="-25 -66" size="24 6" text="RESUME" textsize="1.8" textcolor="50CF84FF" halign="center" action="war.admin.control.resume" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
+                    <label id="war-admin-finish" pos="25 -66" size="24 6" text="FINISH" textsize="1.8" textcolor="FFFFFFFF" halign="center" action="war.admin.control.finish" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
+                    <label id="war-admin-cancel" pos="0 -74" size="32 5" text="CANCEL WAR" textsize="1.4" textcolor="F05D5EFF" halign="center" action="war.admin.control.cancel" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 {/if}
             {else}
                 <label pos="0 -34" text="NO WAR EXISTS" textsize="3" textcolor="FFFFFFFF" halign="center" />
@@ -57,39 +57,39 @@
             {if $current}
                 <label pos="-66 -24" text="WAR SETTINGS (DRAFT ONLY)" textsize="2" textcolor="D8D184FF" />
                 <label pos="-66 -32" text="War name" textsize="1.2" textcolor="A9B7C3FF" />
-                <entry pos="-66 -35" size="60 6" name="war_name" default="{$current->name}" textsize="1.4" />
+                <entry id="war-admin-entry-name" pos="-66 -35" size="60 6" name="war_name" default="{$current->name}" textsize="1.4" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 <label pos="-66 -46" text="Team A" textsize="1.2" textcolor="A9B7C3FF" />
-                <entry pos="-66 -49" size="42 6" name="team_a" default="{$current->team_a}" textsize="1.4" />
+                <entry id="war-admin-entry-team-a" pos="-66 -49" size="42 6" name="team_a" default="{$current->team_a}" textsize="1.4" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 <label pos="-18 -46" text="Team B" textsize="1.2" textcolor="A9B7C3FF" />
-                <entry pos="-18 -49" size="42 6" name="team_b" default="{$current->team_b}" textsize="1.4" />
+                <entry id="war-admin-entry-team-b" pos="-18 -49" size="42 6" name="team_b" default="{$current->team_b}" textsize="1.4" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 <label pos="30 -46" text="Duration (1-14 days)" textsize="1.2" textcolor="A9B7C3FF" />
-                <entry pos="30 -49" size="30 6" name="duration" default="{$current->duration_days}" textsize="1.4" />
+                <entry id="war-admin-entry-duration" pos="30 -49" size="30 6" name="duration" default="{$current->duration_days}" textsize="1.4" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 <label pos="-66 -60" text="Join buttons (1 = on)" textsize="1.05" textcolor="A9B7C3FF" />
-                <entry pos="-66 -63" size="20 5" name="overlay_join" default="{$current->overlay_join_enabled}" textsize="1.2" />
+                <entry id="war-admin-entry-overlay-join" pos="-66 -63" size="20 5" name="overlay_join" default="{$current->overlay_join_enabled}" textsize="1.2" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 <label pos="-38 -60" text="Tag detection (1 = on)" textsize="1.05" textcolor="A9B7C3FF" />
-                <entry pos="-38 -63" size="20 5" name="nickname_detection" default="{$current->nickname_detection_enabled}" textsize="1.2" />
+                <entry id="war-admin-entry-tag-detection" pos="-38 -63" size="20 5" name="nickname_detection" default="{$current->nickname_detection_enabled}" textsize="1.2" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 <label pos="-10 -60" text="Players/team (0 = unlimited)" textsize="1.0" textcolor="A9B7C3FF" />
-                <entry pos="-10 -63" size="24 5" name="team_limit" default="{$current->team_limit ?: 0}" textsize="1.2" />
-                <quad pos="37 -75" size="29 7" bgcolor="D8D184FF" action="war.admin.settings.save" />
-                <label pos="51.5 -78.5" text="SAVE SETTINGS" textsize="1.3" textcolor="000000FF" halign="center" valign="center" action="war.admin.settings.save" />
+                <entry id="war-admin-entry-team-limit" pos="-10 -63" size="24 5" name="team_limit" default="{$current->team_limit ?: 0}" textsize="1.2" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
+                <quad id="war-admin-settings-save" pos="37 -75" size="29 7" bgcolor="D8D184FF" bgcolorfocus="FFF2A0FF" action="war.admin.settings.save" scriptevents="1" />
+                <label pos="51.5 -78.5" text="SAVE SETTINGS" textsize="1.3" textcolor="000000FF" halign="center" valign="center" />
             {else}
                 <label pos="-66 -24" text="CREATE WAR" textsize="2" textcolor="D8D184FF" />
                 <label pos="-66 -32" text="War name (optional)" textsize="1.2" textcolor="A9B7C3FF" />
-                <entry pos="-66 -35" size="60 6" name="war_name" default="" textsize="1.4" />
+                <entry id="war-admin-entry-name" pos="-66 -35" size="60 6" name="war_name" default="" textsize="1.4" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 <label pos="-66 -46" text="Team A" textsize="1.2" textcolor="A9B7C3FF" />
-                <entry pos="-66 -49" size="42 6" name="team_a" default="FAST" textsize="1.4" />
+                <entry id="war-admin-entry-team-a" pos="-66 -49" size="42 6" name="team_a" default="FAST" textsize="1.4" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 <label pos="-18 -46" text="Team B" textsize="1.2" textcolor="A9B7C3FF" />
-                <entry pos="-18 -49" size="42 6" name="team_b" default="ZOOP" textsize="1.4" />
+                <entry id="war-admin-entry-team-b" pos="-18 -49" size="42 6" name="team_b" default="ZOOP" textsize="1.4" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 <label pos="30 -46" text="Duration (1-14 days)" textsize="1.2" textcolor="A9B7C3FF" />
-                <entry pos="30 -49" size="30 6" name="duration" default="7" textsize="1.4" />
+                <entry id="war-admin-entry-duration" pos="30 -49" size="30 6" name="duration" default="7" textsize="1.4" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 <label pos="-66 -60" text="Join buttons (1 = on)" textsize="1.05" textcolor="A9B7C3FF" />
-                <entry pos="-66 -63" size="20 5" name="overlay_join" default="1" textsize="1.2" />
+                <entry id="war-admin-entry-overlay-join" pos="-66 -63" size="20 5" name="overlay_join" default="1" textsize="1.2" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 <label pos="-38 -60" text="Tag detection (1 = on)" textsize="1.05" textcolor="A9B7C3FF" />
-                <entry pos="-38 -63" size="20 5" name="nickname_detection" default="0" textsize="1.2" />
+                <entry id="war-admin-entry-tag-detection" pos="-38 -63" size="20 5" name="nickname_detection" default="0" textsize="1.2" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 <label pos="-10 -60" text="Players/team (0 = unlimited)" textsize="1.0" textcolor="A9B7C3FF" />
-                <entry pos="-10 -63" size="24 5" name="team_limit" default="0" textsize="1.2" />
-                <quad pos="37 -75" size="29 7" bgcolor="D8D184FF" action="war.admin.create" />
-                <label pos="51.5 -78.5" text="CREATE WAR" textsize="1.3" textcolor="000000FF" halign="center" valign="center" action="war.admin.create" />
+                <entry id="war-admin-entry-team-limit" pos="-10 -63" size="24 5" name="team_limit" default="0" textsize="1.2" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
+                <quad id="war-admin-create" pos="37 -75" size="29 7" bgcolor="D8D184FF" bgcolorfocus="FFF2A0FF" action="war.admin.create" scriptevents="1" />
+                <label pos="51.5 -78.5" text="CREATE WAR" textsize="1.3" textcolor="000000FF" halign="center" valign="center" />
             {/if}
         {/if}
 
@@ -98,9 +98,9 @@
             {if $current}
                 <label pos="-66 -31" text="TimeAttack base: Trackmania/TM_TimeAttack_Online.Script.txt" textsize="1.05" textcolor="A9B7C3FF" />
                 <label pos="-66 -39" text="Map time (seconds)" textsize="1.1" textcolor="A9B7C3FF" />
-                <entry pos="-66 -42" size="25 5" name="map_time_limit" default="{$current->map_time_limit}" textsize="1.2" />
+                <entry id="war-admin-entry-map-time" pos="-66 -42" size="25 5" name="map_time_limit" default="{$current->map_time_limit}" textsize="1.2" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 <label pos="-35 -39" text="Chat time (seconds)" textsize="1.1" textcolor="A9B7C3FF" />
-                <entry pos="-35 -42" size="25 5" name="chat_time" default="{$current->chat_time}" textsize="1.2" />
+                <entry id="war-admin-entry-chat-time" pos="-35 -42" size="25 5" name="chat_time" default="{$current->chat_time}" textsize="1.2" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 <label pos="-66 -51" text="Strict War Scoring" textsize="1.1" textcolor="A9B7C3FF" />
                 <label pos="-66 -55" text="ON (REQUIRED)" textsize="1.2" textcolor="50CF84FF" />
                 <label pos="-38 -51" text="Repeat Playlist" textsize="1.1" textcolor="A9B7C3FF" />
@@ -113,10 +113,10 @@
                 <label pos="-66 -69" size="83 4" text="FILE: {$current->matchsettings_file ?: 'NOT GENERATED'}" textsize="1" textcolor="FFFFFFFF" />
                 <label pos="18 -64" text="AUTO LOAD + RESTORE: ON" textsize="0.95" textcolor="50CF84FF" />
                 <label pos="18 -69" text="EXCLUSIVE: {$current->status == 'DRAFT' ? 'READY ON START' : 'ACTIVE'}" textsize="0.95" textcolor="D8D184FF" />
-                <quad pos="23 -75" size="20 7" bgcolor="D8D184FF" action="war.admin.rotation.save" />
-                <label pos="33 -78.5" text="SAVE" textsize="1.2" textcolor="000000FF" halign="center" valign="center" action="war.admin.rotation.save" />
-                <quad pos="46 -75" size="24 7" bgcolor="50CF84FF" action="war.admin.rotation.generate" />
-                <label pos="58 -78.5" text="GENERATE" textsize="1.2" textcolor="000000FF" halign="center" valign="center" action="war.admin.rotation.generate" />
+                <quad id="war-admin-rotation-save" pos="23 -75" size="20 7" bgcolor="D8D184FF" bgcolorfocus="FFF2A0FF" action="war.admin.rotation.save" scriptevents="1" />
+                <label pos="33 -78.5" text="SAVE" textsize="1.2" textcolor="000000FF" halign="center" valign="center" />
+                <quad id="war-admin-rotation-generate" pos="46 -75" size="24 7" bgcolor="50CF84FF" bgcolorfocus="8CFFB7FF" action="war.admin.rotation.generate" scriptevents="1" />
+                <label pos="58 -78.5" text="GENERATE" textsize="1.2" textcolor="000000FF" halign="center" valign="center" />
             {else}
                 <label pos="0 -44" text="Create a war draft before configuring the rotation." textsize="1.5" textcolor="A9B7C3FF" halign="center" />
             {/if}
@@ -126,9 +126,9 @@
             <label pos="-66 -24" text="WAR MAPS ({$maps->count()} selected){$current && $current->status != 'DRAFT' ? ' - ACTIVE ROTATION' : ''}" textsize="2" textcolor="D8D184FF" />
             {if $current}
                 {if $current->status == 'DRAFT'}
-                    <entry pos="-66 -30" size="48 6" name="map_uid" default="" textsize="1.3" />
-                    <quad pos="-15 -30" size="22 6" bgcolor="D8D184FF" action="war.admin.map.add" />
-                    <label pos="-4 -33" text="ADD UID" textsize="1.2" textcolor="000000FF" halign="center" valign="center" action="war.admin.map.add" />
+                    <entry id="war-admin-entry-map-uid" pos="-66 -30" size="48 6" name="map_uid" default="" textsize="1.3" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
+                    <quad id="war-admin-map-add-uid" pos="-15 -30" size="22 6" bgcolor="D8D184FF" bgcolorfocus="FFF2A0FF" action="war.admin.map.add" scriptevents="1" />
+                    <label pos="-4 -33" text="ADD UID" textsize="1.2" textcolor="000000FF" halign="center" valign="center" />
                 {else}
                     <label pos="-66 -32" text="MAP POOL LOCKED UNTIL FINISH / CANCEL" textsize="1.15" textcolor="50CF84FF" />
                 {/if}
@@ -136,7 +136,7 @@
                 {foreach $maps->take(7) as $map}
                     <label pos="-63 {$iterator->counter * -5 - 40}" size="53 4" text="{$iterator->counter}. {$map->map_name}" textsize="1.1" textcolor="FFFFFFFF" />
                     {if $current->status == 'DRAFT'}
-                        <label pos="-7 {$iterator->counter * -5 - 40}" text="REMOVE" textsize="1" textcolor="F05D5EFF" action="war.admin.map.remove.{$iterator->counter}" />
+                        <label id="war-admin-map-remove-{$iterator->counter}" pos="-7 {$iterator->counter * -5 - 40}" size="16 4" text="REMOVE" textsize="1" textcolor="F05D5EFF" action="war.admin.map.remove.{$iterator->counter}" scriptevents="1" focusareacolor1="00000000" focusareacolor2="F05D5E55" />
                     {/if}
                 {/foreach}
                 <label pos="16 -24" text="SERVER MAPS ({$serverMapCount})" textsize="2" textcolor="D8D184FF" />
@@ -146,13 +146,21 @@
                         <label pos="68 {$iterator->counter * -6 - 25}" text="SELECTED" textsize="1" textcolor="D8D184FF" halign="right" />
                     {else}
                         {if $current->status == 'DRAFT'}
-                            <label pos="68 {$iterator->counter * -6 - 25}" text="+ ADD" textsize="1" textcolor="D8D184FF" halign="right" action="war.admin.map.add.server.{$iterator->counter}" />
+                            <label id="war-admin-server-map-{$iterator->counter}" pos="68 {$iterator->counter * -6 - 25}" size="16 4" text="+ ADD" textsize="1" textcolor="D8D184FF" halign="right" action="war.admin.map.add.server.{$iterator->counter}" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                         {/if}
                     {/if}
                 {/foreach}
-                <label pos="29 -79" text="&lt; PREV" textsize="1.2" textcolor="{$mapPage > 1 ? 'D8D184FF' : '666666FF'}" action="war.admin.maps.previous" />
+                {if $mapPage > 1}
+                    <label id="war-admin-map-page-prev" pos="29 -79" size="18 5" text="&lt; PREV" textsize="1.2" textcolor="D8D184FF" action="war.admin.maps.previous" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
+                {else}
+                    <label pos="29 -79" text="&lt; PREV" textsize="1.2" textcolor="666666FF" />
+                {/if}
                 <label pos="48 -79" text="PAGE {$mapPage} / {$mapPageCount}" textsize="1.1" textcolor="FFFFFFFF" halign="center" />
-                <label pos="68 -79" text="NEXT &gt;" textsize="1.2" textcolor="{$mapPage < $mapPageCount ? 'D8D184FF' : '666666FF'}" halign="right" action="war.admin.maps.next" />
+                {if $mapPage < $mapPageCount}
+                    <label id="war-admin-map-page-next" pos="68 -79" size="18 5" text="NEXT &gt;" textsize="1.2" textcolor="D8D184FF" halign="right" action="war.admin.maps.next" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
+                {else}
+                    <label pos="68 -79" text="NEXT &gt;" textsize="1.2" textcolor="666666FF" halign="right" />
+                {/if}
             {else}
                 <label pos="0 -42" text="Create a war before selecting maps." textsize="1.7" textcolor="A9B7C3FF" halign="center" />
             {/if}
@@ -161,19 +169,19 @@
         {if $tab == 'points'}
             <label pos="-66 -24" text="POINT SYSTEM" textsize="2" textcolor="D8D184FF" />
             {if $current}
-                <label pos="20 -24" text="LINEAR" textsize="1.3" textcolor="50CF84FF" action="war.admin.points.linear" />
-                <label pos="43 -24" text="COMPETITIVE" textsize="1.3" textcolor="D8D184FF" action="war.admin.points.competitive" />
+                <label id="war-admin-points-linear" pos="20 -24" size="18 5" text="LINEAR" textsize="1.3" textcolor="50CF84FF" action="war.admin.points.linear" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
+                <label id="war-admin-points-competitive" pos="43 -24" size="28 5" text="COMPETITIVE" textsize="1.3" textcolor="D8D184FF" action="war.admin.points.competitive" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 {foreach $points as $point}
                     {if $point->rank <= 8}
                         <label pos="-62 {$point->rank * -6 - 27}" text="LR {$point->rank}" textsize="1.2" textcolor="FFFFFFFF" />
-                        <entry pos="-48 {$point->rank * -6 - 25}" size="20 5" name="point_{$point->rank}" default="{$point->points}" textsize="1.2" />
+                        <entry id="war-admin-entry-point-{$point->rank}" pos="-48 {$point->rank * -6 - 25}" size="20 5" name="point_{$point->rank}" default="{$point->points}" textsize="1.2" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                     {else}
                         <label pos="2 {($point->rank - 8) * -6 - 27}" text="LR {$point->rank}" textsize="1.2" textcolor="FFFFFFFF" />
-                        <entry pos="18 {($point->rank - 8) * -6 - 25}" size="20 5" name="point_{$point->rank}" default="{$point->points}" textsize="1.2" />
+                        <entry id="war-admin-entry-point-{$point->rank}" pos="18 {($point->rank - 8) * -6 - 25}" size="20 5" name="point_{$point->rank}" default="{$point->points}" textsize="1.2" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                     {/if}
                 {/foreach}
-                <quad pos="45 -76" size="24 7" bgcolor="D8D184FF" action="war.admin.points.save" />
-                <label pos="57 -79.5" text="SAVE" textsize="1.3" textcolor="000000FF" halign="center" valign="center" action="war.admin.points.save" />
+                <quad id="war-admin-points-save" pos="45 -76" size="24 7" bgcolor="D8D184FF" bgcolorfocus="FFF2A0FF" action="war.admin.points.save" scriptevents="1" />
+                <label pos="57 -79.5" text="SAVE" textsize="1.3" textcolor="000000FF" halign="center" valign="center" />
             {else}
                 <label pos="0 -42" text="Create a war before editing points." textsize="1.7" textcolor="A9B7C3FF" halign="center" />
             {/if}
@@ -193,8 +201,8 @@
                     <label pos="5 {$iterator->counter * -5 - 34}" text="{$entry->total_points}" textsize="1" textcolor="FFFFFFFF" halign="right" />
                     <label pos="16 {$iterator->counter * -5 - 34}" text="{$entry->online ? 'ONLINE' : 'OFFLINE'}" textsize="0.9" textcolor="{$entry->online ? '50CF84FF' : '778692FF'}" />
                     <label pos="38 {$iterator->counter * -5 - 34}" size="18 4" text="{$entry->joined_at}" textsize="0.75" textcolor="FFFFFFFF" />
-                    <quad pos="57 {$iterator->counter * -5 - 32.8}" size="14 3.2" bgcolor="F05D5E22" action="war.admin.player.reset.{$iterator->counter}" />
-                    <label pos="64 {$iterator->counter * -5 - 34}" text="RESET TEAM" textsize="0.75" textcolor="F05D5EFF" action="war.admin.player.reset.{$iterator->counter}" halign="center" />
+                    <quad id="war-admin-player-reset-{$iterator->counter}" pos="57 {$iterator->counter * -5 - 32.8}" size="14 3.2" bgcolor="F05D5E22" bgcolorfocus="F05D5E88" action="war.admin.player.reset.{$iterator->counter}" scriptevents="1" />
+                    <label pos="64 {$iterator->counter * -5 - 34}" text="RESET TEAM" textsize="0.75" textcolor="F05D5EFF" halign="center" />
                 {/foreach}
                 <label pos="-60 -82" text="UNASSIGNED ONLINE: {$unassigned->count()}" textsize="1" textcolor="F05D5EFF" />
             {/if}
@@ -219,29 +227,99 @@
                 {else}
                     <label pos="45 -6" text="CONFIRM {$confirmAction} WAR?" textsize="2" textcolor="F05D5EFF" halign="center" />
                 {/if}
-                <label pos="20 -16" text="BACK" textsize="1.5" textcolor="FFFFFFFF" halign="center" action="war.admin.overview" />
+                <label id="war-admin-confirm-back" pos="20 -16" size="26 6" text="BACK" textsize="1.5" textcolor="FFFFFFFF" halign="center" action="war.admin.overview" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 {if $confirmAction == 'start'}
-                    <label pos="68 -16" text="CONFIRM" textsize="1.5" textcolor="50CF84FF" halign="center" action="war.admin.confirm.start" />
+                    <label id="war-admin-confirm-yes" pos="68 -16" size="30 6" text="CONFIRM" textsize="1.5" textcolor="50CF84FF" halign="center" action="war.admin.confirm.start" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 {/if}
                 {if $confirmAction == 'pause'}
-                    <label pos="68 -16" text="CONFIRM" textsize="1.5" textcolor="D8D184FF" halign="center" action="war.admin.confirm.pause" />
+                    <label id="war-admin-confirm-yes" pos="68 -16" size="30 6" text="CONFIRM" textsize="1.5" textcolor="D8D184FF" halign="center" action="war.admin.confirm.pause" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 {/if}
                 {if $confirmAction == 'resume'}
-                    <label pos="68 -16" text="CONFIRM" textsize="1.5" textcolor="50CF84FF" halign="center" action="war.admin.confirm.resume" />
+                    <label id="war-admin-confirm-yes" pos="68 -16" size="30 6" text="CONFIRM" textsize="1.5" textcolor="50CF84FF" halign="center" action="war.admin.confirm.resume" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 {/if}
                 {if $confirmAction == 'finish'}
-                    <label pos="68 -16" text="CONFIRM" textsize="1.5" textcolor="F05D5EFF" halign="center" action="war.admin.confirm.finish" />
+                    <label id="war-admin-confirm-yes" pos="68 -16" size="30 6" text="CONFIRM" textsize="1.5" textcolor="F05D5EFF" halign="center" action="war.admin.confirm.finish" scriptevents="1" focusareacolor1="00000000" focusareacolor2="F05D5E55" />
                 {/if}
                 {if $confirmAction == 'cancel'}
-                    <label pos="68 -16" text="CONFIRM" textsize="1.5" textcolor="F05D5EFF" halign="center" action="war.admin.confirm.cancel" />
+                    <label id="war-admin-confirm-yes" pos="68 -16" size="30 6" text="CONFIRM" textsize="1.5" textcolor="F05D5EFF" halign="center" action="war.admin.confirm.cancel" scriptevents="1" focusareacolor1="00000000" focusareacolor2="F05D5E55" />
                 {/if}
                 {if $confirmAction == 'scoring_pause'}
-                    <label pos="68 -16" text="PAUSE SCORING" textsize="1.2" textcolor="E4DA72FF" halign="center" action="war.admin.confirm.scoring.pause" />
+                    <label id="war-admin-confirm-yes" pos="68 -16" size="34 6" text="PAUSE SCORING" textsize="1.2" textcolor="E4DA72FF" halign="center" action="war.admin.confirm.scoring.pause" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 {/if}
                 {if $confirmAction == 'scoring_resume'}
-                    <label pos="68 -16" text="RESUME SCORING" textsize="1.2" textcolor="50CF84FF" halign="center" action="war.admin.confirm.scoring.resume" />
+                    <label id="war-admin-confirm-yes" pos="68 -16" size="36 6" text="RESUME SCORING" textsize="1.2" textcolor="50CF84FF" halign="center" action="war.admin.confirm.scoring.resume" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
                 {/if}
             </frame>
         {/if}
+        <label id="war-admin-back" pos="0 -89" size="128 4" text="A / ENTER  SELECT     B / ESC  BACK     LB / RB  TABS" textsize="0.68" textcolor="888888FF" halign="center" action="{$backAction}" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7244" />
     </frame>
+    <script><!--
+        main()
+        {
+            declare BackControl = Page.GetFirstChild("war-admin-back");
+            declare DefaultControl = Page.GetFirstChild("{$defaultFocusId}");
+            declare persistent Text P_WarAdminFocusOverview for LocalUser = "";
+            declare persistent Text P_WarAdminFocusMaps for LocalUser = "";
+            declare persistent Text P_WarAdminFocusCreate for LocalUser = "";
+            declare persistent Text P_WarAdminFocusPoints for LocalUser = "";
+            declare persistent Text P_WarAdminFocusLogs for LocalUser = "";
+            declare persistent Text P_WarAdminFocusRotation for LocalUser = "";
+            declare persistent Text P_WarAdminFocusPlayers for LocalUser = "";
+            declare persistent Text P_WarAdminFocusConfirm for LocalUser = "";
+            declare PageKey = "{$confirmAction ? 'confirm' : $tab}";
+            declare SavedFocusId = "";
+            if (PageKey == "overview") SavedFocusId = P_WarAdminFocusOverview;
+            else if (PageKey == "maps") SavedFocusId = P_WarAdminFocusMaps;
+            else if (PageKey == "create") SavedFocusId = P_WarAdminFocusCreate;
+            else if (PageKey == "points") SavedFocusId = P_WarAdminFocusPoints;
+            else if (PageKey == "logs") SavedFocusId = P_WarAdminFocusLogs;
+            else if (PageKey == "rotation") SavedFocusId = P_WarAdminFocusRotation;
+            else if (PageKey == "players") SavedFocusId = P_WarAdminFocusPlayers;
+            else if (PageKey == "confirm") SavedFocusId = P_WarAdminFocusConfirm;
+
+            EnableMenuNavigation(True, True, True, BackControl, 100);
+            declare InitialControl = Page.GetFirstChild(SavedFocusId);
+            if (InitialControl != Null) InitialControl.Focus();
+            else if (DefaultControl != Null) DefaultControl.Focus();
+
+            while (True)
+            {
+                yield;
+                if (PageKey == "confirm" && Page.FocusedControl != Null &&
+                    Page.FocusedControl.ControlId != "war-admin-confirm-back" &&
+                    Page.FocusedControl.ControlId != "war-admin-confirm-yes" &&
+                    Page.FocusedControl.ControlId != "war-admin-back")
+                {
+                    if (DefaultControl != Null) DefaultControl.Focus();
+                }
+                if (Page.FocusedControl != Null && Page.FocusedControl.ControlId != "")
+                {
+                    SavedFocusId = Page.FocusedControl.ControlId;
+                    if (PageKey == "overview") P_WarAdminFocusOverview = SavedFocusId;
+                    else if (PageKey == "maps") P_WarAdminFocusMaps = SavedFocusId;
+                    else if (PageKey == "create") P_WarAdminFocusCreate = SavedFocusId;
+                    else if (PageKey == "points") P_WarAdminFocusPoints = SavedFocusId;
+                    else if (PageKey == "logs") P_WarAdminFocusLogs = SavedFocusId;
+                    else if (PageKey == "rotation") P_WarAdminFocusRotation = SavedFocusId;
+                    else if (PageKey == "players") P_WarAdminFocusPlayers = SavedFocusId;
+                    else if (PageKey == "confirm") P_WarAdminFocusConfirm = SavedFocusId;
+                }
+                foreach (Event in PendingEvents)
+                {
+                    if (Event.Type == CMlScriptEvent::Type::MenuNavigation)
+                    {
+                        if (PageKey != "confirm" && Event.MenuNavAction == CMlScriptEvent::EMenuNavAction::PageUp)
+                            TriggerPageAction("{$previousTabAction}");
+                        else if (PageKey != "confirm" && Event.MenuNavAction == CMlScriptEvent::EMenuNavAction::PageDown)
+                            TriggerPageAction("{$nextTabAction}");
+                        if (Page.FocusedControl != Null) Page.ScrollToControl(Page.FocusedControl);
+                    }
+                    else if ((Event.Type == CMlScriptEvent::Type::MouseClick || Event.Type == CMlScriptEvent::Type::MouseOver) && Event.Control != Null)
+                    {
+                        Event.Control.Focus();
+                    }
+                }
+            }
+        }
+    --></script>
 </manialink>
