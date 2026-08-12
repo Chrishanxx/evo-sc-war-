@@ -133,6 +133,12 @@ final class WarStatsOverlay
                 $detailTeamBPoints = (int)$detailMap->team_b_points;
             }
         }
+        $backAction = $confirmTeam ? 'war.stats.team.cancel' : self::backAction($tab);
+        $tabActions = self::tabActions($tab);
+        $previousTabAction = $tabActions[0];
+        $nextTabAction = $tabActions[1];
+        $defaultFocusId = self::defaultFocusId($tab, $confirmTeam, $joinAvailable, $teamAFull, $teamBFull,
+            $visibleMapRows->isNotEmpty());
         self::$openTabs[$player->Login] = $tab;
 
         Template::hide($player, 'WarManagerPlayers');
@@ -146,7 +152,8 @@ final class WarStatsOverlay
             'currentMapName', 'currentMapValid', 'displayStatus', 'historyRows', 'teamABestPlayer',
             'teamBBestPlayer', 'teamAMapWins', 'teamBMapWins', 'teamARecordCount', 'teamBRecordCount',
             'teamACountLabel', 'teamBCountLabel', 'detailMap', 'detailTeamARows', 'detailTeamBRows',
-            'detailTeamAPoints', 'detailTeamBPoints'
+            'detailTeamAPoints', 'detailTeamBPoints', 'backAction', 'previousTabAction', 'nextTabAction',
+            'defaultFocusId'
         ));
     }
 
@@ -195,12 +202,15 @@ final class WarStatsOverlay
         $joinAvailable = !$assignment && $war->overlay_join_enabled && in_array($war->status, [WarState::DRAFT, WarState::ACTIVE], true);
         $confirmTeam = self::$confirmTeams[$player->Login] ?? '';
         $currentLogin = $player->Login;
+        $defaultFocusId = $confirmTeam !== '' ? 'war-players-confirm-back' :
+            (!$assignment && $joinAvailable && !$teamAFull ? 'war-players-join-a' :
+                (!$assignment && $joinAvailable && !$teamBFull ? 'war-players-join-b' : 'war-players-back'));
         self::$openTabs[$player->Login] = 'players-panel';
         Template::hide($player, 'WarManagerStats');
         WarAdminOverlay::close($player);
         Template::show($player, 'WarManager.players', compact(
             'war', 'teamARows', 'teamBRows', 'teamAMembers', 'teamBMembers', 'assignment',
-            'joinAvailable', 'teamAFull', 'teamBFull', 'confirmTeam', 'currentLogin'
+            'joinAvailable', 'teamAFull', 'teamBFull', 'confirmTeam', 'currentLogin', 'defaultFocusId'
         ));
     }
 
@@ -208,6 +218,12 @@ final class WarStatsOverlay
     {
         unset(self::$openTabs[$player->Login], self::$confirmTeams[$player->Login]);
         Template::hide($player, 'WarManagerPlayers');
+    }
+
+    public static function backFromPlayers(Player $player): void
+    {
+        self::closePlayers($player);
+        self::show($player, 'overview');
     }
 
     public static function openAdmin(Player $player): void
@@ -307,6 +323,59 @@ final class WarStatsOverlay
         $seconds = intdiv($milliseconds % 60000, 1000);
         $millis = $milliseconds % 1000;
         return sprintf('%d:%02d.%03d', $minutes, $seconds, $millis);
+    }
+
+    private static function backAction(string $tab): string
+    {
+        if ($tab === 'map-detail') {
+            return 'war.stats.maps';
+        }
+        return $tab === 'overview' ? 'war.stats.close' : 'war.stats.overview';
+    }
+
+    private static function tabActions(string $tab): array
+    {
+        if ($tab === 'overview') {
+            return ['war.stats.summary', 'war.stats.teams'];
+        }
+        if ($tab === 'teams') {
+            return ['war.stats.overview', 'war.stats.summary'];
+        }
+        return ['war.stats.teams', 'war.stats.overview'];
+    }
+
+    private static function defaultFocusId(
+        string $tab,
+        string $confirmTeam,
+        bool $joinAvailable,
+        bool $teamAFull,
+        bool $teamBFull,
+        bool $hasMapRows
+    ): string {
+        if ($confirmTeam !== '') {
+            return 'war-team-confirm-back';
+        }
+        if ($tab === 'teams' && $joinAvailable) {
+            if (!$teamAFull) {
+                return 'war-join-team-a';
+            }
+            if (!$teamBFull) {
+                return 'war-join-team-b';
+            }
+        }
+        if ($tab === 'maps' && $hasMapRows) {
+            return 'war-map-row-1';
+        }
+        if ($tab === 'map-detail') {
+            return 'war-map-detail-back';
+        }
+        $ids = [
+            'overview' => 'war-tab-overview',
+            'teams' => 'war-tab-teams',
+            'players' => 'war-stats-tab-players',
+            'maps' => 'war-stats-tab-maps',
+        ];
+        return $ids[$tab] ?? 'war-tab-overview';
     }
 
     private static function joinSelectedTeam(Player $player, string $team): void

@@ -46,6 +46,7 @@ class WarManager extends Module implements ModuleInterface
         ManiaLinkEvent::add('war.stats.show', [WarStatsOverlay::class, 'show']);
         ManiaLinkEvent::add('war.players.show', [WarStatsOverlay::class, 'players']);
         ManiaLinkEvent::add('war.players.close', [WarStatsOverlay::class, 'closePlayers']);
+        ManiaLinkEvent::add('war.players.back', [WarStatsOverlay::class, 'backFromPlayers']);
         ManiaLinkEvent::add('war.panel.admin', [WarStatsOverlay::class, 'openAdmin'], 'war_manage');
         ManiaLinkEvent::add('war.stats.close', [WarStatsOverlay::class, 'close']);
         ManiaLinkEvent::add('war.stats.overview', [WarStatsOverlay::class, 'overview']);

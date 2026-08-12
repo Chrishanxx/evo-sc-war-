@@ -1,6 +1,6 @@
 # EvoSC WarManager
 
-Current module version: **0.11.0**. Active and paused wars now enforce the configured WAR map pool as the Dedicated Server's exclusive repeating playlist. The original MatchSettings and ordered map selection are backed up persistently before the first start, restored on finish/cancel, and recovered after EvoSC or Dedicated Server reconnects. A next/current-map guard corrects foreign map changes, while the existing scoring guard continues to reject records outside the WAR pool. MatchSettings continue to use only `Trackmania/TM_TimeAttack_Online.Script.txt`.
+Current module version: **0.12.0**. Player and administrator windows now support Trackmania's native menu navigation for gamepads, keyboard and mouse. Focus is preserved independently for every player and page, confirmation dialogs default to the safe back action, long lists follow the current focus, and LB/RB switch tabs. Active and paused wars continue to enforce the configured WAR map pool as the Dedicated Server's exclusive repeating playlist. MatchSettings continue to use only `Trackmania/TM_TimeAttack_Online.Script.txt`.
 
 External WarManager module for the classic PHP release of EvoSC and Trackmania 2020.
 It keeps `Trackmania/TM_TimeAttack_Online.Script.txt` untouched and calculates a
@@ -53,6 +53,9 @@ unrestricted MasterAdmin group receives access automatically.
 - Confirmed lifecycle actions and pause-aware war timing
 - EvoSC access rights and a QuickButtons entry
 - Audit log for state and configuration changes
+- Native gamepad and keyboard navigation in the player, team, map and protected admin windows
+- D-pad or stick navigation, A/Enter selection, B/Escape back and LB/RB tab switching
+- Stable per-player focus restoration across live overlay refreshes and safe confirmation defaults
 
 WarManager deliberately keeps the server on `Trackmania/TM_TimeAttack_Online.Script.txt` and never introduces
 a separate Trackmania ModeScript. Players may join either team only while the war is `ACTIVE`. Once stored,
@@ -69,6 +72,22 @@ or restore work from `war-rotation-backups`.
 
 Public statistics and administration are deliberately separate. The player window contains no
 management actions; `//war admin` opens the protected configuration and lifecycle controls.
+
+## Controller and console operation
+
+Open the player window with `/war`. An unassigned player can also use `/war join TEAM`; after the
+nickname/team operation succeeds, the player window opens with the confirmed assignment. Administrators
+open the protected window with `//war admin`.
+
+- D-pad or left stick: move the visible focus
+- A or Enter: activate the focused button or edit the focused field
+- B or Escape: cancel a dialog, return to the parent page, or close the window
+- LB/RB or Page Up/Page Down: move between top-level tabs
+
+Disabled pagination and unavailable team actions are not focusable. Focused controls receive the yellow
+WarManager highlight, and page changes or live data refreshes restore the last valid focus for that player.
+The compact live score widget intentionally remains non-interactive so it never captures driving input.
+This UI support does not change TimeAttack, scoring, team locks, map rotation or the Dedicated Server script.
 
 ## Development checks
 

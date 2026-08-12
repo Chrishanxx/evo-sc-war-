@@ -72,12 +72,18 @@ final class WarAdminOverlay
         $rotationMapCount = (int)$rotationValidation['count'];
         $rotationValidCount = (int)$rotationValidation['valid'];
         $rotationHasMissing = !empty($rotationValidation['missing']);
+        $navigation = self::navigationActions($tab);
+        $backAction = $confirmAction !== '' || $tab !== 'overview' ? 'war.admin.overview' : 'war.admin.close';
+        $previousTabAction = $navigation[0];
+        $nextTabAction = $navigation[1];
+        $defaultFocusId = $confirmAction !== '' ? 'war-admin-confirm-back' : self::defaultFocusId($tab);
         self::$openTabs[$player->Login] = $tab;
 
         Template::show($player, 'WarManager.admin', compact(
             'tab', 'war', 'current', 'maps', 'players', 'points', 'logs', 'serverMaps', 'unassigned',
             'teamAPoints', 'teamBPoints', 'timeLeft', 'ready', 'confirmAction', 'serverMapCount', 'scoringPaused',
-            'mapPage', 'mapPageCount', 'rotationMapCount', 'rotationValidCount', 'rotationHasMissing'
+            'mapPage', 'mapPageCount', 'rotationMapCount', 'rotationValidCount', 'rotationHasMissing',
+            'backAction', 'previousTabAction', 'nextTabAction', 'defaultFocusId'
         ));
     }
 
@@ -345,5 +351,40 @@ final class WarAdminOverlay
     private static function toBool($value): bool
     {
         return in_array(strtolower((string)$value), ['1', 'true', 'yes', 'on'], true);
+    }
+
+    private static function navigationActions(string $tab): array
+    {
+        $tabs = ['overview', 'maps', 'create', 'points', 'logs'];
+        $actions = [
+            'overview' => 'war.admin.overview',
+            'maps' => 'war.admin.maps',
+            'create' => 'war.admin.create.tab',
+            'points' => 'war.admin.points',
+            'logs' => 'war.admin.logs',
+        ];
+        $index = array_search($tab, $tabs, true);
+        if ($index === false) {
+            return ['war.admin.overview', 'war.admin.overview'];
+        }
+        $count = count($tabs);
+        return [
+            $actions[$tabs[($index + $count - 1) % $count]],
+            $actions[$tabs[($index + 1) % $count]],
+        ];
+    }
+
+    private static function defaultFocusId(string $tab): string
+    {
+        $ids = [
+            'overview' => 'war-admin-tab-overview',
+            'maps' => 'war-admin-tab-maps',
+            'create' => 'war-admin-tab-create',
+            'points' => 'war-admin-tab-points',
+            'logs' => 'war-admin-tab-logs',
+            'rotation' => 'war-admin-rotation-save',
+            'players' => 'war-admin-back',
+        ];
+        return $ids[$tab] ?? 'war-admin-tab-overview';
     }
 }

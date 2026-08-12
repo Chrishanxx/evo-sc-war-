@@ -7,7 +7,7 @@
         <quad pos="-50 0" size="100 68" bgcolor="131313F7" />
         <quad pos="-50 0" size="100 0.4" bgcolor="E4DA72CC" />
         <label pos="-46 -5" text="PLAYERS" textsize="1.65" textcolor="E4DA72FF" valign="center" />
-        <label pos="46 -5" text="X" textsize="1.8" textcolor="F5F5F5FF" halign="center" valign="center" action="war.players.close" />
+        <label id="war-players-back" pos="46 -5" size="8 5" text="X" textsize="1.8" textcolor="F5F5F5FF" halign="center" valign="center" action="war.players.back" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7266" />
         <quad pos="-46 -9" size="92 0.25" bgcolor="333333FF" />
 
         <label pos="-42 -15" size="30 4" text="{$war->team_a}" textsize="1.45" textcolor="F5F5F5FF" />
@@ -30,12 +30,12 @@
         {if !$assignment and $joinAvailable}
             <label pos="0 -57" text="YOU ARE NOT ASSIGNED TO A TEAM" textsize="0.9" textcolor="A6A6A6FF" halign="center" />
             {if !$teamAFull}
-                <quad pos="-42 -60" size="39 5" bgcolor="222222FF" action="war.stats.join.a" />
-                <label pos="-22.5 -62.5" text="JOIN {$war->team_a}" textsize="0.9" textcolor="E4DA72FF" halign="center" valign="center" action="war.stats.join.a" />
+                <quad id="war-players-join-a" pos="-42 -60" size="39 5" bgcolor="222222FF" bgcolorfocus="5A5000FF" action="war.stats.join.a" scriptevents="1" />
+                <label pos="-22.5 -62.5" text="JOIN {$war->team_a}" textsize="0.9" textcolor="E4DA72FF" halign="center" valign="center" />
             {/if}
             {if !$teamBFull}
-                <quad pos="3 -60" size="39 5" bgcolor="222222FF" action="war.stats.join.b" />
-                <label pos="22.5 -62.5" text="JOIN {$war->team_b}" textsize="0.9" textcolor="E4DA72FF" halign="center" valign="center" action="war.stats.join.b" />
+                <quad id="war-players-join-b" pos="3 -60" size="39 5" bgcolor="222222FF" bgcolorfocus="5A5000FF" action="war.stats.join.b" scriptevents="1" />
+                <label pos="22.5 -62.5" text="JOIN {$war->team_b}" textsize="0.9" textcolor="E4DA72FF" halign="center" valign="center" />
             {/if}
         {/if}
 
@@ -45,9 +45,49 @@
                 <quad pos="0 0" size="74 0.35" bgcolor="E4DA72FF" />
                 <label pos="37 -6" text="JOIN {$confirmTeam}" textsize="1.35" textcolor="E4DA72FF" halign="center" />
                 <label pos="37 -11" text="This team assignment is permanent for this war." textsize="0.82" textcolor="F5F5F5FF" halign="center" />
-                <label pos="18 -19" text="CANCEL" textsize="0.95" textcolor="A6A6A6FF" halign="center" action="war.stats.team.cancel" />
-                <label pos="56 -19" text="CONFIRM" textsize="0.95" textcolor="E4DA72FF" halign="center" action="war.stats.team.confirm" />
+                <label id="war-players-confirm-back" pos="18 -19" size="24 5" text="CANCEL" textsize="0.95" textcolor="A6A6A6FF" halign="center" action="war.stats.team.cancel" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
+                <label id="war-players-confirm-yes" pos="56 -19" size="24 5" text="CONFIRM" textsize="0.95" textcolor="E4DA72FF" halign="center" action="war.stats.team.confirm" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7255" />
             </frame>
         {/if}
+        <label id="war-controller-back" pos="0 -66" size="86 4" text="A / ENTER  SELECT     B / ESC  BACK" textsize="0.62" textcolor="888888FF" halign="center" action="{$confirmTeam ? 'war.stats.team.cancel' : 'war.players.back'}" scriptevents="1" focusareacolor1="00000000" focusareacolor2="E4DA7244" />
     </frame>
+    <script><!--
+        main()
+        {
+            declare BackControl = Page.GetFirstChild("war-controller-back");
+            declare DefaultControl = Page.GetFirstChild("{$defaultFocusId}");
+            declare persistent Text P_WarPlayersFocus for LocalUser = "";
+            declare persistent Text P_WarPlayersFocusConfirm for LocalUser = "";
+            declare PageKey = "{$confirmTeam ? 'confirm' : 'players'}";
+            EnableMenuNavigation(True, True, True, BackControl, 100);
+            declare SavedFocusId = PageKey == "confirm" ? P_WarPlayersFocusConfirm : P_WarPlayersFocus;
+            declare InitialControl = Page.GetFirstChild(SavedFocusId);
+            if (InitialControl != Null) InitialControl.Focus();
+            else if (DefaultControl != Null) DefaultControl.Focus();
+
+            while (True)
+            {
+                yield;
+                if (PageKey == "confirm" && Page.FocusedControl != Null &&
+                    Page.FocusedControl.ControlId != "war-players-confirm-back" &&
+                    Page.FocusedControl.ControlId != "war-players-confirm-yes" &&
+                    Page.FocusedControl.ControlId != "war-controller-back")
+                {
+                    if (DefaultControl != Null) DefaultControl.Focus();
+                }
+                if (Page.FocusedControl != Null && Page.FocusedControl.ControlId != "")
+                {
+                    if (PageKey == "confirm") P_WarPlayersFocusConfirm = Page.FocusedControl.ControlId;
+                    else P_WarPlayersFocus = Page.FocusedControl.ControlId;
+                }
+                foreach (Event in PendingEvents)
+                {
+                    if (Event.Type == CMlScriptEvent::Type::MenuNavigation && Page.FocusedControl != Null)
+                        Page.ScrollToControl(Page.FocusedControl);
+                    else if ((Event.Type == CMlScriptEvent::Type::MouseClick || Event.Type == CMlScriptEvent::Type::MouseOver) && Event.Control != Null)
+                        Event.Control.Focus();
+                }
+            }
+        }
+    --></script>
 </manialink>
