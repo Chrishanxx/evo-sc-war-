@@ -1,10 +1,32 @@
 # EvoSC WarManager
 
-Current module version: **0.12.0**. Player and administrator windows now support Trackmania's native menu navigation for gamepads, keyboard and mouse. Focus is preserved independently for every player and page, confirmation dialogs default to the safe back action, long lists follow the current focus, and LB/RB switch tabs. Active and paused wars continue to enforce the configured WAR map pool as the Dedicated Server's exclusive repeating playlist. MatchSettings continue to use only `Trackmania/TM_TimeAttack_Online.Script.txt`.
+Current module version: **0.13.0**. Player and administrator windows now support Trackmania's native menu navigation for gamepads, keyboard and mouse. Focus is preserved independently for every player and page, confirmation dialogs default to the safe back action, long lists follow the current focus, and LB/RB switch tabs. Active and paused wars continue to enforce the configured WAR map pool as the Dedicated Server's exclusive repeating playlist. MatchSettings continue to use only `Trackmania/TM_TimeAttack_Online.Script.txt`.
 
 External WarManager module for the classic PHP release of EvoSC and Trackmania 2020.
 It keeps `Trackmania/TM_TimeAttack_Online.Script.txt` untouched and calculates a
 long-running two-team competition from records driven during the active war.
+
+## Optional website snapshot sync
+
+Version 0.13 can publish read-only JSON snapshots of the existing WarManager tables to an HTTPS endpoint. The
+publisher never creates tables and never writes website state back to EvoSC. It runs from the existing 30-second
+WarManager timer, sends only when the snapshot changes, signs the exact request body with HMAC-SHA256 and cannot
+interrupt scoring when the remote website is unavailable.
+
+Configure `website-sync` in `WarManager/war-manager.config.json`:
+
+```json
+{
+  "enabled": true,
+  "endpoint": "https://www.scrimwarhub.dedyn.io/api/war-snapshot",
+  "secret": "replace-with-a-long-random-secret",
+  "history-limit": 20
+}
+```
+
+For deployments that support environment variables, prefer `WAR_MANAGER_SYNC_SECRET` and leave `secret` empty in
+the JSON file. The receiving endpoint must verify the `X-War-Signature: sha256=<hex>` header against the raw body.
+Only HTTPS endpoints are accepted. Records, players, maps and up to 50 recent wars are included in each snapshot.
 
 ## Compatibility
 
