@@ -1,8 +1,9 @@
 <?php
 
-namespace EvoSC\Modules\WarManager\Classes;
+namespace EvoSC\Modules\WarApiBridge\Classes;
 
 use EvoSC\Classes\DB;
+use EvoSC\Modules\WarManager\Classes\WarState;
 
 final class WarSnapshotExporter
 {

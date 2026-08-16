@@ -1,32 +1,40 @@
 # EvoSC WarManager
 
-Current module version: **0.13.0**. Player and administrator windows now support Trackmania's native menu navigation for gamepads, keyboard and mouse. Focus is preserved independently for every player and page, confirmation dialogs default to the safe back action, long lists follow the current focus, and LB/RB switch tabs. Active and paused wars continue to enforce the configured WAR map pool as the Dedicated Server's exclusive repeating playlist. MatchSettings continue to use only `Trackmania/TM_TimeAttack_Online.Script.txt`.
+Current WarManager version: **0.14.0**. Website transport has moved into the separate **WarApiBridge 0.1.0** module. WarManager now performs only game, scoring, rotation, UI and local database work; it never waits for an external HTTP request.
 
 External WarManager module for the classic PHP release of EvoSC and Trackmania 2020.
 It keeps `Trackmania/TM_TimeAttack_Online.Script.txt` untouched and calculates a
 long-running two-team competition from records driven during the active war.
 
-## Optional website snapshot sync
+## Optional lag-safe website snapshot sync
 
-Version 0.13 can publish read-only JSON snapshots of the existing WarManager tables to an HTTPS endpoint. The
-publisher never creates tables and never writes website state back to EvoSC. It runs from the existing 30-second
-WarManager timer, sends only when the snapshot changes, signs the exact request body with HMAC-SHA256 and cannot
-interrupt scoring when the remote website is unavailable.
+WarApiBridge publishes read-only JSON snapshots of the existing WarManager tables to an HTTPS endpoint. WarManager
+only emits an in-memory change signal. On its own timer, WarApiBridge creates a deduplicated database outbox entry and advances its cURL
+multi request in short, non-blocking timer ticks. It never waits in the WarManager timer, map hooks, scoring hooks or
+player commands. Failed deliveries remain in the outbox and use capped exponential retry delays. Since every payload
+is a complete snapshot, obsolete unsent entries are collapsed automatically.
 
-Configure `website-sync` in `WarManager/war-manager.config.json`:
+Copy both `WarManager/` and `WarApiBridge/` into EvoSC, run migrations, and configure
+`WarApiBridge/war-api-bridge.config.json`:
 
 ```json
 {
   "enabled": true,
   "endpoint": "https://www.scrimwarhub.dedyn.io/api/war-snapshot",
   "secret": "replace-with-a-long-random-secret",
-  "history-limit": 20
+  "history-limit": 20,
+  "queue-limit": 20,
+  "retry-base-seconds": 5,
+  "request-timeout-ms": 5000,
+  "force-ipv4": true
 }
 ```
 
 For deployments that support environment variables, prefer `WAR_MANAGER_SYNC_SECRET` and leave `secret` empty in
 the JSON file. The receiving endpoint must verify the `X-War-Signature: sha256=<hex>` header against the raw body.
 Only HTTPS endpoints are accepted. Records, players, maps and up to 50 recent wars are included in each snapshot.
+The bridge requires PHP's cURL extension with `curl_multi` support. `force-ipv4` avoids broken IPv6 routes on game
+server hosts while leaving the public website domain unchanged.
 
 ## Compatibility
 
@@ -40,8 +48,9 @@ module layout of EvoSC# are incompatible with the PHP module described here.
 
 ## Install
 
-Copy `WarManager/` to `<evosc>/core/Modules/WarManager`, run EvoSC migrations, enable the module,
-then restart EvoSC. The normal TimeAttack mode remains active.
+Copy `WarManager/` and `WarApiBridge/` to `<evosc>/core/Modules/`, run EvoSC migrations, enable both modules,
+then restart EvoSC. The normal TimeAttack mode remains active. Existing `website-sync` settings from
+`WarManager/war-manager.config.json` must be moved to `WarApiBridge/war-api-bridge.config.json`.
 
 Assign the registered `war_manage`, `war_start`, `war_maps`,
 `war_points` and `war_players` rights through EvoSC's Group Manager. The
