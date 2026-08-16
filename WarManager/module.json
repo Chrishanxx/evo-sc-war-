@@ -1,8 +1,8 @@
 {
-  "version": "0.13.0",
+  "version": "0.14.0",
   "authors": [
     "Chrishanxx"
   ],
   "name": "WarManager",
-  "description": "Persistent two-team wars based on records driven during TimeAttack."
+  "description": "Persistent two-team wars based on records driven during TimeAttack, without external HTTP work."
 }

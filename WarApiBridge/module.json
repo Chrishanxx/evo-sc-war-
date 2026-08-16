@@ -1,0 +1,8 @@
+{
+  "version": "0.1.0",
+  "authors": [
+    "Chrishanxx"
+  ],
+  "name": "WarApiBridge",
+  "description": "Queued, non-blocking website snapshot delivery for WarManager."
+}

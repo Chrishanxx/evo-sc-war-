@@ -18,7 +18,6 @@ use EvoSC\Modules\WarManager\Classes\RecordService;
 use EvoSC\Modules\WarManager\Classes\ScrimRotationService;
 use EvoSC\Modules\WarManager\Classes\WarAdminOverlay;
 use EvoSC\Modules\WarManager\Classes\WarRepository;
-use EvoSC\Modules\WarManager\Classes\WarSnapshotPublisher;
 use EvoSC\Modules\WarManager\Classes\WarState;
 use EvoSC\Modules\WarManager\Classes\WarStatsOverlay;
 use EvoSC\Modules\WarManager\Classes\WarLiveScoreWidget;
@@ -144,11 +143,7 @@ class WarManager extends Module implements ModuleInterface
             }
         }
         self::refreshOverlays();
-        try {
-            WarSnapshotPublisher::publish();
-        } catch (Throwable $error) {
-            // Website sync must never interrupt scoring, rotation or player UI updates.
-        }
+        Hook::fire('WarDataChanged');
     }
 
     public static function beginMap(): void

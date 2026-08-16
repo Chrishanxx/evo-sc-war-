@@ -1,0 +1,10 @@
+{
+  "enabled": false,
+  "endpoint": "https://www.scrimwarhub.dedyn.io/api/war-snapshot",
+  "secret": "",
+  "history-limit": 20,
+  "queue-limit": 20,
+  "retry-base-seconds": 5,
+  "request-timeout-ms": 5000,
+  "force-ipv4": true
+}

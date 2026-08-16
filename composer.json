@@ -6,7 +6,10 @@
   "require": { "php": "^7.4" },
   "require-dev": { "phpunit/phpunit": "^9.6" },
   "autoload": {
-    "psr-4": { "EvoSC\\Modules\\WarManager\\": "WarManager/" }
+    "psr-4": {
+      "EvoSC\\Modules\\WarManager\\": "WarManager/",
+      "EvoSC\\Modules\\WarApiBridge\\": "WarApiBridge/"
+    }
   },
   "scripts": { "test": "phpunit" }
 }
