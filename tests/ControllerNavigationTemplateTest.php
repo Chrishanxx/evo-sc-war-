@@ -65,6 +65,6 @@ final class ControllerNavigationTemplateTest extends TestCase
             true
         );
 
-        self::assertSame('0.13.0', $module['version']);
+        self::assertSame('0.14.0', $module['version']);
     }
 }
